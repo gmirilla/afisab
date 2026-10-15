@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Lato', ui-sans-serif, system-ui, sans-serif;
+    --color-brand-50: #eef7f1;
+    --color-brand-600: #0b6b36;
+    --color-brand-700: #08532a;
+    --color-brand-800: #063f20;
+    --color-gold-500: #c9a227;
+    --color-gold-600: #a8861b;
+}

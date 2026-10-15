@@ -1,0 +1,19 @@
+---
+# cPanel "Git Version Control" deployment template (copy to the repository root as .cpanel.yml).
+# It runs every time you click "Deploy HEAD Commit". Replace USER and the PHP path (see crontab.txt).
+#
+# NOTE: public/build (the compiled CSS/JS) is git-ignored. Either build it in CI and commit it to a "release"
+# branch, or skip this file and upload the zip made by deploy/build-release.ps1 instead (recommended for a first launch).
+deployment:
+  tasks:
+    - export APP=/home/USER/afisab
+    - export PHP=/opt/cpanel/ea-php84/root/usr/bin/php
+    - /bin/mkdir -p $APP
+    - /usr/bin/rsync -a --delete --exclude=.git --exclude=.env --exclude=storage --exclude=node_modules ./ $APP/
+    - cd $APP && $PHP /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader --no-interaction
+    - cd $APP && $PHP artisan migrate --force
+    - cd $APP && $PHP artisan config:cache
+    - cd $APP && $PHP artisan route:cache
+    - cd $APP && $PHP artisan view:cache
+    - /usr/bin/rsync -a $APP/public/ /home/USER/public_html/ --exclude=index.php
+    - /bin/cp $APP/deploy/index.php.cpanel /home/USER/public_html/index.php

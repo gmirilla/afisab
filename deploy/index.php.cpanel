@@ -1,0 +1,34 @@
+<?php
+
+/*
+| Front controller for cPanel layouts where the web root (public_html) is separate from the application folder.
+|
+|   /home/USER/afisab/        the application (app, vendor, .env, storage ...)   <- NOT web-accessible
+|   /home/USER/public_html/   the contents of afisab/public, with THIS file as index.php
+|
+| If your folder is not called "afisab", change APP_DIR below.
+*/
+
+use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
+
+$appDir = __DIR__.'/../afisab';
+
+// Determine if the application is in maintenance mode...
+if (file_exists($maintenance = $appDir.'/storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+
+// Register the Composer autoloader...
+require $appDir.'/vendor/autoload.php';
+
+// Bootstrap Laravel and handle the request...
+/** @var Application $app */
+$app = require_once $appDir.'/bootstrap/app.php';
+
+// The web root is this folder, not <app>/public: without this Laravel cannot find build/manifest.json and every page fails.
+$app->usePublicPath(__DIR__);
+
+$app->handleRequest(Request::capture());

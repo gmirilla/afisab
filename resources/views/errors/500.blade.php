@@ -1,0 +1,5 @@
+@extends('errors::layout')
+@section('title', 'Something went wrong')
+@section('code', '500')
+@section('heading', 'Something went wrong')
+@section('message', 'We could not complete that. The problem has been recorded. Please try again shortly, and contact support if it continues.')

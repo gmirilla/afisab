@@ -1,0 +1,12 @@
+# cPanel -> Cron Jobs. Replace USER and the PHP path. Find the PHP path with:  which php   (or ask the host).
+# On cPanel hosts it usually looks like /opt/cpanel/ea-php84/root/usr/bin/php  (use the same PHP version the site uses).
+
+# 1. The scheduler: EVERY MINUTE. This runs the 27th profit calculation, maturity reminders, deadline reminders
+#    and the heartbeat the back office watches. Without it, none of those happen.
+* * * * * cd /home/USER/afisab && /opt/cpanel/ea-php84/root/usr/bin/php artisan schedule:run >> /dev/null 2>&1
+
+# 2. The queue: EVERY MINUTE. Sends the emails (payment confirmed, profit paid, approvals) in the background.
+* * * * * cd /home/USER/afisab && /opt/cpanel/ea-php84/root/usr/bin/php artisan queue:work --stop-when-empty --max-time=55 >> /dev/null 2>&1
+
+# 3. Backups: every night at 02:30. Keeps 30 days. Set GPG_RECIPIENT first if you want them encrypted.
+30 2 * * * cd /home/USER/afisab && sh deploy/backup.sh >> /home/USER/afisab-backups/backup.log 2>&1
