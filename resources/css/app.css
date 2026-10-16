@@ -7,10 +7,121 @@
 
 @theme {
     --font-sans: 'Lato', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
     --color-brand-50: #eef7f1;
+    --color-brand-100: #d7ecde;
     --color-brand-600: #0b6b36;
     --color-brand-700: #08532a;
     --color-brand-800: #063f20;
     --color-gold-500: #c9a227;
     --color-gold-600: #a8861b;
+}
+
+/* ---- Navigation ------------------------------------------------------------------------------ */
+
+@layer components {
+    .nav-link {
+        @apply flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-bold text-white/85 transition hover:bg-white/10 hover:text-white;
+    }
+    .nav-link.is-active {
+        @apply bg-white/10 text-white shadow-[inset_0_-2px_0_0_var(--color-gold-500)];
+    }
+
+    /* Desktop: floating panel. Mobile: the groups are listed open inside the slide-down menu. */
+    .dd-panel {
+        @apply hidden;
+    }
+    .dd-panel.open {
+        @apply block;
+    }
+    .dd-item {
+        @apply block rounded-md px-3 py-2 text-sm font-semibold transition;
+    }
+    @media (min-width: 64rem) {
+        .dd-panel {
+            @apply absolute left-0 top-full z-50 mt-2 min-w-52 rounded-xl border border-stone-200 bg-white p-1.5 text-gray-700 shadow-2xl shadow-brand-800/20 ring-1 ring-black/5;
+        }
+        .dd-item {
+            @apply hover:bg-brand-50 hover:text-brand-700;
+        }
+        .dd-item.is-active {
+            @apply bg-brand-50 text-brand-700;
+        }
+    }
+    @media (max-width: 63.999rem) {
+        .dd-panel {
+            @apply mb-1 ml-3 border-l border-white/15 pl-2;
+        }
+        .dd-panel.open {
+            @apply block;
+        }
+        .dd-item {
+            @apply text-white/80 hover:bg-white/10 hover:text-white;
+        }
+        .dd-item.is-active {
+            @apply text-gold-500;
+        }
+    }
+    .nav-panel {
+        display: none;
+    }
+    @media (min-width: 64rem) {
+        .nav-panel {
+            display: flex;
+        }
+    }
+    .nav-panel.open,
+    .nav-panel.always {
+        display: flex;
+    }
+    .nav-panel.always {
+        @apply bg-transparent p-0;
+        position: static;
+    }
+}
+
+/* ---- Page furniture: headings, tables, forms ------------------------------------------------- */
+
+@layer base {
+    main h1 {
+        font-family: var(--font-display);
+        letter-spacing: -0.01em;
+    }
+    main h1.text-2xl {
+        @apply text-3xl;
+    }
+    main h2 {
+        @apply tracking-tight;
+    }
+
+    main table thead {
+        @apply text-[11px] uppercase tracking-wider;
+    }
+    main table thead th {
+        @apply font-bold;
+    }
+    main table tbody tr {
+        @apply transition-colors;
+    }
+    main table tbody tr:hover {
+        @apply bg-brand-50/60;
+    }
+
+    input:not([type='checkbox'], [type='radio'], [type='file'], [type='hidden']),
+    select,
+    textarea {
+        @apply rounded-md border-gray-300 shadow-sm transition;
+    }
+    input:focus,
+    select:focus,
+    textarea:focus {
+        @apply border-brand-600 outline-none ring-2 ring-brand-600/20;
+    }
+
+    a {
+        @apply transition-colors;
+    }
+    ::selection {
+        @apply bg-gold-500/30;
+    }
 }
