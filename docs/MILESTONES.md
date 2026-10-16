@@ -155,6 +155,14 @@ Addendum, 2026-10-15: **ledger reversals** (`/admin/reversals`, `/admin/ledger/e
 - [x] Corrects the **ledger only**: it does not undo the payment, payout or other record behind the entry (the screen says so)
 - [x] 10 new tests
 
+Addendum, 2026-10-16: **payment bank accounts** (`/admin/bank-accounts`)
+
+- [x] Super-admin (`bank.manage`) adds and edits the accounts investors pay into; several can be active; each can carry a note
+- [x] Current password required on every save; 10-digit number validated; changes audited with old and new values
+- [x] Accounts are switched off, never deleted; the last active one cannot be switched off
+- [x] Investors see the active accounts on the payment page; the `AFISAB_BANK_*` settings are the fallback until the first account is saved; pre-flight checks the live accounts
+- [x] 6 new tests
+
 Outstanding, not engineering:
 
 - [ ] **Legal/regulatory sign-off** on investor wording, structure and KYC (DECISIONS.md Q5)

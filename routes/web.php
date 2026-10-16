@@ -196,6 +196,11 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::post('/kyc/{profile}/review', [Admin\KycController::class, 'review'])->name('kyc.review');
             });
 
+            Route::middleware('permission:bank.manage')->group(function () {
+                Route::get('/bank-accounts', [Admin\BankAccountController::class, 'index'])->name('bank-accounts');
+                Route::post('/bank-accounts', [Admin\BankAccountController::class, 'store'])->name('bank-accounts.store');
+                Route::put('/bank-accounts/{account}', [Admin\BankAccountController::class, 'update'])->name('bank-accounts.update');
+            });
             Route::middleware('permission:plans.manage')->group(function () {
                 Route::get('/plans', [Admin\PlanController::class, 'index'])->name('plans');
                 Route::post('/plans', [Admin\PlanController::class, 'store'])->name('plans.store');

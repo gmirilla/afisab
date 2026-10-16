@@ -80,10 +80,13 @@
             </x-card>
             <x-card>
                 <h2 class="font-black text-brand-700">Pay by bank transfer</h2>
-                @php($bank = config('afisab.bank'))
-                <p class="my-2 text-sm text-gray-600">Transfer exactly <strong>{{ Money::format($investment->amount) }}</strong> to:<br>
-                    {{ $bank['name'] }} · {{ $bank['account_number'] }}<br>{{ $bank['account_name'] }}<br>
-                    Narration: <span class="font-mono">{{ $investment->reference }}</span></p>
+                <p class="my-2 text-sm text-gray-600">Transfer exactly <strong>{{ Money::format($investment->amount) }}</strong> to:</p>
+                @forelse(app(\App\Services\Payments\BankAccounts::class)->active() as $bank)
+                    <p class="mb-2 text-sm text-gray-600">{{ $bank['name'] }} · {{ $bank['account_number'] }}<br>{{ $bank['account_name'] }}@if($bank['note'])<br><span class="text-xs italic">{{ $bank['note'] }}</span>@endif</p>
+                @empty
+                    <p class="mb-2 text-sm text-red-700">Bank transfer details are unavailable right now. Please pay online or contact us.</p>
+                @endforelse
+                <p class="mb-3 text-sm text-gray-600">Narration: <span class="font-mono">{{ $investment->reference }}</span></p>
                 <form method="POST" action="{{ route('investor.payments.transfer', $investment) }}">@csrf<x-btn variant="ghost">I have made the transfer</x-btn></form>
 
                 @foreach($investment->payments->where('method', PaymentMethod::Transfer)->whereIn('status', [PaymentStatus::Pending, PaymentStatus::AwaitingConfirmation]) as $p)

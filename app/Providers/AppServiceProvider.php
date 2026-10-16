@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\BankAccount;
 use App\Models\Buyer;
 use App\Models\CapitalPayout;
 use App\Models\CycleExpense;
@@ -74,6 +75,7 @@ class AppServiceProvider extends ServiceProvider
             'payroll_run' => PayrollRun::class,
             'distribution_line' => DistributionLine::class,
             'journal_entry' => JournalEntry::class,
+            'bank_account' => BankAccount::class,
         ]);
 
         Password::defaults(fn () => app()->isProduction()

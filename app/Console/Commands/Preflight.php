@@ -40,11 +40,9 @@ class Preflight extends Command
         $secret = (string) config('services.paystack.secret_key');
         $this->check('Paystack secret key is set', $secret !== '', 'PAYSTACK_SECRET_KEY', 'warn');
         $this->check('Paystack key is a LIVE key', $secret === '' || str_starts_with($secret, 'sk_live_'), $secret === '' ? 'no key' : 'starts with '.substr($secret, 0, 8), $production ? 'fail' : 'warn');
-        $bank = config('afisab.bank');
-        $bankReal = trim((string) $bank['name']) !== '' && ! str_starts_with((string) $bank['name'], 'Set ')
-            && preg_match('/^\d{10}$/', (string) $bank['account_number']) === 1 && $bank['account_number'] !== '0000000000'
-            && trim((string) $bank['account_name']) !== '';
-        $this->check('Bank transfer details are real', $bankReal, $bankReal ? "{$bank['name']} {$bank['account_number']}" : 'AFISAB_BANK_NAME / _ACCOUNT_NUMBER (10 digits) / _ACCOUNT_NAME are blank or placeholders', $production ? 'fail' : 'warn');
+        $banks = app(\App\Services\Payments\BankAccounts::class)->active();
+        $bankReal = $banks->isNotEmpty() && $banks->every(fn ($b) => \App\Services\Payments\BankAccounts::isReal($b));
+        $this->check('Bank transfer details are real', $bankReal, $bankReal ? $banks->map(fn ($b) => "{$b['name']} {$b['account_number']}")->implode(', ') : 'add real accounts under Treasury > Bank accounts (or AFISAB_BANK_* in .env): bank name, 10-digit number, account name', $production ? 'fail' : 'warn');
 
         $this->check('storage/ is writable', is_writable(storage_path()) && is_writable(base_path('bootstrap/cache')), 'storage and bootstrap/cache', 'fail');
         $this->check('Front-end assets are built', file_exists(public_path('build/manifest.json')), 'public/build/manifest.json (run npm run build)', 'fail');

@@ -10,6 +10,7 @@
                 ['Payments', 'admin.payments', $u->can('payments.confirm')],
                 ['KYC review', 'admin.kyc', $u->can('kyc.review')],
                 ['Plans', 'admin.plans', $u->can('plans.manage')],
+                ['Bank accounts', 'admin.bank-accounts', $u->can('bank.manage')],
             ]],
             ['Trading', [
                 ['Cycles', 'admin.trading.cycles', $u->can('trading.view')],
