@@ -58,6 +58,11 @@ after changing it (safe to re-run). `super-admin` receives every permission and 
 | Reversals: approve, reject | `POST /admin/reversals/{id}/approve|reject` | `reversals.approve` (super-admin); not the person who requested it |
 | Bank accounts for investor transfers | `/admin/bank-accounts` (GET, POST, PUT) | `bank.manage` (super-admin only); current password required on every save; audited with old and new values |
 | Paystack: view, save keys, test, re-check payment | `/admin/paystack` (GET, POST, test, reverify) | `paystack.manage` (super-admin only); password required to save; keys encrypted and masked; audited without the keys |
+| Statutory rates: view | `/admin/statutory` | `statutory.manage`, `payroll.manage`, `payroll.approve` or `ledger.view` |
+| Statutory rates: draft, edit, copy, delete draft, activate | `POST/PUT/DELETE /admin/statutory...` | `statutory.manage` (super-admin only); activation needs the password; an active set is immutable |
+| Pension administrators | `/admin/hr/pension-administrators` | view: `staff.manage`, `payroll.manage`, `payroll.pay`, `ledger.view`; change: `staff.manage` (hr) |
+| Remittances: view, schedule CSV | `/admin/hr/remittances` | `payroll.manage`, `payroll.approve`, `payroll.pay` or `ledger.view` |
+| Remittances: mark paid | `POST /admin/hr/remittances/{id}/pay` | `payroll.pay` (accounts); not the person who prepared that payroll |
 | Capital payouts: view | `/admin/payouts` | `payouts.prepare`, `payouts.approve` or `ledger.view` |
 | Capital payouts: prepare, mark paid | `POST /admin/payouts/...` | `payouts.prepare` (accounts) |
 | Capital payouts: approve, reject | `POST /admin/payouts/{id}/approve|reject` | `payouts.approve` (super-admin); not the person who prepared it |

@@ -1,7 +1,10 @@
 @php use App\Support\Money; use App\Models\PayrollRun; @endphp
 <x-layout title="Payroll">
     <h1 class="mb-1 text-2xl font-black text-brand-700">Payroll</h1>
-    <p class="mb-6 text-sm text-gray-600">HR prepares the month, a Director approves (a different person), Accounts pays. Tax, pension and other deductions are entered by hand as adjustments; they are not calculated automatically.</p>
+    <p class="mb-6 text-sm text-gray-600">HR prepares the month, a Director approves (a different person), Accounts pays.
+        @if($ruleSet)PAYE, pension and NHF are <strong>calculated automatically</strong> from <a class="underline" href="{{ route('admin.statutory') }}">{{ $ruleSet->name }}</a> (PAYE by the year-to-date method, so commission that varies month to month evens out). Enter only loans and other non-statutory items as deductions.
+        @else Tax, pension and other deductions are entered by hand as adjustments; no <a class="underline" href="{{ route('admin.statutory') }}">statutory rate set</a> is active for this month.@endif
+        Earlier months of the year must be approved before the next is prepared.</p>
 
     <x-card class="mb-6">
         <h2 class="mb-3 font-black text-brand-700">Adjustments for {{ \Illuminate\Support\Carbon::createFromFormat('Y-m', $period)->format('F Y') }}</h2>

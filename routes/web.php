@@ -109,6 +109,25 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::post('/payroll/{run}/approve', [Admin\HrController::class, 'approve'])->middleware('permission:payroll.approve')->name('payroll.approve');
                 Route::post('/payroll/{run}/pay', [Admin\HrController::class, 'pay'])->middleware('permission:payroll.pay')->name('payroll.pay');
                 Route::get('/payroll/{run}/export', [Admin\HrController::class, 'export'])->middleware('permission:payroll.pay|payroll.manage')->name('payroll.export');
+
+                // Pension administrators, and PAYE / pension / NHF owed after each payroll
+                Route::get('/pension-administrators', [Admin\PensionAdministratorController::class, 'index'])->middleware('permission:staff.manage|payroll.manage|payroll.pay|ledger.view')->name('pfas');
+                Route::post('/pension-administrators/{administrator?}', [Admin\PensionAdministratorController::class, 'save'])->middleware('permission:staff.manage')->name('pfas.save');
+                Route::get('/remittances', [Admin\RemittanceController::class, 'index'])->middleware('permission:payroll.manage|payroll.approve|payroll.pay|ledger.view')->name('remittances');
+                Route::post('/remittances/{remittance}/pay', [Admin\RemittanceController::class, 'pay'])->middleware('permission:payroll.pay')->name('remittances.pay');
+                Route::get('/remittances/{remittance}/schedule', [Admin\RemittanceController::class, 'schedule'])->middleware('permission:payroll.pay|payroll.manage')->name('remittances.schedule');
+            });
+
+            // PAYE / pension / NHF rates: super-admin edits and activates, HR and Directors read
+            Route::prefix('statutory')->name('statutory')->group(function () {
+                Route::get('/', [Admin\StatutoryRulesController::class, 'index'])->middleware('permission:statutory.manage|payroll.manage|payroll.approve|ledger.view');
+                Route::middleware('permission:statutory.manage')->group(function () {
+                    Route::post('/', [Admin\StatutoryRulesController::class, 'store'])->name('.store');
+                    Route::put('/{set}', [Admin\StatutoryRulesController::class, 'update'])->name('.update');
+                    Route::post('/{set}/copy', [Admin\StatutoryRulesController::class, 'copy'])->name('.copy');
+                    Route::post('/{set}/activate', [Admin\StatutoryRulesController::class, 'activate'])->name('.activate');
+                    Route::delete('/{set}', [Admin\StatutoryRulesController::class, 'destroy'])->name('.destroy');
+                });
             });
 
             // Audit trail and staff accounts

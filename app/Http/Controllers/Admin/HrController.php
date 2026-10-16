@@ -6,6 +6,8 @@ use App\Http\Controllers\Concerns\AttemptsActions;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\PayrollAdjustment;
+use App\Models\PensionAdministrator;
+use App\Models\StatutoryRuleSet;
 use App\Models\PayrollRun;
 use App\Services\Hr\PayrollService;
 use App\Support\Csv;
@@ -22,7 +24,10 @@ class HrController extends Controller
 
     public function employees(): View
     {
-        return view('admin.hr.employees', ['employees' => Employee::orderByDesc('is_active')->orderBy('name')->get()]);
+        return view('admin.hr.employees', [
+            'employees' => Employee::with('pensionAdministrator')->orderByDesc('is_active')->orderBy('name')->get(),
+            'administrators' => PensionAdministrator::where('is_active', true)->orderBy('name')->get(),
+        ]);
     }
 
     public function saveEmployee(Request $request, ?Employee $employee = null): RedirectResponse
@@ -39,14 +44,33 @@ class HrController extends Controller
             'account_number' => ['nullable', 'digits:10'],
             'account_name' => ['nullable', 'string', 'max:150'],
             'tax_id' => ['nullable', 'string', 'max:32'],
+            'housing_allowance' => ['nullable', 'string', 'max:20'],
+            'transport_allowance' => ['nullable', 'string', 'max:20'],
+            'annual_rent' => ['nullable', 'string', 'max:20'],
+            'pension_administrator_id' => ['nullable', Rule::exists('pension_administrators', 'id')->where('is_active', true)],
+            'rsa_pin' => ['nullable', 'string', 'max:20'],
+            'nhf_number' => ['nullable', 'string', 'max:32'],
+            'tax_state' => ['nullable', 'string', 'max:60'],
         ]);
 
-        try {
-            $data['basic_salary'] = Money::fromNaira($data['basic_salary']);
-        } catch (\InvalidArgumentException) {
-            return back()->withInput()->withErrors(['basic_salary' => 'Enter a valid amount in naira.']);
+        // Money fields: blank keeps the employee's current value (or zero for a new one) so a partial form never wipes pay.
+        foreach (['basic_salary', 'housing_allowance', 'transport_allowance', 'annual_rent'] as $field) {
+            if (($data[$field] ?? '') === '' && $field !== 'basic_salary') {
+                $data[$field] = $employee?->{$field} ?? 0;
+
+                continue;
+            }
+            try {
+                $data[$field] = Money::fromNaira($data[$field]);
+            } catch (\InvalidArgumentException) {
+                return back()->withInput()->withErrors([$field => 'Enter a valid amount in naira.']);
+            }
         }
         $data['is_active'] = $request->boolean('is_active', ! $employee);
+        // Statutory switches: the forms send a hidden 0 so an unticked box really switches it off; absent = unchanged.
+        $data['pension_exempt'] = $request->boolean('pension_exempt', $employee?->pension_exempt ?? false);
+        $data['paye_exempt'] = $request->boolean('paye_exempt', $employee?->paye_exempt ?? false);
+        $data['nhf_applies'] = $request->boolean('nhf_applies', $employee?->nhf_applies ?? true);
 
         $saved = $employee ? tap($employee)->update($data) : Employee::create($data);
         activity()->performedOn($saved)->causedBy($request->user())->log('Employee record saved');
@@ -59,6 +83,7 @@ class HrController extends Controller
         $period = $request->query('period', now()->format('Y-m'));
 
         return view('admin.hr.payroll', [
+            'ruleSet' => preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $period) ? StatutoryRuleSet::forPeriod($period) : null,
             'runs' => PayrollRun::orderByDesc('period')->get(),
             'period' => $period,
             'employees' => Employee::where('is_active', true)->orderBy('name')->get(),

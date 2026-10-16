@@ -21,6 +21,9 @@ class LedgerAccountSeeder extends Seeder
             [LedgerAccount::INSURANCE_EXPENSE, 'Takaful / Insurance Expense', 'expense', 'Takaful premiums, paid from the Investors Risk Fund.'],
             [LedgerAccount::PAYROLL_EXPENSE, 'Payroll Expense', 'expense', 'Salaries, allowances and commissions (gross).'],
             [LedgerAccount::STATUTORY_PAYABLE, 'Payroll Deductions Payable', 'liability', 'Tax, pension and other deductions withheld, owed to the authorities.'],
+            [LedgerAccount::PAYE_PAYABLE, 'PAYE Payable', 'liability', 'Employee income tax withheld, owed to the state internal revenue service.'],
+            [LedgerAccount::PENSION_PAYABLE, 'Pension Payable', 'liability', 'Employee and employer pension contributions, owed to the staff pension fund administrators.'],
+            [LedgerAccount::NHF_PAYABLE, 'NHF Payable', 'liability', 'National Housing Fund contributions withheld, owed to FMBN.'],
             [LedgerAccount::TRADING_INCOME, 'Trading Income', 'income', 'Gross trading margin on commodity sales.'],
         ];
 

@@ -116,7 +116,7 @@ Last updated: 2026-10-15 (milestone 7 engineering complete)
 - [x] **"Waiting for you" work queue** on the back-office dashboard, per permission
 - [x] 32 new tests (145 total passing)
 - [ ] PDF export of reports (CSV only today)
-- [ ] Statutory payroll maths (PAYE, pension, NHF) is not automatic (Q16)
+- [x] Statutory payroll maths (PAYE, pension, NHF): see milestone 7 addendum of 2026-10-17 (Q16)
 - [ ] Enforce two-factor authentication for staff (milestone 7)
 - [ ] Email alerts to approvers (the dashboard queue is the only prompt today)
 - [x] Reversal (correcting) ledger entries: see milestone 7 addendum
@@ -172,6 +172,21 @@ Addendum, 2026-10-16: **Paystack management** (`/admin/paystack`, super-admin on
 - [x] Shows the webhook and callback URLs to paste into the Paystack dashboard
 - [x] Recent online payments, with "Re-check with Paystack" for pending ones (recovers a missed webhook)
 - [x] Pre-flight reads the saved key; 9 new tests
+
+Addendum, 2026-10-17: **statutory payroll: PAYE, pension, NHF** (Q16 built)
+
+- [x] Rates live in **versioned rule sets** (`/admin/statutory`): draft, then activate with the super-admin's password, then locked for good. A change in law is a new set with a later effective date; each payroll run records the set it used
+- [x] Seeded with one **unverified draft** (Nigeria Tax Act 2025 bands, 8%/10% pension, 2.5% NHF). Nothing is calculated until the super-admin, with the accountant, checks and activates it. **No active set = payroll behaves exactly as before** (HR enters deductions by hand)
+- [x] **PAYE by the year-to-date method**: tax to date on the bands scaled to the months elapsed, less PAYE already withheld, so variable commission corrects itself within the year. Rent relief with a cap; employee pension and NHF are deductible
+- [x] Pension on basic + housing + transport; NHF on basic; employer pension is an extra expense. Per-employee: administrator, RSA PIN, NHF number, pension/NHF/PAYE exemptions, annual rent, PAYE state
+- [x] **Each staff member has their own pension administrator**; payroll will not prepare for someone who owes pension but has none (or is marked exempt)
+- [x] Paying posts PAYE, Pension and NHF to their own payable accounts and creates **remittances**: PAYE per state, pension per administrator (employee + employer), NHF to FMBN, with due dates from the rule set
+- [x] `/admin/hr/remittances`: schedule CSV per remittance, Accounts records the bank reference (not the payroll's preparer, cash guard, posts Dr payable / Cr Main Operations); overdue flag; item in the Accounts work queue
+- [x] An earlier month of the year left as a draft blocks the next one (its figures are needed for the year-to-date)
+- [x] 23 new tests, with the key PAYE figures worked by hand
+- [ ] **Opening balances** for staff who were paid earlier in the tax year outside this system (go-live mid-year): year-to-date starts at the first payroll here
+- [ ] Payslips (PDF); NSITF / ITF / NHIS employer levies; per-line manual override of a computed amount
+- [ ] Accountant to verify every seeded figure before activation
 
 Outstanding, not engineering:
 

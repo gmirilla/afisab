@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Models\BankAccount;
 use App\Models\PaystackSetting;
+use App\Models\PensionAdministrator;
+use App\Models\StatutoryRemittance;
+use App\Models\StatutoryRuleSet;
 use App\Models\Buyer;
 use App\Models\CapitalPayout;
 use App\Models\CycleExpense;
@@ -78,6 +81,9 @@ class AppServiceProvider extends ServiceProvider
             'journal_entry' => JournalEntry::class,
             'bank_account' => BankAccount::class,
             'paystack_setting' => PaystackSetting::class,
+            'pension_administrator' => PensionAdministrator::class,
+            'statutory_rule_set' => StatutoryRuleSet::class,
+            'statutory_remittance' => StatutoryRemittance::class,
         ]);
 
         Password::defaults(fn () => app()->isProduction()

@@ -33,6 +33,12 @@ class LedgerAccount extends Model
 
     public const STATUTORY_PAYABLE = 'STATUTORY_PAYABLE';
 
+    public const PAYE_PAYABLE = 'PAYE_PAYABLE';
+
+    public const PENSION_PAYABLE = 'PENSION_PAYABLE';
+
+    public const NHF_PAYABLE = 'NHF_PAYABLE';
+
     protected function casts(): array
     {
         return ['is_system' => 'boolean'];

@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             InvestmentPlanSeeder::class,
             CommoditySeeder::class,
             RiskLimitSeeder::class,
+            StatutoryRuleSetSeeder::class,
         ]);
     }
 }

@@ -12,7 +12,7 @@ Work top to bottom. Nothing in section 1 is a software task: each needs the owne
 | ☐ | Which account pays investors' monthly profit | Owner / accounts | Q10 |
 | ☐ | The 5% risk reserve vs returning full principal | Owner / accounts | Q3, Q12 |
 | ☐ | Director purchase threshold and other **risk limits** switched on (they ship OFF) | Directors | Q13, Q14 |
-| ☐ | Payroll statutory deductions: manual or automated | Owner / accountant | Q16 |
+| ☐ | Payroll statutory rates: accountant verifies the seeded draft (PAYE bands, rent relief, pension, NHF, due dates), then the super-admin activates it under **Statutory rates**; enter each staff member's pension administrator, RSA PIN, PAYE state and exemptions; decide how to handle staff paid earlier this tax year (opening balances not built) | Owner / accountant | Q16 |
 | ☐ | Missing "Account 4" in the account structure document | Owner | Q2 |
 | ☐ | Named staff for each role; at least two Directors | Owner | ROLES.md |
 | ☐ | Paystack **live** account approved; settlement bank account confirmed | Finance | |

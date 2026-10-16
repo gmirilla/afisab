@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CapitalPayout;
 use App\Models\CycleExpense;
 use App\Models\LedgerReversal;
+use App\Models\StatutoryRemittance;
 use App\Models\DistributionLine;
 use App\Models\DistributionRun;
 use App\Models\Investment;
@@ -61,6 +62,7 @@ class DashboardController extends Controller
             ['payouts.approve', 'Capital payouts to approve', CapitalPayout::where('status', CapitalPayout::PREPARED)->count(), 'admin.payouts'],
             ['payouts.prepare', 'Capital payouts to pay', CapitalPayout::where('status', CapitalPayout::APPROVED)->count(), 'admin.payouts'],
             ['reversals.approve', 'Ledger reversals to approve', LedgerReversal::where('status', LedgerReversal::REQUESTED)->count(), 'admin.reversals'],
+            ['payroll.pay', 'PAYE, pension and NHF remittances to pay', StatutoryRemittance::where('status', StatutoryRemittance::DUE)->count(), 'admin.hr.remittances'],
             ['payroll.approve', 'Payroll to approve', PayrollRun::where('status', PayrollRun::DRAFT)->count(), 'admin.hr.payroll'],
             ['payroll.pay', 'Payroll to pay', PayrollRun::where('status', PayrollRun::APPROVED)->count(), 'admin.hr.payroll'],
         ];

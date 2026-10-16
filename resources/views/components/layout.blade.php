@@ -34,6 +34,9 @@
             ['People', [
                 ['Employees', 'admin.hr.employees', $u->can('staff.manage')],
                 ['Payroll', 'admin.hr.payroll', $u->canAny(['payroll.manage', 'payroll.approve', 'payroll.pay'])],
+                ['Remittances', 'admin.hr.remittances', $u->canAny(['payroll.manage', 'payroll.approve', 'payroll.pay', 'ledger.view'])],
+                ['Pension administrators', 'admin.hr.pfas', $u->canAny(['staff.manage', 'payroll.pay'])],
+                ['Statutory rates', 'admin.statutory', $u->canAny(['statutory.manage', 'payroll.manage', 'payroll.approve'])],
                 ['User accounts', 'admin.users', $u->can('users.manage')],
             ]],
         ];
