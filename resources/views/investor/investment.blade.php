@@ -75,8 +75,12 @@
         <div class="grid gap-4 md:grid-cols-2">
             <x-card>
                 <h2 class="font-black text-brand-700">Pay online (card / bank)</h2>
-                <p class="my-2 text-sm text-gray-600">Secure checkout by Paystack.</p>
-                <form method="POST" action="{{ route('investor.payments.paystack', $investment) }}">@csrf<x-btn>Pay {{ Money::format($investment->amount) }}</x-btn></form>
+                @if(app(\App\Services\Payments\PaystackSettings::class)->enabled())
+                    <p class="my-2 text-sm text-gray-600">Secure checkout by Paystack.</p>
+                    <form method="POST" action="{{ route('investor.payments.paystack', $investment) }}">@csrf<x-btn>Pay {{ Money::format($investment->amount) }}</x-btn></form>
+                @else
+                    <p class="my-2 text-sm text-gray-600">Online payment is not available right now. Please pay by bank transfer.</p>
+                @endif
             </x-card>
             <x-card>
                 <h2 class="font-black text-brand-700">Pay by bank transfer</h2>

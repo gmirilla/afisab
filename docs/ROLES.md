@@ -57,6 +57,7 @@ after changing it (safe to re-run). `super-admin` receives every permission and 
 | Reversals: request | `POST /admin/ledger/entry/{id}/reverse` | `reversals.request` (accounts) |
 | Reversals: approve, reject | `POST /admin/reversals/{id}/approve|reject` | `reversals.approve` (super-admin); not the person who requested it |
 | Bank accounts for investor transfers | `/admin/bank-accounts` (GET, POST, PUT) | `bank.manage` (super-admin only); current password required on every save; audited with old and new values |
+| Paystack: view, save keys, test, re-check payment | `/admin/paystack` (GET, POST, test, reverify) | `paystack.manage` (super-admin only); password required to save; keys encrypted and masked; audited without the keys |
 | Capital payouts: view | `/admin/payouts` | `payouts.prepare`, `payouts.approve` or `ledger.view` |
 | Capital payouts: prepare, mark paid | `POST /admin/payouts/...` | `payouts.prepare` (accounts) |
 | Capital payouts: approve, reject | `POST /admin/payouts/{id}/approve|reject` | `payouts.approve` (super-admin); not the person who prepared it |

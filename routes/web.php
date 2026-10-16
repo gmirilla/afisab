@@ -196,6 +196,12 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::post('/kyc/{profile}/review', [Admin\KycController::class, 'review'])->name('kyc.review');
             });
 
+            Route::middleware('permission:paystack.manage')->prefix('paystack')->name('paystack')->group(function () {
+                Route::get('/', [Admin\PaystackController::class, 'index']);
+                Route::post('/', [Admin\PaystackController::class, 'save'])->name('.save');
+                Route::post('/test', [Admin\PaystackController::class, 'test'])->name('.test');
+                Route::post('/payments/{payment}/reverify', [Admin\PaystackController::class, 'reverify'])->name('.reverify');
+            });
             Route::middleware('permission:bank.manage')->group(function () {
                 Route::get('/bank-accounts', [Admin\BankAccountController::class, 'index'])->name('bank-accounts');
                 Route::post('/bank-accounts', [Admin\BankAccountController::class, 'store'])->name('bank-accounts.store');

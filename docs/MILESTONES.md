@@ -163,6 +163,16 @@ Addendum, 2026-10-16: **payment bank accounts** (`/admin/bank-accounts`)
 - [x] Investors see the active accounts on the payment page; the `AFISAB_BANK_*` settings are the fallback until the first account is saved; pre-flight checks the live accounts
 - [x] 6 new tests
 
+Addendum, 2026-10-16: **Paystack management** (`/admin/paystack`, super-admin only)
+
+- [x] Secret and public keys saved in the database, encrypted; shown masked (`sk_live_••••abcd`); `.env` values are the fallback until saved
+- [x] Password required to save; format and test/live pairing validated; changes audited with masked values (never the keys)
+- [x] On/off switch: off blocks new online payments (and hides the button) but callback, webhook and re-check keep settling payments already started
+- [x] Test connection (records pass/fail and time); status cards show ON/OFF, LIVE/TEST (warns on test keys in production)
+- [x] Shows the webhook and callback URLs to paste into the Paystack dashboard
+- [x] Recent online payments, with "Re-check with Paystack" for pending ones (recovers a missed webhook)
+- [x] Pre-flight reads the saved key; 9 new tests
+
 Outstanding, not engineering:
 
 - [ ] **Legal/regulatory sign-off** on investor wording, structure and KYC (DECISIONS.md Q5)

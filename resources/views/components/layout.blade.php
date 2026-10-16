@@ -11,6 +11,7 @@
                 ['KYC review', 'admin.kyc', $u->can('kyc.review')],
                 ['Plans', 'admin.plans', $u->can('plans.manage')],
                 ['Bank accounts', 'admin.bank-accounts', $u->can('bank.manage')],
+                ['Paystack', 'admin.paystack', $u->can('paystack.manage')],
             ]],
             ['Trading', [
                 ['Cycles', 'admin.trading.cycles', $u->can('trading.view')],

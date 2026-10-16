@@ -49,6 +49,9 @@ class PaymentService
     public function startPaystack(Investment $investment): string
     {
         $this->assertPayable($investment);
+        if (! app(PaystackSettings::class)->enabled()) {
+            throw new BusinessRuleException('Online payment is not available right now. Please use bank transfer.');
+        }
 
         $payment = $investment->payments()->create([
             'method' => PaymentMethod::Paystack,

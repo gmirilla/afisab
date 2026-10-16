@@ -16,6 +16,7 @@ Work top to bottom. Nothing in section 1 is a software task: each needs the owne
 | ☐ | Missing "Account 4" in the account structure document | Owner | Q2 |
 | ☐ | Named staff for each role; at least two Directors | Owner | ROLES.md |
 | ☐ | Paystack **live** account approved; settlement bank account confirmed | Finance | |
+| ☐ | Live keys entered at **Treasury > Paystack** (super-admin), connection test passed, webhook and callback URLs set in the Paystack dashboard | Director | |
 | ☐ | Enter the investor-payment bank account(s) in the back office: **Treasury > Bank accounts** (super-admin). Overrides `AFISAB_BANK_*` once one is saved | Director | |
 | ☐ | Corporate bank accounts opened as the account-structure document requires (Main Operations, Risk Fund, Investors Profit, Domiciliary) | Finance | |
 | ☐ | Independent penetration test done, findings fixed | IT | SECURITY.md |

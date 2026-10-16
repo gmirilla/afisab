@@ -37,8 +37,8 @@ class Preflight extends Command
         $this->check('Session cookie is HTTPS-only', (bool) config('session.secure'), 'SESSION_SECURE_COOKIE', $production ? 'fail' : 'warn');
         $this->check('Sessions are encrypted', (bool) config('session.encrypt'), 'SESSION_ENCRYPT', 'warn');
 
-        $secret = (string) config('services.paystack.secret_key');
-        $this->check('Paystack secret key is set', $secret !== '', 'PAYSTACK_SECRET_KEY', 'warn');
+        $secret = app(\App\Services\Payments\PaystackSettings::class)->secret();
+        $this->check('Paystack secret key is set', $secret !== '', 'Admin > Paystack (or PAYSTACK_SECRET_KEY in .env)', 'warn');
         $this->check('Paystack key is a LIVE key', $secret === '' || str_starts_with($secret, 'sk_live_'), $secret === '' ? 'no key' : 'starts with '.substr($secret, 0, 8), $production ? 'fail' : 'warn');
         $banks = app(\App\Services\Payments\BankAccounts::class)->active();
         $bankReal = $banks->isNotEmpty() && $banks->every(fn ($b) => \App\Services\Payments\BankAccounts::isReal($b));
