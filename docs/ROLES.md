@@ -63,6 +63,9 @@ after changing it (safe to re-run). `super-admin` receives every permission and 
 | Pension administrators | `/admin/hr/pension-administrators` | view: `staff.manage`, `payroll.manage`, `payroll.pay`, `ledger.view`; change: `staff.manage` (hr) |
 | Remittances: view, schedule CSV | `/admin/hr/remittances` | `payroll.manage`, `payroll.approve`, `payroll.pay` or `ledger.view` |
 | Remittances: mark paid | `POST /admin/hr/remittances/{id}/pay` | `payroll.pay` (accounts); not the person who prepared that payroll |
+| Cycles: propose, allocate, withdraw | `POST /admin/trading/cycles...` | `cycles.manage` (sales). Adding capital to an already-approved cycle needs `cycles.approve` |
+| Cycles: approve, reject | `POST /admin/trading/cycles/{id}/approve|reject` | `cycles.approve` (super-admin); not the person who proposed it |
+| Investor directory, investor page, CSV | `/admin/investors`, `/admin/investors/{id}`, `/admin/investors/export` | `investors.view` (accounts, sales, compliance, auditor). Full BVN and ID document: `kyc.review`. Activity trail: `audit.view`. Views and exports are audited |
 | Capital payouts: view | `/admin/payouts` | `payouts.prepare`, `payouts.approve` or `ledger.view` |
 | Capital payouts: prepare, mark paid | `POST /admin/payouts/...` | `payouts.prepare` (accounts) |
 | Capital payouts: approve, reject | `POST /admin/payouts/{id}/approve|reject` | `payouts.approve` (super-admin); not the person who prepared it |

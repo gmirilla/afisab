@@ -129,6 +129,7 @@ class GovernanceTest extends TestCase
         $investment = $this->investment();
         $cycle = app(CycleService::class)->open('A', Commodity::first(), null, $this->sales);
         app(CycleService::class)->allocate($cycle, $investment, 900_000_00, $this->sales);
+        $cycle = app(CycleService::class)->approve($cycle, $this->admin);
         $supplier = $this->supplier();
         $service = app(PurchaseService::class);
 
@@ -147,6 +148,7 @@ class GovernanceTest extends TestCase
         $investment = $this->investment();
         $cycle = app(CycleService::class)->open('A', Commodity::where('name', 'Maize')->first(), null, $this->sales);
         app(CycleService::class)->allocate($cycle, $investment, 900_000_00, $this->sales);
+        $cycle = app(CycleService::class)->approve($cycle, $this->admin);
         $purchase = app(PurchaseService::class)->propose($cycle, $this->supplier(), 10_000, 5_000, $this->procurement); // 500,000
 
         $this->expectException(BusinessRuleException::class);
@@ -160,6 +162,7 @@ class GovernanceTest extends TestCase
         $investment = $this->investment();
         $cycle = app(CycleService::class)->open('A', Commodity::first(), null, $this->sales);
         app(CycleService::class)->allocate($cycle, $investment, 900_000_00, $this->sales);
+        $cycle = app(CycleService::class)->approve($cycle, $this->admin);
         $purchase = app(PurchaseService::class)->propose($cycle, $this->supplier(), 4_000, 5_000, $this->procurement); // 200,000 > 100,000
 
         try {
@@ -552,6 +555,7 @@ class GovernanceTest extends TestCase
         $investment = $this->investment();
         $cycle = app(CycleService::class)->open('A', Commodity::first(), null, $this->sales);
         app(CycleService::class)->allocate($cycle, $investment, 500_000_00, $this->sales);
+        $cycle = app(CycleService::class)->approve($cycle, $this->admin);
         $purchase = app(PurchaseService::class)->propose($cycle, $this->supplier(), 1_000, 5_000, $this->procurement);
 
         $this->actingAs($this->accounts)->get(route('admin.dashboard'))->assertOk()->assertSee('Purchases to approve');

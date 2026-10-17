@@ -35,8 +35,8 @@ class CapitalPayoutService
             if ($investment->status !== InvestmentStatus::Matured) {
                 throw new BusinessRuleException('Only a matured investment can be paid out.');
             }
-            if (CycleAllocation::where('investment_id', $investment->id)->whereHas('cycle', fn ($q) => $q->where('status', TradeCycle::OPEN))->exists()) {
-                throw new BusinessRuleException('The capital of this investment is still deployed in an open trading cycle. Close the cycle first.');
+            if (CycleAllocation::where('investment_id', $investment->id)->whereHas('cycle', fn ($q) => $q->whereIn('status', TradeCycle::HOLDING))->exists()) {
+                throw new BusinessRuleException('The capital of this investment is still deployed in a trading cycle (pending or open). Close or cancel the cycle first.');
             }
             if (CapitalPayout::where('investment_id', $investment->id)->where('status', '!=', CapitalPayout::REJECTED)->exists()) {
                 throw new BusinessRuleException('A payout already exists for this investment.');

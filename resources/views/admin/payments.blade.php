@@ -5,7 +5,7 @@
         <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-2">Reference</th><th>Investor</th><th>Amount</th><th>Status</th><th>Receipt</th><th></th></tr></thead><tbody>
         @forelse($payments as $p)
             <tr class="border-b align-top last:border-0">
-                <td class="py-2 font-mono">{{ $p->reference }}<br><span class="text-xs text-gray-500">{{ $p->investment->reference }}</span></td>
+                <td class="py-2 font-mono">{{ $p->reference }}<br><span class="text-xs text-gray-500">{{ $p->investment->reference }} · profit {{ strtolower($p->investment->profit_frequency->label()) }}</span></td>
                 <td>{{ $p->investment->user->name }}</td><td>{{ Money::format($p->amount) }}</td><td>{{ $p->status->label() }}</td>
                 <td>@if($p->proof_path)<a class="text-brand-700 underline" target="_blank" href="{{ route('admin.payments.proof', $p) }}">View</a>@else — @endif</td>
                 <td class="space-y-2">

@@ -2,9 +2,11 @@
 
 namespace App\Services\Performance;
 
+use App\Enums\ProfitFrequency;
 use App\Exceptions\BusinessRuleException;
 use App\Models\DistributionLine;
 use App\Models\DistributionRun;
+use App\Models\Investment;
 use App\Models\LedgerAccount;
 use App\Models\PerformanceEntry;
 use App\Models\User;
@@ -38,7 +40,7 @@ class DistributionService
         $cutoff = $month->copy()->day(min((int) config('afisab.distribution_cutoff_day'), $month->daysInMonth))->startOfDay();
         $payBy = $month->copy()->endOfMonth()->startOfDay();
 
-        $run = DB::transaction(function () use ($period, $cutoff, $payBy, $by) {
+        $run = DB::transaction(function () use ($month, $period, $cutoff, $payBy, $by) {
             $run = DistributionRun::where('period', $period)->lockForUpdate()->first();
 
             if ($run && $run->status !== DistributionRun::CALCULATED) {
@@ -56,8 +58,18 @@ class DistributionService
                 ->where('recorded_at', '<=', $cutoff->copy()->endOfDay())
                 ->get()->groupBy('investment_id');
 
+            // Only policies due this month take part; the rest keep their results unassigned until their month comes.
+            $investments = Investment::whereIn('id', $entries->keys())->get()->keyBy('id');
+
             $totals = ['net' => 0, 'retained' => 0, 'investor' => 0, 'company' => 0];
+            $deferred = 0;
             foreach ($entries as $investmentId => $group) {
+                $investment = $investments[$investmentId];
+                if (! ProfitSchedule::isDue($investment, $month)) {
+                    $deferred++;
+
+                    continue;
+                }
                 $net = (int) $group->sum('net_profit');
                 $split = $this->split->split($net);
 
@@ -69,6 +81,9 @@ class DistributionService
                     'investor_share' => $split['investor'],
                     'company_share' => $split['company'],
                     'status' => DistributionLine::PENDING,
+                    'frequency' => $investment->profit_frequency?->value,
+                    'covers_from' => Carbon::createFromTimestamp($group->min(fn ($e) => $e->recorded_at->timestamp))->toDateString(),
+                    'covers_to' => Carbon::createFromTimestamp($group->max(fn ($e) => $e->recorded_at->timestamp))->toDateString(),
                 ]);
                 PerformanceEntry::whereIn('id', $group->pluck('id'))->update(['distribution_run_id' => $run->id]);
 
@@ -83,6 +98,7 @@ class DistributionService
                 'total_retained' => $totals['retained'],
                 'total_investor' => $totals['investor'],
                 'total_company' => $totals['company'],
+                'policies_deferred' => $deferred,
                 'calculated_by' => $by?->id,
                 'calculated_at' => now(),
             ]);
@@ -201,7 +217,7 @@ class DistributionService
      */
     public function exportRows(DistributionRun $run): array
     {
-        $rows = [['Investment', 'Investor', 'Bank', 'Account number', 'Account name', 'Amount (NGN)', 'Narration', 'Status']];
+        $rows = [['Investment', 'Investor', 'Bank', 'Account number', 'Account name', 'Amount (NGN)', 'Narration', 'Status', 'Frequency', 'Covers']];
 
         foreach ($run->lines()->with('investment.user.investorProfile')->where('investor_share', '>', 0)->get() as $line) {
             $profile = $line->investment->user->investorProfile;
@@ -214,6 +230,8 @@ class DistributionService
                 number_format($line->investor_share / 100, 2, '.', ''),
                 "AFISAB PROFIT {$run->period} {$line->investment->reference}",
                 $line->status,
+                $line->frequency ? (ProfitFrequency::tryFrom($line->frequency)?->label() ?? $line->frequency) : 'Monthly',
+                (string) $line->coverage(),
             ]);
         }
 

@@ -357,6 +357,7 @@ class HardeningTest extends TestCase
         $inv = $this->investment();
         $cycle = app(CycleService::class)->open('A', Commodity::first(), null, $this->sales);
         app(CycleService::class)->allocate($cycle, $inv, 1_000_000_00, $this->sales);
+        $cycle = app(CycleService::class)->approve($cycle, $this->admin);
         $supplier = Supplier::create(['name' => 'S', 'type' => 'aggregator', 'is_active' => true]);
         $purchase = app(PurchaseService::class)->propose($cycle, $supplier, 1_000, 5_000, $this->procurement);
         app(PurchaseService::class)->approve($purchase, $this->admin);
@@ -378,6 +379,8 @@ class HardeningTest extends TestCase
     {
         $inv = $this->investment();
         $cycle = app(CycleService::class)->open('A', Commodity::first(), null, $this->sales);
+        app(CycleService::class)->allocate($cycle, $inv, 1_000_000_00, $this->sales);
+        $cycle = app(CycleService::class)->approve($cycle, $this->admin);
         $expense = app(ExpenseService::class)->propose($cycle, 'transport', 'Haulage', 10_000_00, $this->sales);
         [$a, $b] = [CycleExpense::find($expense->id), CycleExpense::find($expense->id)];
 
@@ -397,6 +400,7 @@ class HardeningTest extends TestCase
         $inv = $this->investment();
         $cycle = app(CycleService::class)->open('A', Commodity::first(), null, $this->sales);
         app(CycleService::class)->allocate($cycle, $inv, 1_000_000_00, $this->sales);
+        $cycle = app(CycleService::class)->approve($cycle, $this->admin);
         $supplier = Supplier::create(['name' => 'S', 'type' => 'aggregator', 'is_active' => true]);
         $purchase = app(PurchaseService::class)->propose($cycle, $supplier, 1_000, 5_000, $this->procurement);
         app(PurchaseService::class)->approve($purchase, $this->admin);

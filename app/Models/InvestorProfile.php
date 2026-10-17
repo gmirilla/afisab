@@ -30,6 +30,19 @@ class InvestorProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'kyc_reviewed_by');
+    }
+
+    /** Last four digits only, for staff who do not review KYC. */
+    public function maskedBvn(): string
+    {
+        $bvn = (string) $this->bvn;
+
+        return $bvn === '' ? '' : str_repeat('•', max(0, strlen($bvn) - 4)).substr($bvn, -4);
+    }
+
     public function isApproved(): bool
     {
         return $this->kyc_status === KycStatus::Approved;

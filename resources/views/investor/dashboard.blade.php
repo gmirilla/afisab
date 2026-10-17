@@ -8,7 +8,7 @@
         </div>
     @endif
 
-    <p class="mb-4 text-sm text-gray-600">Profit shares are calculated on the <strong>{{ $next['cutoff']->format('jS \o\f F') }}</strong> of each month and paid by <strong>{{ $next['pay_by']->format('jS \o\f F') }}</strong>. Returns are a share of actual trading profit and are not guaranteed.</p>
+    <p class="mb-4 text-sm text-gray-600">Profit is calculated on the <strong>{{ $next['cutoff']->format('jS \o\f F') }}</strong> of each month and each policy is paid by the end of the month in which its payment frequency falls due (shown on each policy below). Returns are a share of actual trading profit and are not guaranteed.</p>
 
     <div class="mb-6 grid gap-4 md:grid-cols-4">
         <x-card><p class="text-sm text-gray-500">Total invested (active)</p><p class="text-2xl font-black text-brand-700">{{ Money::format($totalInvested) }}</p></x-card>
@@ -26,6 +26,7 @@
                     <div>
                         <p class="font-black text-brand-700">{{ $i->plan->name }} <span class="font-mono text-sm font-normal text-gray-500">{{ $i->reference }}</span></p>
                         <p class="text-sm text-gray-600">{{ $i->status->label() }} · {{ $i->start_date?->format('d M Y') ?? 'Not started' }} → {{ $i->maturity_date?->format('d M Y') ?? '—' }}</p>
+                        <p class="text-sm text-gray-600">Profit paid: <strong>{{ $i->profit_frequency->label() }}</strong>@if($nextRuns[$i->id] ?? null) · next by {{ $nextRuns[$i->id]['pay_by']->format('d M Y') }}@endif</p>
                     </div>
                     <a class="rounded border border-brand-700 px-3 py-1 text-sm font-bold text-brand-700" href="{{ route('investor.investments.show', $i) }}">View</a>
                 </div>

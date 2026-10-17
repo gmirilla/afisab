@@ -79,9 +79,10 @@ class TradingTest extends TestCase
         $cycle = app(CycleService::class)->open('Sesame Nov', Commodity::where('name', 'Sesame Seeds')->first(), null, $this->sales);
         if ($investment) {
             app(CycleService::class)->allocate($cycle, $investment, $allocate, $this->sales);
+            app(CycleService::class)->approve($cycle, $this->admin);
         }
 
-        return $cycle;
+        return $cycle->fresh();
     }
 
     /** Propose, approve, pay and receive a purchase of $kg at $pricePerKg (kobo). */
@@ -136,7 +137,7 @@ class TradingTest extends TestCase
         $cycles = app(CycleService::class);
         $cycle = $this->cycle($investment, 500_000_00);
 
-        $cycles->allocate($cycle, $investment, 700_000_00, $this->sales);
+        $cycles->allocate($cycle, $investment, 700_000_00, $this->admin);
         $this->assertSame(700_000_00, $cycle->budget());
         $this->assertSame(300_000_00, $cycles->unallocated($investment));
 
@@ -507,6 +508,8 @@ class TradingTest extends TestCase
         $cycle = TradeCycle::firstOrFail();
 
         $this->actingAs($this->sales)->post(route('admin.trading.cycles.allocate', $cycle), ['investment_id' => $investment->id, 'amount' => '900000'])->assertSessionHasNoErrors();
+        $this->actingAs($this->sales)->post(route('admin.trading.cycles.approve', $cycle))->assertForbidden();            // the proposer's team cannot approve
+        $this->actingAs($this->admin)->post(route('admin.trading.cycles.approve', $cycle))->assertSessionHasNoErrors();
 
         $this->actingAs($this->procurement)->post(route('admin.trading.purchases.propose', $cycle), ['supplier_id' => $this->supplier->id, 'quantity_kg' => 10000, 'unit_price' => '60'])->assertSessionHasNoErrors();
         $purchase = Purchase::firstOrFail();

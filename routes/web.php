@@ -58,6 +58,13 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', Admin\DashboardController::class)->middleware('role:super-admin|accounts|sales|procurement|hr|compliance|auditor')->name('dashboard');
 
+            // Investor directory: read-only, for anyone with investors.view
+            Route::middleware('permission:investors.view')->prefix('investors')->name('investors')->group(function () {
+                Route::get('/', [Admin\InvestorDirectoryController::class, 'index']);
+                Route::get('/export', [Admin\InvestorDirectoryController::class, 'export'])->name('.export');
+                Route::get('/{user}', [Admin\InvestorDirectoryController::class, 'show'])->name('.show');
+            });
+
             Route::middleware('permission:payments.confirm')->group(function () {
                 Route::get('/payments', [Admin\PaymentController::class, 'index'])->name('payments');
                 Route::get('/payments/{payment}/proof', [Admin\PaymentController::class, 'proof'])->name('payments.proof');
@@ -154,6 +161,12 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                     Route::post('/cycles/{cycle}/allocations', [Admin\Trading\CycleController::class, 'allocate'])->name('cycles.allocate');
                     Route::delete('/allocations/{allocation}', [Admin\Trading\CycleController::class, 'deallocate'])->name('cycles.deallocate');
                     Route::post('/cycles/{cycle}/cancel', [Admin\Trading\CycleController::class, 'cancel'])->name('cycles.cancel');
+                });
+                Route::middleware('permission:cycles.approve')->group(function () {
+                    Route::post('/cycles/{cycle}/approve', [Admin\Trading\CycleController::class, 'approve'])->name('cycles.approve');
+                    Route::post('/cycles/{cycle}/reject', [Admin\Trading\CycleController::class, 'reject'])->name('cycles.reject');
+                });
+                Route::middleware('permission:cycles.manage')->group(function () {
                     Route::post('/cycles/{cycle}/close', [Admin\Trading\CycleController::class, 'close'])->name('cycles.close');
                 });
 

@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 
 #[Fillable([
     'period', 'cutoff_date', 'pay_by', 'status', 'total_net_profit', 'total_retained', 'total_investor',
-    'total_company', 'calculated_by', 'calculated_at', 'approved_by', 'approved_at', 'paid_at', 'last_reminder_at',
+    'total_company', 'policies_deferred', 'calculated_by', 'calculated_at', 'approved_by', 'approved_at', 'paid_at', 'last_reminder_at',
 ])]
 class DistributionRun extends Model
 {

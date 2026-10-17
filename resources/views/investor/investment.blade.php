@@ -32,14 +32,15 @@
             <x-card><p class="text-sm text-gray-500">Profit approved, awaiting payment</p><p class="text-xl font-black">{{ Money::format($position['payable']) }}</p></x-card>
             <x-card><p class="text-sm text-gray-500">Current value</p><p class="text-xl font-black text-brand-700">{{ Money::format($position['current_value']) }}</p></x-card>
         </div>
-        <p class="mb-6 text-sm text-gray-600">Next profit calculation: <strong>{{ $next['cutoff']->format('d F Y') }}</strong> · payment by <strong>{{ $next['pay_by']->format('d F Y') }}</strong>.</p>
+        <p class="mb-6 text-sm text-gray-600">Profit payment: <strong>{{ $investment->profit_frequency->label() }}</strong>. {{ $investment->profit_frequency->description() }}
+            Next calculation: <strong>{{ $next['cutoff']->format('d F Y') }}</strong> · payment by <strong>{{ $next['pay_by']->format('d F Y') }}</strong>.</p>
 
         @if($distributions->isNotEmpty())
             <x-card class="mb-6">
-                <h2 class="mb-3 font-black text-brand-700">Monthly profit shares</h2>
-                <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-2">Month</th><th>Your share</th><th>Status</th><th>Reference</th></tr></thead><tbody>
+                <h2 class="mb-3 font-black text-brand-700">Profit payments</h2>
+                <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-2">Paid in</th><th>Your share</th><th>Status</th><th>Reference</th></tr></thead><tbody>
                     @foreach($distributions as $d)
-                        <tr class="border-b last:border-0"><td class="py-2">{{ $d->run->label() }}</td><td>{{ Money::format($d->investor_share) }}</td>
+                        <tr class="border-b last:border-0"><td class="py-2">{{ $d->run->label() }}@if($d->coverage())<br><span class="text-xs text-gray-500">profit for {{ $d->coverage() }}</span>@endif</td><td>{{ Money::format($d->investor_share) }}</td>
                             <td>{{ $d->status === 'paid' ? 'Paid '.$d->paid_at->format('d M Y') : 'Approved, payment due by '.$d->run->pay_by->format('d M') }}</td>
                             <td class="font-mono">{{ $d->payment_reference ?? '—' }}</td></tr>
                     @endforeach
@@ -56,13 +57,13 @@
 
         <x-card class="mb-6">
             <h2 class="mb-3 font-black text-brand-700">Trading performance</h2>
-            <p class="mb-3 text-sm text-gray-600">Your funds are deployed into commodity trading cycles. Each month, on the 27th, the month's net profit is calculated and your share is approved and paid by month end. Returns are not guaranteed.</p>
+            <p class="mb-3 text-sm text-gray-600">Your funds are deployed into commodity trading cycles. On the 27th of each month the net profit is calculated; your share is approved and paid {{ match($investment->profit_frequency) { \App\Enums\ProfitFrequency::Monthly => 'by the end of that month', \App\Enums\ProfitFrequency::Quarterly => 'every 3 months (and at maturity)', default => 'once, at maturity' } }}. Returns are not guaranteed.</p>
             <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-2">Cycle</th><th>Closed</th><th>Your capital in cycle</th><th>Included in</th></tr></thead><tbody>
                 @forelse($entries as $e)
                     <tr class="border-b last:border-0">
                         <td class="py-2 font-mono">{{ $e->cycle_reference }}</td><td>{{ $e->recorded_at->format('d M Y') }}</td>
                         <td>{{ Money::format($e->capital_allocated) }}</td>
-                        <td>@if($e->run) {{ $e->run->label() }} distribution @else <span class="text-amber-700">Next monthly calculation</span> @endif</td>
+                        <td>@if($e->run) {{ $e->run->label() }} distribution @else <span class="text-amber-700">{{ $investment->profit_frequency === \App\Enums\ProfitFrequency::Monthly ? 'Next monthly calculation' : 'Held until your next '.strtolower($investment->profit_frequency->label()).' payment' }}</span> @endif</td>
                     </tr>
                 @empty
                     <tr><td colspan="4" class="py-4 text-center text-gray-500">No trading cycle has closed for this investment yet.</td></tr>

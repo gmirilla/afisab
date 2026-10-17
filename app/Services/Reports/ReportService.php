@@ -35,6 +35,7 @@ class ReportService
                 'investor' => $i->user->name,
                 'email' => $i->user->email,
                 'plan' => $i->plan->name,
+                'frequency' => $i->profit_frequency->label(),
                 'amount' => $i->amount,
                 'status' => $i->status->label(),
                 'start' => $i->start_date?->toDateString(),

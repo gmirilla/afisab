@@ -14,6 +14,10 @@
         <x-card><p class="text-sm text-gray-500">Company (70% of rest)</p><p class="text-xl font-black">{{ Money::format($run->total_company) }}</p></x-card>
     </div>
 
+    @if($run->policies_deferred > 0)
+        <p class="mb-4 rounded border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{{ $run->policies_deferred }} {{ \Illuminate\Support\Str::plural('policy', $run->policies_deferred) }} with trading results {{ $run->policies_deferred === 1 ? 'is' : 'are' }} <strong>not due this month</strong> (quarterly or one-off payment). The results stay recorded and are netted into the run where they fall due.</p>
+    @endif
+
     <x-card class="mb-6 text-sm">
         Cut-off: results recorded up to the end of <strong>{{ $run->cutoff_date->format('d M Y') }}</strong> · pay investors by <strong>{{ $run->pay_by->format('d M Y') }}</strong><br>
         Calculated {{ $run->calculated_at?->format('d M Y H:i') }} {{ $run->calculator ? 'by '.$run->calculator->name : '(automatically)' }}
@@ -48,10 +52,11 @@
 
     <x-card>
         <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr>
-            <th class="py-2">Policy</th><th>Investor</th><th>Month net</th><th>Retained</th><th>Investor share</th><th>Company share</th><th>Status</th><th></th></tr></thead><tbody>
+            <th class="py-2">Policy</th><th>Investor</th><th>Paid</th><th>Net profit</th><th>Retained</th><th>Investor share</th><th>Company share</th><th>Status</th><th></th></tr></thead><tbody>
         @forelse($lines as $l)
             <tr class="border-b align-top last:border-0">
                 <td class="py-2 font-mono">{{ $l->investment->reference }}</td><td>{{ $l->investment->user->name }}</td>
+                <td>{{ $l->frequency ? \App\Enums\ProfitFrequency::tryFrom($l->frequency)?->label() : 'Monthly' }}@if($l->coverage())<br><span class="text-xs text-gray-500">covers {{ $l->coverage() }}</span>@endif</td>
                 <td>{{ Money::format($l->net_profit) }}@if($l->net_profit < 0) <span class="text-xs text-red-700">(loss)</span>@endif</td>
                 <td>{{ Money::format($l->retained) }}</td><td class="font-bold">{{ Money::format($l->investor_share) }}</td><td>{{ Money::format($l->company_share) }}</td>
                 <td>{{ ucfirst($l->status) }}@if($l->payment_reference)<br><span class="text-xs text-gray-500">{{ $l->payment_reference }}</span>@endif</td>
@@ -65,7 +70,7 @@
                 </td>
             </tr>
         @empty
-            <tr><td colspan="8" class="py-6 text-center text-gray-500">No trading results fell in this period.</td></tr>
+            <tr><td colspan="9" class="py-6 text-center text-gray-500">No trading results fell in this period.</td></tr>
         @endforelse
         </tbody></table>
     </x-card>

@@ -10,18 +10,26 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'reference', 'name', 'commodity_id', 'status', 'notes', 'opened_by', 'opened_at', 'closed_by', 'closed_at',
     'total_purchases', 'total_expenses', 'total_sales', 'net_profit', 'retained',
+    'approved_by', 'approved_at', 'decision_note',
 ])]
 class TradeCycle extends Model
 {
+    /** Proposed with its capital; waiting for a Director. Capital is reserved but nothing can be bought. */
+    public const PENDING = 'pending';
+
     public const OPEN = 'open';
 
     public const CLOSED = 'closed';
 
     public const CANCELLED = 'cancelled';
 
+    /** Statuses in which a cycle holds investor capital. */
+    public const HOLDING = [self::PENDING, self::OPEN];
+
     protected function casts(): array
     {
         return [
+            'approved_at' => 'datetime',
             'opened_at' => 'datetime',
             'closed_at' => 'datetime',
             'total_purchases' => 'integer',
@@ -65,6 +73,21 @@ class TradeCycle extends Model
     public function isOpen(): bool
     {
         return $this->status === self::OPEN;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === self::PENDING;
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function proposer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'opened_by');
     }
 
     /** Capital allocated to this cycle: the most that may be committed to purchases. */

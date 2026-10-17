@@ -24,6 +24,9 @@ return [
     'distribution_cutoff_day' => (int) env('AFISAB_DISTRIBUTION_CUTOFF_DAY', 27),
 
     // A single purchase above this amount (kobo) must be approved by a Director (super-admin). NGN 5,000,000.
+    // "Allocate free capital" when proposing a cycle leaves out policies maturing within this many days (the form can override it).
+    'cycle_maturity_buffer_days' => (int) env('AFISAB_CYCLE_MATURITY_BUFFER_DAYS', 30),
+
     'purchase_director_threshold' => (int) env('AFISAB_PURCHASE_DIRECTOR_THRESHOLD', 5_000_000_00),
 
     // Only for the cPanel split layout (web root separate from the app folder): the folder that holds index.php and

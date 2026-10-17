@@ -134,7 +134,8 @@ class RiskService
 
     public function deployedCapital(): int
     {
-        return (int) CycleAllocation::whereHas('cycle', fn ($q) => $q->where('status', TradeCycle::OPEN))->sum('amount');
+        // Capital reserved by a cycle still waiting for approval counts, otherwise the limit could be passed by proposing several at once.
+        return (int) CycleAllocation::whereHas('cycle', fn ($q) => $q->whereIn('status', TradeCycle::HOLDING))->sum('amount');
     }
 
     public function activeCapital(): int

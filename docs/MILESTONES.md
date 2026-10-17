@@ -188,6 +188,33 @@ Addendum, 2026-10-17: **statutory payroll: PAYE, pension, NHF** (Q16 built)
 - [ ] Payslips (PDF); NSITF / ITF / NHIS employer levies; per-line manual override of a computed amount
 - [ ] Accountant to verify every seeded figure before activation
 
+Addendum, 2026-10-17: **cycle capital from free capital, and Director approval of every cycle**
+
+- [x] Proposing a cycle can take capital straight from the free pool: **all free capital**, or **a target amount shared pro rata** (exact to the kobo), or none (allocate by hand). All or nothing: any failed rule creates no cycle
+- [x] Policies **maturing within N days (default 30, `AFISAB_CYCLE_MATURITY_BUFFER_DAYS`, editable on the form) are left out**, with an "include them anyway" tick. Only active policies are eligible
+- [x] **Every cycle is approved by a Director** (`cycles.approve`, super-admin) who did not propose it. A new cycle is `pending`: capital is reserved (counts toward free capital, payout blocking and the deployment limit) but no purchase, expense or sale can be recorded. Approve opens it; reject releases the capital; the proposer can withdraw it
+- [x] After approval, only a Director can add or increase capital in the cycle (otherwise approval could be bypassed); anyone with `cycles.manage` can still reduce it
+- [x] **Cash warning** (never a block) on the cycles list and cycle page when budgets still to be spent exceed Main Operations cash
+- [x] Directors are emailed when a cycle is proposed; pending cycles appear in their "Waiting for you" queue
+- [x] 18 new tests; existing trading tests now approve their cycles
+
+Addendum, 2026-10-17: **profit payment frequency** (monthly, quarterly, one-off at maturity)
+
+- [x] The investor chooses it on the plans page when subscribing; it is stored on the policy (`profit_frequency`) and **fixed for its life** (to change it, cancel an unpaid subscription and subscribe again). Existing policies are monthly
+- [x] The monthly run (27th calculation) now only includes policies **due that month**: monthly every month; quarterly every third month counted from the policy's start month (start +3, +6, +9 ...); one-off only in the final run. A policy that is not due keeps its results recorded and unassigned, and they are **netted together** in the run where it falls due
+- [x] The **final run** (every frequency) is any run whose month ends on or after the maturity date, and it keeps sweeping, so results recorded late are never stranded
+- [x] Back office: the run shows each line's frequency and the period it covers, and how many policies were not due; the bank CSV and investors report have the frequency; the payments screen shows it; approval, payment and the ledger are unchanged (only due lines are booked)
+- [x] Investor: the plans page explains each option; the dashboard and policy page show the frequency, the next payment date and "profit for 21 Oct - 21 Jan"
+- [x] 11 new tests
+- [ ] Decide Q18 (netting across the period, and quarterly anchoring) before launch
+
+Addendum, 2026-10-17: **investor directory** (`/admin/investors`)
+
+- [x] Read-only list of every investor for staff with `investors.view` (accounts, sales, compliance, auditors): KYC status, policies, active principal, profit paid and payable. Search by name, email, phone or policy reference; filter by KYC, holdings and profit frequency; sort; paged; CSV download of the filtered list
+- [x] Investor page: contact and personal details, the bank account they are paid into, KYC status and who reviewed it, every policy (frequency, term, profit, current value), every payment in, every profit payment (with the period it covers), capital returned, and recent audit activity (auditors only)
+- [x] Privacy: the BVN is masked (last four digits) except for KYC reviewers, who alone also get the ID document link; certificate and statement PDFs only for staff who may issue them. Opening a record (once per 30 minutes per person) and exporting the list are written to the audit trail
+- [x] 11 new tests
+
 Outstanding, not engineering:
 
 - [ ] **Legal/regulatory sign-off** on investor wording, structure and KYC (DECISIONS.md Q5)

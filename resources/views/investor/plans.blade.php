@@ -12,6 +12,18 @@
                 <form method="POST" action="{{ route('investor.investments.store') }}" class="mt-4 space-y-3">@csrf
                     <input type="hidden" name="investment_plan_id" value="{{ $plan->id }}">
                     <x-field name="amount" label="Amount (₦)" inputmode="decimal" :value="number_format($plan->minimum_amount / 100, 0, '.', '')" required />
+                    <fieldset>
+                        <legend class="text-sm font-bold text-gray-700">How do you want your profit paid?</legend>
+                        <div class="mt-1 space-y-2">
+                            @foreach($frequencies as $f)
+                                <label class="flex items-start gap-2 text-sm">
+                                    <input type="radio" name="profit_frequency" value="{{ $f->value }}" class="mt-1" @checked(old('profit_frequency', 'monthly') === $f->value)>
+                                    <span><strong>{{ $f->label() }}</strong><br><span class="text-xs text-gray-500">{{ $f->description() }}</span></span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500">This is fixed once you subscribe. Profit is the net result of the period, so with quarterly or one-off payment a weaker month is netted against a stronger one before your share is worked out.</p>
+                    </fieldset>
                     <x-btn class="w-full">Subscribe</x-btn>
                 </form>
             </x-card>

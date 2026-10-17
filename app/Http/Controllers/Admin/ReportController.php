@@ -23,8 +23,8 @@ class ReportController extends Controller
 
         if ($request->query('format') === 'csv') {
             return Csv::download('investors-report.csv', array_merge(
-                [['Policy', 'Investor', 'Email', 'Plan', 'Amount (NGN)', 'Status', 'Start', 'Maturity', 'Profit paid (NGN)', 'Profit payable (NGN)']],
-                $rows->map(fn ($r) => [$r['reference'], $r['investor'], $r['email'], $r['plan'], $this->n($r['amount']), $r['status'], $r['start'], $r['maturity'], $this->n($r['profit_paid']), $this->n($r['profit_payable'])])->all(),
+                [['Policy', 'Investor', 'Email', 'Plan', 'Profit frequency', 'Amount (NGN)', 'Status', 'Start', 'Maturity', 'Profit paid (NGN)', 'Profit payable (NGN)']],
+                $rows->map(fn ($r) => [$r['reference'], $r['investor'], $r['email'], $r['plan'], $r['frequency'], $this->n($r['amount']), $r['status'], $r['start'], $r['maturity'], $this->n($r['profit_paid']), $this->n($r['profit_payable'])])->all(),
             ));
         }
 

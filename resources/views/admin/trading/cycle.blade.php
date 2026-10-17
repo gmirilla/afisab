@@ -2,6 +2,8 @@
     use App\Support\Money;
     use App\Models\Purchase; use App\Models\CycleExpense; use App\Models\Sale; use App\Models\TradeCycle;
     $open = $cycle->isOpen();
+    $pending = $cycle->isPending();
+    $live = $open || $pending; // capital can still be changed
     $paidPurchases = $cycle->purchases->whereIn('status', [Purchase::PAID, Purchase::RECEIVED])->sum('total');
     $paidExpenses = $cycle->expenses->where('status', CycleExpense::PAID)->sum('amount');
     $paidSales = $cycle->sales->where('status', Sale::PAID)->sum('total');
@@ -13,7 +15,27 @@
             <span class="ml-2 rounded bg-brand-50 px-2 py-1 text-sm">{{ ucfirst($cycle->status) }}</span></h1>
         <a class="text-sm underline" href="{{ route('admin.trading.cycles') }}">← All cycles</a>
     </div>
-    <p class="mb-4 text-sm text-gray-600">Commodity: <strong>{{ $cycle->commodity->name }}</strong> @if($cycle->notes) · {{ $cycle->notes }} @endif</p>
+    <p class="mb-4 text-sm text-gray-600">Commodity: <strong>{{ $cycle->commodity->name }}</strong> @if($cycle->notes) · {{ $cycle->notes }} @endif
+        · proposed by {{ $cycle->proposer?->name }} {{ $cycle->opened_at?->format('d M Y') }}@if($cycle->approver && $cycle->status !== TradeCycle::CANCELLED) · approved by {{ $cycle->approver->name }} {{ $cycle->approved_at?->format('d M Y') }}@endif</p>
+
+    @if($errors->has('action'))<p class="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">{{ $errors->first('action') }}</p>@endif
+    @if($cashWarning)<p class="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><strong>Cash warning.</strong> {{ $cashWarning }}</p>@endif
+    @if($cycle->status === TradeCycle::CANCELLED && $cycle->decision_note)
+        <p class="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">Rejected by {{ $cycle->approver?->name }}: {{ $cycle->decision_note }}</p>
+    @endif
+    @if($pending)
+        <x-card class="mb-6 border-amber-300 bg-amber-50">
+            <h2 class="font-black text-amber-900">Waiting for a Director's approval</h2>
+            <p class="mb-3 text-sm text-amber-900">Capital of {{ Money::format($budget) }} is reserved for this cycle, but no purchase, expense or sale can be recorded until it is approved. Approval is by a Director who did not propose it.</p>
+            @can('cycles.approve')
+                <div class="flex flex-wrap items-end gap-3">
+                    <form method="POST" action="{{ route('admin.trading.cycles.approve', $cycle) }}" data-confirm="Approve this cycle with a budget of {{ Money::format($budget) }}?">@csrf<x-btn>Approve cycle</x-btn></form>
+                    <form method="POST" action="{{ route('admin.trading.cycles.reject', $cycle) }}" class="flex items-end gap-2">@csrf
+                        <input name="note" placeholder="Reason for rejecting" required class="w-56 rounded border px-3 py-2 text-sm"><x-btn variant="danger">Reject</x-btn></form>
+                </div>
+            @endcan
+        </x-card>
+    @endif
 
     <div class="mb-6 grid gap-4 md:grid-cols-5">
         <x-card><p class="text-xs text-gray-500">Budget (allocated)</p><p class="font-black">{{ Money::format($budget) }}</p></x-card>
@@ -37,10 +59,11 @@
             @forelse($cycle->allocations as $a)
                 <tr class="border-b last:border-0"><td class="py-2 font-mono">{{ $a->investment->reference }}</td><td>{{ $a->investment->user->name }}</td>
                     <td class="text-right font-mono">{{ Money::format($a->amount) }}</td>
-                    <td class="text-right">@if($open) @can('cycles.manage')<form method="POST" action="{{ route('admin.trading.cycles.deallocate', $a) }}">@csrf @method('DELETE')<x-btn variant="ghost">Remove</x-btn></form>@endcan @endif</td></tr>
+                    <td class="text-right">@if($live) @can('cycles.manage')<form method="POST" action="{{ route('admin.trading.cycles.deallocate', $a) }}">@csrf @method('DELETE')<x-btn variant="ghost">Remove</x-btn></form>@endcan @endif</td></tr>
             @empty <tr><td colspan="4" class="py-4 text-center text-gray-500">No capital allocated yet.</td></tr> @endforelse
         </tbody></table>
-        @if($open) @can('cycles.manage')
+        @if($open && ! auth()->user()->can('cycles.approve'))<p class="mt-3 text-xs text-gray-500">This cycle is approved. Capital can be reduced or removed here; adding more needs a Director.</p>@endif
+        @if($live && ($pending || auth()->user()->can('cycles.approve'))) @can('cycles.manage')
             <form method="POST" action="{{ route('admin.trading.cycles.allocate', $cycle) }}" class="mt-4 flex flex-wrap items-end gap-3 border-t pt-4">@csrf
                 <label class="block text-sm font-bold text-gray-700">Policy
                     <select name="investment_id" class="mt-1 block rounded border border-gray-300 px-3 py-2 font-normal">
@@ -175,12 +198,14 @@
         @endcan @endif
     </x-card>
 
-    @if($open) @can('cycles.manage')
+    @if($live) @can('cycles.manage')
         <x-card>
-            <h2 class="mb-2 font-black text-brand-700">Close or cancel</h2>
+            <h2 class="mb-2 font-black text-brand-700">{{ $pending ? 'Withdraw this proposal' : 'Close or cancel' }}</h2>
+            @if($open)
             <p class="mb-3 text-sm text-gray-600">Closing needs every purchase paid and received, every expense settled, all stock sold and every sale paid. It returns the sales proceeds (less the 20% retention) to Main Operations and records the result for the monthly distribution.</p>
+            @else<p class="mb-3 text-sm text-gray-600">Withdrawing releases the reserved capital. Nothing has been bought, so no money is affected.</p>@endif
             <div class="flex gap-3">
-                <form method="POST" action="{{ route('admin.trading.cycles.close', $cycle) }}" data-confirm="Close this cycle and settle the proceeds?">@csrf<x-btn>Close cycle</x-btn></form>
+                @if($open)<form method="POST" action="{{ route('admin.trading.cycles.close', $cycle) }}" data-confirm="Close this cycle and settle the proceeds?">@csrf<x-btn>Close cycle</x-btn></form>@endif
                 <form method="POST" action="{{ route('admin.trading.cycles.cancel', $cycle) }}" data-confirm="Cancel this cycle? Only possible if no money has moved.">@csrf<x-btn variant="danger">Cancel cycle</x-btn></form>
             </div>
         </x-card>

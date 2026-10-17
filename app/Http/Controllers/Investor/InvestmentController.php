@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Investor;
 
 use App\Enums\InvestmentStatus;
+use App\Enums\ProfitFrequency;
 use App\Exceptions\BusinessRuleException;
 use App\Http\Controllers\Controller;
 use App\Models\DistributionLine;
@@ -10,10 +11,12 @@ use App\Models\Investment;
 use App\Models\InvestmentPlan;
 use App\Services\Performance\DistributionService;
 use App\Services\Performance\PerformanceService;
+use App\Services\Performance\ProfitSchedule;
 use App\Services\SubscriptionService;
 use App\Support\Money;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use InvalidArgumentException;
 
@@ -29,6 +32,7 @@ class InvestmentController extends Controller
             'investments' => $investments,
             'positions' => $positions,
             'next' => DistributionService::nextSchedule(),
+            'nextRuns' => $investments->mapWithKeys(fn ($i) => [$i->id => ProfitSchedule::nextRun($i)]),
             'totalValue' => $investments->whereIn('status', [InvestmentStatus::Active, InvestmentStatus::Matured])->sum(fn ($i) => $positions[$i->id]['current_value']),
             'totalInvested' => $active->sum('amount'),
             'activeCount' => $active->count(),
@@ -40,6 +44,7 @@ class InvestmentController extends Controller
     {
         return view('investor.plans', [
             'plans' => InvestmentPlan::where('is_active', true)->orderBy('sort_order')->get(),
+            'frequencies' => ProfitFrequency::cases(),
         ]);
     }
 
@@ -48,6 +53,7 @@ class InvestmentController extends Controller
         $data = $request->validate([
             'investment_plan_id' => ['required', 'exists:investment_plans,id'],
             'amount' => ['required', 'string', 'max:20'],
+            'profit_frequency' => ['nullable', Rule::enum(ProfitFrequency::class)],
         ]);
 
         try {
@@ -55,6 +61,7 @@ class InvestmentController extends Controller
                 $request->user(),
                 InvestmentPlan::findOrFail($data['investment_plan_id']),
                 Money::fromNaira($data['amount']),
+                ProfitFrequency::tryFrom($data['profit_frequency'] ?? '') ?? ProfitFrequency::Monthly,
             );
         } catch (InvalidArgumentException) {
             return back()->withInput()->withErrors(['amount' => 'Enter a valid amount in naira.']);
@@ -75,7 +82,7 @@ class InvestmentController extends Controller
             'entries' => $investment->performanceEntries()->with('run')->get(),
             'distributions' => DistributionLine::with('run')->where('investment_id', $investment->id)
                 ->whereIn('status', [DistributionLine::PAYABLE, DistributionLine::PAID])->latest()->get(),
-            'next' => DistributionService::nextSchedule(),
+            'next' => ProfitSchedule::nextRun($investment) ?? DistributionService::nextSchedule(),
             'investment' => $investment->load(['plan', 'payments']),
         ]);
     }

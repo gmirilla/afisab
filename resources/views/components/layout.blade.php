@@ -7,6 +7,7 @@
     if ($u?->isStaff()) {
         $groups = [
             ['Investors', [
+                ['All investors', 'admin.investors', $u->can('investors.view')],
                 ['Payments', 'admin.payments', $u->can('payments.confirm')],
                 ['KYC review', 'admin.kyc', $u->can('kyc.review')],
                 ['Plans', 'admin.plans', $u->can('plans.manage')],
