@@ -101,7 +101,7 @@ class HardeningTest extends TestCase
 
         $expected = [
             // the public marketing site
-            'GET /', 'GET about', 'GET contact', 'GET for-buyers', 'GET for-suppliers', 'GET how-we-work', 'GET investors',
+            'GET /', 'GET about', 'GET contact', 'GET for-buyers', 'GET for-investors', 'GET for-suppliers', 'GET how-we-work',
             'GET privacy', 'GET risk-notice', 'GET robots.txt', 'GET sitemap.xml', 'GET terms', 'GET what-we-trade', 'POST enquiries',
             // sign-in, registration, certificate verification, health and webhooks
             'GET forgot-password', 'GET login', 'GET register', 'GET reset-password/{token}', 'GET two-factor-challenge',
@@ -210,7 +210,8 @@ class HardeningTest extends TestCase
         foreach (File::allFiles(resource_path('views')) as $file) {
             $content = file_get_contents($file->getPathname());
             $this->assertDoesNotMatchRegularExpression('/\son(click|submit|change|load|error|input|focus)\s*=/i', $content, "{$file->getRelativePathname()} has an inline event handler");
-            $this->assertDoesNotMatchRegularExpression('/<script(?![^>]*\bsrc=)/i', $content, "{$file->getRelativePathname()} has an inline <script>");
+            // A JSON-LD block (company data for search engines) is inert data the browser never executes; no other inline script is allowed.
+            $this->assertDoesNotMatchRegularExpression('/<script(?![^>]*(\bsrc=|type="application\/ld\+json"))/i', $content, "{$file->getRelativePathname()} has an inline <script>");
         }
     }
 

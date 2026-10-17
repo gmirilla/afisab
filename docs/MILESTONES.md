@@ -232,7 +232,7 @@ Addendum, 2026-10-18: **public marketing website** (see [WEBSITE.md](WEBSITE.md)
 - [x] **Only confirmed facts are used** (name, industry, customers, suppliers, markets, slogan, email, phone) plus controls the system really enforces; a test fails if an unconfirmed claim appears
 - [x] Forms for quote requests (buyers), supplier interest and general questions: consent tick box, a hidden honeypot, a minimum fill time, a rate limit, strict validation. Each enquiry is stored and emailed to the **one shared mailbox** (`AFISAB_ENQUIRY_EMAIL`, default info@afisab.com). The sender is not emailed back, so the form cannot be used to email strangers
 - [x] Back-office **Website enquiries** inbox (Sales and Directors): search, filter, status, internal note; a supplier enquiry becomes a supplier record in one click (Procurement/Directors); new enquiries appear in the work queue
-- [x] **The investment programme is not promoted publicly.** `/investors` is off until `AFISAB_PUBLIC_INVESTOR_PAGE=true` (after legal sign-off, Q5); until then the site shows only a plain "Investor portal" sign-in link
+- [x] **The investment programme is not promoted publicly.** `/for-investors` is off until `AFISAB_PUBLIC_INVESTOR_PAGE=true` (after legal sign-off, Q5); until then the site shows only a plain "Investor portal" sign-in link
 - [x] 16 new tests; the public-route audit now lists the new public pages
 - [ ] Real photography and the official logo (monogram and patterns for now); registered address, RC number, year founded and certifications once confirmed
 - [ ] Have counsel review the privacy notice, terms and risk notice before launch

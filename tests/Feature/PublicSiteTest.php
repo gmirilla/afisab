@@ -99,7 +99,7 @@ class PublicSiteTest extends TestCase
             $page->assertSee('Investor portal'); // a plain sign-in link only
         }
         $this->get(route('public.investors'))->assertNotFound();
-        $this->get(route('sitemap'))->assertDontSee('/investors');
+        $this->get(route('sitemap'))->assertDontSee('/for-investors');
 
         config(['afisab.public_investor_page' => true]);
         $this->get(route('public.investors'))->assertOk()->assertSee('Become an investor')->assertSee('not guaranteed');

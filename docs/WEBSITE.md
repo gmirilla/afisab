@@ -14,13 +14,13 @@ The marketing site is part of the same application. Visitors see it at `/`; inve
 | `/about` | Company details, commitments, markets |
 | `/contact` | Phone, email, WhatsApp; **general message form** |
 | `/privacy`, `/terms`, `/risk-notice` | Legal pages (general templates: **have counsel review them**) |
-| `/investors` | **Off by default.** See below |
+| `/for-investors` | **Off by default.** See below |
 | `/sitemap.xml`, `/robots.txt` | For search engines (robots keeps `/admin`, `/investor`, `/account`, `/dashboard` out) |
 
 ## Rules this site follows
 
 - **Only confirmed facts.** The brief confirmed: name, industry, customers, suppliers, markets (Nigeria domestic, international as an expansion opportunity), slogan, email and phone. Beyond those, the pages describe controls the software really enforces (quality check and recording of moisture and grade, traceable lots, separate approval and payment of purchases, an unalterable ledger). `PublicSiteTest` fails if words like "certified", "nationwide" or "years of experience" appear.
-- **The investment programme is not promoted.** Promoting an investment scheme to the public needs regulatory clearance (DECISIONS.md Q5). While `AFISAB_PUBLIC_INVESTOR_PAGE` is false, `/investors` is a 404, the sitemap omits it, and the only mention anywhere is a plain "Investor portal" sign-in link.
+- **The investment programme is not promoted.** Promoting an investment scheme to the public needs regulatory clearance (DECISIONS.md Q5). While `AFISAB_PUBLIC_INVESTOR_PAGE` is false, `/for-investors` is a 404, the sitemap omits it, and the only mention anywhere is a plain "Investor portal" sign-in link.
 - **Forms cannot be abused to email strangers.** Nobody who submits a form is emailed back; the shared mailbox is notified instead.
 
 ## Settings (`.env`)
@@ -30,7 +30,7 @@ The marketing site is part of the same application. Visitors see it at `/`; inve
 | `AFISAB_CONTACT_EMAIL` | info@afisab.com | Shown on the site |
 | `AFISAB_CONTACT_PHONE` | +2348057520669 | Shown on the site; also used for the WhatsApp link |
 | `AFISAB_ENQUIRY_EMAIL` | info@afisab.com | Where every form submission is emailed |
-| `AFISAB_PUBLIC_INVESTOR_PAGE` | false | Publishes `/investors` |
+| `AFISAB_PUBLIC_INVESTOR_PAGE` | false | Publishes `/for-investors` |
 | `AFISAB_COMPANY_NAME` | AFISAB NIG. LTD | Name in the header, footer, emails and structured data |
 
 ## Enquiries

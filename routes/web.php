@@ -22,7 +22,7 @@ Route::get('/contact', [SiteController::class, 'contact'])->name('public.contact
 Route::get('/privacy', [SiteController::class, 'privacy'])->name('public.privacy');
 Route::get('/terms', [SiteController::class, 'terms'])->name('public.terms');
 Route::get('/risk-notice', [SiteController::class, 'risk'])->name('public.risk');
-Route::get('/investors', [SiteController::class, 'investors'])->name('public.investors');
+Route::get('/for-investors', [SiteController::class, 'investors'])->name('public.investors');
 Route::get('/sitemap.xml', [SiteController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SiteController::class, 'robots'])->name('robots');
 Route::post('/enquiries', [PublicEnquiryController::class, 'store'])->middleware('throttle:6,10')->name('public.enquiries.store');
