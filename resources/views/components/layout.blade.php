@@ -15,6 +15,7 @@
                 ['Paystack', 'admin.paystack', $u->can('paystack.manage')],
             ]],
             ['Trading', [
+                ['Enquiries', 'admin.enquiries', $u->can('enquiries.manage')],
                 ['Cycles', 'admin.trading.cycles', $u->can('trading.view')],
                 ['Stock', 'admin.trading.inventory', $u->can('trading.view')],
                 ['Suppliers', 'admin.trading.suppliers', $u->can('trading.view')],

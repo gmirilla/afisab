@@ -66,6 +66,8 @@ after changing it (safe to re-run). `super-admin` receives every permission and 
 | Cycles: propose, allocate, withdraw | `POST /admin/trading/cycles...` | `cycles.manage` (sales). Adding capital to an already-approved cycle needs `cycles.approve` |
 | Cycles: approve, reject | `POST /admin/trading/cycles/{id}/approve|reject` | `cycles.approve` (super-admin); not the person who proposed it |
 | Investor directory, investor page, CSV | `/admin/investors`, `/admin/investors/{id}`, `/admin/investors/export` | `investors.view` (accounts, sales, compliance, auditor). Full BVN and ID document: `kyc.review`. Activity trail: `audit.view`. Views and exports are audited |
+| Website enquiries: inbox, view, update | `/admin/enquiries`, `/admin/enquiries/{id}` | `enquiries.manage` (sales, super-admin) |
+| Enquiry to supplier record | `POST /admin/enquiries/{id}/supplier` | `enquiries.manage` and `suppliers.manage` |
 | Capital payouts: view | `/admin/payouts` | `payouts.prepare`, `payouts.approve` or `ledger.view` |
 | Capital payouts: prepare, mark paid | `POST /admin/payouts/...` | `payouts.prepare` (accounts) |
 | Capital payouts: approve, reject | `POST /admin/payouts/{id}/approve|reject` | `payouts.approve` (super-admin); not the person who prepared it |

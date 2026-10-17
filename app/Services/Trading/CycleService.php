@@ -87,7 +87,7 @@ class CycleService
             return $cycle;
         });
 
-        foreach (User::role('super-admin')->get()->reject(fn (User $u) => $u->id === $by->id) as $director) {
+        foreach (User::role('super-admin')->active()->get()->reject(fn (User $u) => $u->id === $by->id) as $director) {
             $director->notify(new CycleAwaitingApproval($cycle));
         }
 

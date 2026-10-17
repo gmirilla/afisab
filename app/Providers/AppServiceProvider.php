@@ -14,6 +14,7 @@ use App\Models\JournalEntry;
 use App\Models\DistributionLine;
 use App\Models\DistributionRun;
 use App\Models\Employee;
+use App\Models\Enquiry;
 use App\Models\InventoryLot;
 use App\Models\Investment;
 use App\Models\InvestmentPlan;
@@ -81,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
             'journal_entry' => JournalEntry::class,
             'bank_account' => BankAccount::class,
             'paystack_setting' => PaystackSetting::class,
+            'enquiry' => Enquiry::class,
             'pension_administrator' => PensionAdministrator::class,
             'statutory_rule_set' => StatutoryRuleSet::class,
             'statutory_remittance' => StatutoryRemittance::class,

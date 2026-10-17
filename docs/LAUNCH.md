@@ -22,6 +22,15 @@ Work top to bottom. Nothing in section 1 is a software task: each needs the owne
 | ☐ | Independent penetration test done, findings fixed | IT | SECURITY.md |
 | ☐ | UAT signed off ([UAT.md](UAT.md)) | Department heads | |
 
+## 1b. Public website (see [WEBSITE.md](WEBSITE.md))
+
+| ✔ | Item | Owner |
+|---|---|---|
+| ☐ | Counsel reviews the privacy notice, terms of use and risk notice (the texts are general templates) | Legal counsel |
+| ☐ | Decide whether to publish the investor page: set `AFISAB_PUBLIC_INVESTOR_PAGE=true` only after sign-off (Q5) | Owner / legal |
+| ☐ | Supply the content listed in WEBSITE.md (logo, photos, address, RC number ...) | Owner |
+| ☐ | Send a test enquiry from each form and confirm it reaches info@afisab.com | IT |
+
 ## 2. Hosting
 
 | ✔ | Item |
@@ -29,7 +38,7 @@ Work top to bottom. Nothing in section 1 is a software task: each needs the owne
 | ☐ | Host runs PHP 8.3+ with the required extensions: upload `deploy/check-host.php` and run `php check-host.php` over SSH (0 failures) |
 | ☐ | HTTPS certificate installed; the domain redirects `http` to `https` |
 | ☐ | MySQL database and user created; backups off-server arranged |
-| ☐ | Email sending works (SPF/DKIM set up for the domain so verification emails do not land in spam) |
+| ☐ | Email sending works: run `php artisan afisab:test-mail you@example.com` and confirm it arrives (not in spam); SPF/DKIM set up for the domain. The queue cron line in `deploy/crontab.txt` is what actually sends them |
 | ☐ | Cron jobs added from `deploy/crontab.txt` (scheduler, queue, backup) |
 
 ## 3. Deploy (see [DEPLOYMENT.md](DEPLOYMENT.md))

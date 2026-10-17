@@ -99,11 +99,17 @@ class HardeningTest extends TestCase
             ->map(fn ($r) => implode('|', array_diff($r->methods(), ['HEAD'])).' '.$r->uri())
             ->sort()->values()->all();
 
-        $this->assertSame([
-            'GET /', 'GET forgot-password', 'GET login', 'GET register', 'GET reset-password/{token}', 'GET two-factor-challenge',
+        $expected = [
+            // the public marketing site
+            'GET /', 'GET about', 'GET contact', 'GET for-buyers', 'GET for-suppliers', 'GET how-we-work', 'GET investors',
+            'GET privacy', 'GET risk-notice', 'GET robots.txt', 'GET sitemap.xml', 'GET terms', 'GET what-we-trade', 'POST enquiries',
+            // sign-in, registration, certificate verification, health and webhooks
+            'GET forgot-password', 'GET login', 'GET register', 'GET reset-password/{token}', 'GET two-factor-challenge',
             'GET up', 'GET verify', 'GET verify/{token}', 'POST forgot-password', 'POST login', 'POST register',
             'POST reset-password', 'POST two-factor-challenge', 'POST verify', 'POST webhooks/paystack',
-        ], $public, 'A route became public (or a public one disappeared). Review it before launch.');
+        ];
+        sort($expected);
+        $this->assertSame($expected, $public, 'A route became public (or a public one disappeared). Review it before launch.');
     }
 
     public function test_every_back_office_route_demands_a_role_or_permission(): void

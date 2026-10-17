@@ -2,32 +2,31 @@
 
 namespace App\Notifications;
 
+use App\Enums\ProfitFrequency;
 use App\Models\Investment;
 use App\Support\Money;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class MaturityApproaching extends Notification implements ShouldQueue
+class MaturityApproaching extends AfisabNotification
 {
-    use Queueable;
+    public $afterCommit = true;
 
     public function __construct(public Investment $investment) {}
-
-    public function via(object $notifiable): array
-    {
-        return ['mail'];
-    }
 
     public function toMail(object $notifiable): MailMessage
     {
         $i = $this->investment;
 
-        return (new MailMessage)
+        $mail = (new MailMessage)
             ->subject('Your AFISAB investment matures soon')
             ->greeting("Hello {$notifiable->name},")
-            ->line("Investment {$i->reference} (".Money::format($i->amount).") matures on {$i->maturity_date->format('d M Y')}.")
+            ->line("Investment {$i->reference} (".Money::format($i->amount).") matures on {$i->maturity_date->format('d M Y')}.");
+
+        if ($i->profit_frequency !== ProfitFrequency::Monthly) {
+            $mail->line('Because you chose '.strtolower($i->profit_frequency->label()).' profit payments, any profit not yet paid to you is settled in the distribution for the month of maturity.');
+        }
+
+        return $mail
             ->line('Our team will be in touch about settlement. Please make sure your bank details are up to date.')
             ->action('View your investment', route('investor.investments.show', $i));
     }

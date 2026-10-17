@@ -53,7 +53,7 @@ class CapitalPayoutService
             return $payout;
         });
 
-        foreach (User::role('super-admin')->get() as $admin) {
+        foreach (User::role('super-admin')->active()->where('id', '!=', $by->id)->get() as $admin) {
             $admin->notify(new CapitalPayoutReady($payout));
         }
 

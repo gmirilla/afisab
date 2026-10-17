@@ -31,6 +31,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Investment::class);
     }
 
+    /** Accounts that may still sign in (not disabled). Used to pick who gets staff emails. */
+    public function scopeActive($query)
+    {
+        return $query->whereNull('disabled_at');
+    }
+
     public function isStaff(): bool
     {
         return $this->roles()->where('name', '!=', 'investor')->exists();

@@ -112,7 +112,17 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'name' => env('MAIL_FROM_NAME', env('AFISAB_COMPANY_NAME', 'AFISAB NIG. LTD')),
+    ],
+
+    /*
+    | Markdown mail: every email (ours and Fortify's verify / reset) uses the AFISAB theme in
+    | resources/views/vendor/mail/html/themes/afisab.css.
+    */
+
+    'markdown' => [
+        'theme' => 'afisab',
+        'paths' => [resource_path('views/vendor/mail')],
     ],
 
 ];

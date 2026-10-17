@@ -8,6 +8,7 @@ use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\CapitalPayout;
 use App\Models\CycleExpense;
+use App\Models\Enquiry;
 use App\Models\LedgerReversal;
 use App\Models\StatutoryRemittance;
 use App\Models\TradeCycle;
@@ -39,6 +40,7 @@ class DashboardController extends Controller
             'investorFunds' => $canSeeFunds ? $ledger->balance(LedgerAccount::INVESTOR_FUNDS) : null,
             'activeInvestments' => Investment::where('status', InvestmentStatus::Active)->count(),
             'queue' => $this->queue($user),
+            'mailWarning' => $user->canAny(['payouts.prepare', 'payouts.approve', 'payroll.pay']) ? \App\Support\QueueHealth::warning() : null,
             'schedulerWarning' => $user->canAny(['payouts.prepare', 'payouts.approve', 'payroll.pay']) ? SchedulerHealth::warning() : null,
         ]);
     }
@@ -53,6 +55,7 @@ class DashboardController extends Controller
         $items = [
             ['payments.confirm', 'Bank-transfer payments to confirm', Payment::where('status', PaymentStatus::AwaitingConfirmation)->count(), 'admin.payments'],
             ['kyc.review', 'KYC submissions to review', InvestorProfile::where('kyc_status', KycStatus::Submitted)->count(), 'admin.kyc'],
+            ['enquiries.manage', 'New website enquiries', Enquiry::where('status', Enquiry::NEW)->count(), 'admin.enquiries'],
             ['cycles.approve', 'Trading cycles to approve', TradeCycle::where('status', TradeCycle::PENDING)->count(), 'admin.trading.cycles'],
             ['purchases.approve', 'Purchases to approve', Purchase::where('status', Purchase::PROPOSED)->count(), 'admin.trading.cycles'],
             ['purchases.pay', 'Approved purchases to pay', Purchase::where('status', Purchase::APPROVED)->count(), 'admin.trading.cycles'],

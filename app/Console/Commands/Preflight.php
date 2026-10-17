@@ -34,6 +34,10 @@ class Preflight extends Command
         $this->check('Database is not SQLite', $driver !== 'sqlite', "driver: {$driver}", $production ? 'fail' : 'warn');
         $this->check('Cache is persistent', ! in_array(config('cache.default'), ['array', 'null'], true), 'driver: '.config('cache.default'), 'fail');
         $this->check('Mail is configured to send', ! in_array(config('mail.default'), ['log', 'array'], true), 'mailer: '.config('mail.default').' (verification, reset and payment emails)', $production ? 'fail' : 'warn');
+        $queue = (string) config('queue.default');
+        $this->check('Emails are queued (not sent inside the request)', $queue !== 'sync', 'QUEUE_CONNECTION='.$queue.': a mail server problem would then break the action that triggered the email', $production ? 'fail' : 'warn');
+        $failedMail = \App\Support\QueueHealth::failedCount();
+        $this->check('No emails have failed to send', $failedMail === 0, $failedMail.' failed job(s): run afisab:test-mail, then queue:retry all', 'warn');
         $this->check('Session cookie is HTTPS-only', (bool) config('session.secure'), 'SESSION_SECURE_COOKIE', $production ? 'fail' : 'warn');
         $this->check('Sessions are encrypted', (bool) config('session.encrypt'), 'SESSION_ENCRYPT', 'warn');
 

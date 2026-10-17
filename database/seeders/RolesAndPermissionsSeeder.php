@@ -13,7 +13,7 @@ class RolesAndPermissionsSeeder extends Seeder
     private const ROLES = [
         'super-admin' => ['*'],
         'accounts' => ['funds.view', 'ledger.view', 'payments.confirm', 'payouts.prepare', 'reconciliation.manage', 'reversals.request', 'reports.view', 'investors.view', 'purchases.approve', 'purchases.pay', 'sales.receive', 'trading.view', 'risk.view', 'takaful.manage', 'payroll.pay'],
-        'sales' => ['cycles.manage', 'sales.manage', 'purchases.propose', 'buyers.manage', 'trading.view', 'funds.view', 'investors.view'],
+        'sales' => ['enquiries.manage', 'cycles.manage', 'sales.manage', 'purchases.propose', 'buyers.manage', 'trading.view', 'funds.view', 'investors.view'],
         'procurement' => ['purchases.propose', 'inventory.manage', 'suppliers.manage', 'trading.view'],
         'hr' => ['staff.manage', 'payroll.manage'],
         'compliance' => ['kyc.review', 'investors.view', 'certificates.issue'],

@@ -215,6 +215,28 @@ Addendum, 2026-10-17: **investor directory** (`/admin/investors`)
 - [x] Privacy: the BVN is masked (last four digits) except for KYC reviewers, who alone also get the ID document link; certificate and statement PDFs only for staff who may issue them. Opening a record (once per 30 minutes per person) and exporting the list are written to the audit trail
 - [x] 11 new tests
 
+Addendum, 2026-10-17: **notifications reviewed and hardened** (the 7 existing emails plus verify-email and password-reset)
+
+- [x] One base class (`AfisabNotification`): every email is queued, sent only **after the database commit**, retried 4 times with growing delays, and a final failure is logged. A test fails if a new notification does not follow the pattern
+- [x] Recipients: disabled staff are skipped; a Director is not asked to approve what they prepared or calculated themselves (capital payouts, profit runs, cycles)
+- [x] Content: the welcome email states the chosen profit frequency and first payment date; the profit-paid email says what period a quarterly or one-off payment covers; the maturity email explains final settlement for deferred profit
+- [x] **One AFISAB mail template** (green and gold, company name, risk disclaimer, "do not reply") for all of them, including Laravel's verify-email and password-reset; no "Laravel" left in any email. Company name from `AFISAB_COMPANY_NAME`
+- [x] **Delivery health:** the dashboard warns Accounts and Directors when emails sit unsent (queue cron not running) or have failed after their retries; pre-flight checks the queue is not synchronous and that no email has failed
+- [x] `php artisan afisab:test-mail you@example.com` sends a branded test email immediately and reports the mailer, host and any error
+- [x] 14 new tests render and really send each email
+- [ ] Not built: new notification types (see the list in the reply that accompanied this change), per-user notification preferences, SMS
+
+Addendum, 2026-10-18: **public marketing website** (see [WEBSITE.md](WEBSITE.md))
+
+- [x] Corporate public site with its own layout: Home, What we trade (the live commodity list), For buyers, For suppliers, How we work, About, Contact, Privacy, Terms, Risk notice. Sitemap, robots, page titles, descriptions, share previews and company structured data
+- [x] **Only confirmed facts are used** (name, industry, customers, suppliers, markets, slogan, email, phone) plus controls the system really enforces; a test fails if an unconfirmed claim appears
+- [x] Forms for quote requests (buyers), supplier interest and general questions: consent tick box, a hidden honeypot, a minimum fill time, a rate limit, strict validation. Each enquiry is stored and emailed to the **one shared mailbox** (`AFISAB_ENQUIRY_EMAIL`, default info@afisab.com). The sender is not emailed back, so the form cannot be used to email strangers
+- [x] Back-office **Website enquiries** inbox (Sales and Directors): search, filter, status, internal note; a supplier enquiry becomes a supplier record in one click (Procurement/Directors); new enquiries appear in the work queue
+- [x] **The investment programme is not promoted publicly.** `/investors` is off until `AFISAB_PUBLIC_INVESTOR_PAGE=true` (after legal sign-off, Q5); until then the site shows only a plain "Investor portal" sign-in link
+- [x] 16 new tests; the public-route audit now lists the new public pages
+- [ ] Real photography and the official logo (monogram and patterns for now); registered address, RC number, year founded and certifications once confirmed
+- [ ] Have counsel review the privacy notice, terms and risk notice before launch
+
 Outstanding, not engineering:
 
 - [ ] **Legal/regulatory sign-off** on investor wording, structure and KYC (DECISIONS.md Q5)

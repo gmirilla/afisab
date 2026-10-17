@@ -36,6 +36,22 @@ return [
     // Staff must confirm two-factor authentication before using the back office. On by default in production.
     'require_2fa_for_staff' => filter_var(env('AFISAB_REQUIRE_2FA', env('APP_ENV') === 'production'), FILTER_VALIDATE_BOOLEAN),
 
+    // How the company is named in emails and documents.
+    'company_name' => env('AFISAB_COMPANY_NAME', 'AFISAB NIG. LTD'),
+
+    // Public website. Only facts the company has confirmed belong here.
+    'slogan' => 'Building Trust, Delivering Excellence.',
+    'contact' => [
+        'email' => env('AFISAB_CONTACT_EMAIL', 'info@afisab.com'),
+        'phone' => env('AFISAB_CONTACT_PHONE', '+2348057520669'),
+        // Where website enquiries (quote requests, supplier interest, general) are emailed: one shared mailbox.
+        'enquiry_email' => env('AFISAB_ENQUIRY_EMAIL', 'info@afisab.com'),
+    ],
+
+    // The public investor page promotes an investment programme, so it stays OFF until legal counsel has cleared the
+    // wording (DECISIONS.md Q5). While off, the site shows only a plain "Investor portal" sign-in link.
+    'public_investor_page' => filter_var(env('AFISAB_PUBLIC_INVESTOR_PAGE', false), FILTER_VALIDATE_BOOLEAN),
+
     // Days before maturity to send the reminder email.
     'maturity_reminder_days' => 14,
 

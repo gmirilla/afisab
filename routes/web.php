@@ -5,11 +5,27 @@ use App\Http\Controllers\Admin;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Investor;
+use App\Http\Controllers\Public\EnquiryController as PublicEnquiryController;
+use App\Http\Controllers\Public\SiteController;
 use App\Http\Controllers\Public\VerifyController;
 use App\Http\Controllers\Webhooks\PaystackWebhookController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+// The public marketing site
+Route::get('/', [SiteController::class, 'home'])->name('home');
+Route::get('/what-we-trade', [SiteController::class, 'trade'])->name('public.trade');
+Route::get('/for-buyers', [SiteController::class, 'buyers'])->name('public.buyers');
+Route::get('/for-suppliers', [SiteController::class, 'suppliers'])->name('public.suppliers');
+Route::get('/how-we-work', [SiteController::class, 'how'])->name('public.how');
+Route::get('/about', [SiteController::class, 'about'])->name('public.about');
+Route::get('/contact', [SiteController::class, 'contact'])->name('public.contact');
+Route::get('/privacy', [SiteController::class, 'privacy'])->name('public.privacy');
+Route::get('/terms', [SiteController::class, 'terms'])->name('public.terms');
+Route::get('/risk-notice', [SiteController::class, 'risk'])->name('public.risk');
+Route::get('/investors', [SiteController::class, 'investors'])->name('public.investors');
+Route::get('/sitemap.xml', [SiteController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SiteController::class, 'robots'])->name('robots');
+Route::post('/enquiries', [PublicEnquiryController::class, 'store'])->middleware('throttle:6,10')->name('public.enquiries.store');
 
 Route::post('/webhooks/paystack', PaystackWebhookController::class)->middleware('throttle:300,1')->name('webhooks.paystack');
 
@@ -234,6 +250,14 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::post('/test', [Admin\PaystackController::class, 'test'])->name('.test');
                 Route::post('/payments/{payment}/reverify', [Admin\PaystackController::class, 'reverify'])->name('.reverify');
             });
+            // Messages from the public website
+            Route::middleware('permission:enquiries.manage')->prefix('enquiries')->name('enquiries')->group(function () {
+                Route::get('/', [Admin\EnquiryController::class, 'index']);
+                Route::get('/{enquiry}', [Admin\EnquiryController::class, 'show'])->name('.show');
+                Route::put('/{enquiry}', [Admin\EnquiryController::class, 'update'])->name('.update');
+                Route::post('/{enquiry}/supplier', [Admin\EnquiryController::class, 'makeSupplier'])->middleware('permission:suppliers.manage')->name('.supplier');
+            });
+
             Route::middleware('permission:bank.manage')->group(function () {
                 Route::get('/bank-accounts', [Admin\BankAccountController::class, 'index'])->name('bank-accounts');
                 Route::post('/bank-accounts', [Admin\BankAccountController::class, 'store'])->name('bank-accounts.store');

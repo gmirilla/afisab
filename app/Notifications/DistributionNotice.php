@@ -4,22 +4,14 @@ namespace App\Notifications;
 
 use App\Models\DistributionRun;
 use App\Support\Money;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
 /** Staff-facing: a monthly distribution run needs attention. */
-class DistributionNotice extends Notification implements ShouldQueue
+class DistributionNotice extends AfisabNotification
 {
-    use Queueable;
+    public $afterCommit = true;
 
     public function __construct(public DistributionRun $run, public string $subject, public string $line) {}
-
-    public function via(object $notifiable): array
-    {
-        return ['mail'];
-    }
 
     public function toMail(object $notifiable): MailMessage
     {

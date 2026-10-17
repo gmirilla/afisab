@@ -4,21 +4,13 @@ namespace App\Notifications;
 
 use App\Models\CapitalPayout;
 use App\Support\Money;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class CapitalPaid extends Notification implements ShouldQueue
+class CapitalPaid extends AfisabNotification
 {
-    use Queueable;
+    public $afterCommit = true;
 
     public function __construct(public CapitalPayout $payout) {}
-
-    public function via(object $notifiable): array
-    {
-        return ['mail'];
-    }
 
     public function toMail(object $notifiable): MailMessage
     {

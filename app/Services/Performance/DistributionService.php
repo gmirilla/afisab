@@ -109,7 +109,7 @@ class DistributionService
         });
 
         if ($notify) {
-            $this->notify($this->approvers(), $run, "Profit distribution for {$run->label()} is ready for approval",
+            $this->notify($this->approvers($run), $run, "Profit distribution for {$run->label()} is ready for approval",
                 'Investors must be paid by '.$run->pay_by->format('d F Y').'. Please review and approve the run.');
         }
 
@@ -278,7 +278,7 @@ class DistributionService
         $daysLeft = (int) $today->diffInDays($run->pay_by, false);
 
         if ($run->status === DistributionRun::CALCULATED && $today->day > $cutoffDay) {
-            $this->notify($this->approvers(), $run, "URGENT: approve the {$run->label()} profit distribution",
+            $this->notify($this->approvers($run), $run, "URGENT: approve the {$run->label()} profit distribution",
                 "Investors must be paid by {$run->pay_by->format('d F Y')} ({$daysLeft} day(s) left). The run is still awaiting approval.");
             $run->update(['last_reminder_at' => now()]);
             $done[] = 'approval reminder';
@@ -305,14 +305,15 @@ class DistributionService
         return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
     }
 
-    private function approvers()
+    /** Directors who can approve this run: active, and not the person who calculated it. */
+    private function approvers(DistributionRun $run)
     {
-        return User::role('super-admin')->get();
+        return User::role('super-admin')->active()->get()->reject(fn (User $u) => $run->calculated_by !== null && $u->id === $run->calculated_by);
     }
 
     private function payers()
     {
-        return User::role(['accounts', 'super-admin'])->get();
+        return User::role(['accounts', 'super-admin'])->active()->get();
     }
 
     private function notify($users, DistributionRun $run, string $subject, string $line): void
