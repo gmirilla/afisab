@@ -6,6 +6,8 @@
 <style>
     body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1f2937; }
     h1 { color: #08532a; font-size: 18px; margin: 0; }
+    .head td { border: 0; padding: 0; vertical-align: middle; }
+    .logo { height: 54px; }
     h2 { color: #08532a; font-size: 13px; margin: 18px 0 6px; border-bottom: 1px solid #c9a227; padding-bottom: 3px; }
     table { width: 100%; border-collapse: collapse; }
     th { text-align: left; background: #08532a; color: #fff; padding: 4px 6px; font-size: 10px; }
@@ -16,7 +18,10 @@
 </style>
 </head>
 <body>
-<h1>AFISAB NIG. LTD — Investment statement</h1>
+<table class="head"><tr>
+    @if($logo)<td style="width: 64px"><img class="logo" src="{{ $logo }}" alt="AFISAB NIG. LTD"></td>@endif
+    <td><h1>AFISAB NIG. LTD — Investment statement</h1></td>
+</tr></table>
 <p class="muted">Generated {{ $generatedAt->format('d M Y H:i') }}</p>
 
 <table>

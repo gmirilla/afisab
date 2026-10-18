@@ -234,7 +234,8 @@ Addendum, 2026-10-18: **public marketing website** (see [WEBSITE.md](WEBSITE.md)
 - [x] Back-office **Website enquiries** inbox (Sales and Directors): search, filter, status, internal note; a supplier enquiry becomes a supplier record in one click (Procurement/Directors); new enquiries appear in the work queue
 - [x] **The investment programme is not promoted publicly.** `/for-investors` is off until `AFISAB_PUBLIC_INVESTOR_PAGE=true` (after legal sign-off, Q5); until then the site shows only a plain "Investor portal" sign-in link
 - [x] 16 new tests; the public-route audit now lists the new public pages
-- [ ] Real photography and the official logo (monogram and patterns for now); registered address, RC number, year founded and certifications once confirmed
+- [x] Official logo in the navbar and footer of both layouts, the browser tab and the certificate and statement PDFs (3 tests)
+- [ ] Real photography; registered address, RC number, year founded and certifications once confirmed; logo in emails
 - [ ] Have counsel review the privacy notice, terms and risk notice before launch
 
 Outstanding, not engineering:

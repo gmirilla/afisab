@@ -39,6 +39,7 @@
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/png" href="{{ asset('image/favicon.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=lato:400,700,900|playfair-display:600,700" rel="stylesheet">
     <script type="application/ld+json">{!! json_encode($organization, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
@@ -48,7 +49,7 @@
 <header class="sticky top-0 z-40 border-b border-gold-500/40 bg-gradient-to-r from-brand-800 via-brand-700 to-brand-800 text-white shadow-lg shadow-brand-800/20">
     <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2.5 lg:gap-6">
         <a href="{{ route('home') }}" class="flex items-center gap-2.5">
-            <span class="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-gold-500 to-gold-600 font-display text-lg font-bold text-brand-800 shadow-inner">A</span>
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white p-1 shadow-inner ring-1 ring-gold-500/60"><img src="{{ asset('image/logo-mark.png') }}" alt="AFISAB NIG. LTD logo" width="40" height="40" class="h-full w-full object-contain"></span>
             <span class="leading-tight">
                 <span class="block font-display text-lg font-bold tracking-wide">AFISAB</span>
                 <span class="block text-[10px] font-bold uppercase tracking-[0.25em] text-gold-500">Nig. Ltd</span>
@@ -79,7 +80,10 @@
 <footer class="bg-brand-800 text-white/80">
     <div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-4">
         <div class="md:col-span-2">
-            <p class="font-display text-xl font-bold text-white">{{ $company }}</p>
+            <div class="flex items-center gap-3">
+                <span class="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-white p-1.5 ring-1 ring-gold-500/60"><img src="{{ asset('image/logo-mark.png') }}" alt="" width="56" height="56" class="h-full w-full object-contain"></span>
+                <p class="font-display text-xl font-bold text-white">{{ $company }}</p>
+            </div>
             <p class="mt-1 text-sm font-bold text-gold-500">{{ config('afisab.slogan') }}</p>
             <p class="mt-3 max-w-md text-sm leading-relaxed">Agricultural commodity sourcing, aggregation, trading and supply in Nigeria, for industrial buyers, manufacturers, feed mills and commodity merchants.</p>
         </div>

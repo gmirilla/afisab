@@ -43,12 +43,23 @@ Defences on the public forms: consent tick box (recorded with a timestamp), a hi
 
 The site deliberately has no placeholders on screen. Add these as you confirm them (tell the developer, or edit the files in `resources/views/public/`):
 
-- Official **logo** file (the header uses an "A" monogram) and a favicon
 - **Photographs**: produce, warehouses, loading, the team
 - Registered **address**, **RC number**, year founded
 - Warehouse locations, typical volumes, certifications or standards, named customers or testimonials (only if they have agreed)
 - Names and roles of the leadership, if you want a team section
 - A social media or LinkedIn link, if used
+
+## The logo
+
+The company logo is `public/image/logo.png` (the original, with a transparent background). Three smaller copies are generated from it and are what the pages actually use:
+
+| File | Used for |
+|---|---|
+| `public/image/logo-mark.png` | The symbol only, square: the navbar and footer of both the public site and the application (shown on a white tile, because the logo's dark green would vanish on the green header) |
+| `public/image/logo-full.jpg` | The full logo with the "AFISAB NIG. LTD" wordmark, flattened onto white: the certificate and statement PDFs (embedded in the file, so PDFs work wherever the web root sits) |
+| `public/image/favicon.png` | The browser tab icon |
+
+To change the logo, replace `logo.png` and regenerate the three copies (crop the symbol to a square for the mark, flatten to a JPEG on white for the PDFs). If `logo-full.jpg` is missing, the PDFs fall back to the company name in text.
 
 ## Changing the text
 

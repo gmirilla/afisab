@@ -59,6 +59,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ? $title.' · ' : '' }}AFISAB</title>
+    <link rel="icon" type="image/png" href="{{ asset('image/favicon.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=lato:400,700,900|playfair-display:600,700" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -67,7 +68,7 @@
 <header class="sticky top-0 z-40 border-b border-gold-500/40 bg-gradient-to-r from-brand-800 via-brand-700 to-brand-800 text-white shadow-lg shadow-brand-800/20">
     <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2.5 lg:gap-6">
         <a href="{{ route('home') }}" class="flex items-center gap-2.5">
-            <span class="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-gold-500 to-gold-600 font-display text-lg font-bold text-brand-800 shadow-inner">A</span>
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white p-1 shadow-inner ring-1 ring-gold-500/60"><img src="{{ asset('image/logo-mark.png') }}" alt="AFISAB NIG. LTD logo" width="40" height="40" class="h-full w-full object-contain"></span>
             <span class="leading-tight">
                 <span class="block font-display text-lg font-bold tracking-wide">AFISAB</span>
                 <span class="block text-[10px] font-bold uppercase tracking-[0.25em] text-gold-500">Nig. Ltd</span>
@@ -148,6 +149,7 @@
 </main>
 
 <footer class="mt-8 border-t border-stone-200 py-8 text-center text-xs text-gray-500">
+    <img src="{{ asset('image/logo-mark.png') }}" alt="" width="36" height="36" class="mx-auto mb-2 h-9 w-9 object-contain">
     <p class="font-display text-sm font-semibold text-brand-700">AFISAB NIG. LTD</p>
     <p class="mt-1">Building Trust, Delivering Excellence · <a class="underline decoration-gold-500 underline-offset-2 hover:text-brand-700" href="{{ route('verify.form') }}">Verify a certificate</a></p>
 </footer>

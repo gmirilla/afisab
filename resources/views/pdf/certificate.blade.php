@@ -9,11 +9,12 @@
     .frame { margin: 22px; border: 6px double #c9a227; padding: 26px 40px; height: 480px; position: relative; }
     .center { text-align: center; }
     .brand { color: #08532a; font-size: 26px; font-weight: bold; letter-spacing: 2px; }
+    .logo { height: 96px; }
     .tag { color: #a8861b; font-style: italic; font-size: 12px; }
-    h1 { color: #08532a; font-size: 30px; margin: 14px 0 4px; letter-spacing: 3px; }
+    h1 { color: #08532a; font-size: 26px; margin: 4px 0 2px; letter-spacing: 3px; }
     .name { font-size: 28px; color: #08532a; border-bottom: 1px solid #c9a227; display: inline-block; padding: 0 30px 4px; margin: 6px 0; }
     .muted { color: #6b7280; font-size: 11px; }
-    table.facts { margin: 14px auto 0; border-collapse: collapse; font-size: 12px; }
+    table.facts { margin: 8px auto 0; border-collapse: collapse; font-size: 12px; }
     table.facts td { padding: 4px 18px; border-bottom: 1px solid #e5e7eb; }
     table.facts td.k { color: #6b7280; text-align: right; }
     .foot { position: absolute; bottom: 20px; left: 40px; right: 40px; }
@@ -26,7 +27,7 @@
 <body>
 <div class="frame">
     <div class="center">
-        <div class="brand">AFISAB NIG. LTD</div>
+        @if($logo)<img class="logo" src="{{ $logo }}" alt="AFISAB NIG. LTD">@else<div class="brand">AFISAB NIG. LTD</div>@endif
         <div class="tag">Building Trust, Delivering Excellence</div>
         <h1>INVESTMENT CERTIFICATE</h1>
         <div class="muted">This certifies that</div>
