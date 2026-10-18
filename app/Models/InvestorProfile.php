@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'user_id', 'phone', 'date_of_birth', 'address', 'bvn', 'bank_name', 'account_number',
     'account_name', 'id_document_path', 'kyc_status', 'kyc_note', 'kyc_reviewed_by', 'kyc_reviewed_at',
+    'occupation', 'occupation_address', 'nominee_name', 'nominee_relationship', 'nominee_phone',
 ])]
 #[Hidden(['bvn'])]
 class InvestorProfile extends Model

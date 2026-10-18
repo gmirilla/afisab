@@ -52,6 +52,19 @@ return [
     // wording (DECISIONS.md Q5). While off, the site shows only a plain "Investor portal" sign-in link.
     'public_investor_page' => filter_var(env('AFISAB_PUBLIC_INVESTOR_PAGE', false), FILTER_VALIDATE_BOOLEAN),
 
+    // The investment agreement ("policy document") issued for every policy. See docs/POLICY.md.
+    'policy' => [
+        // The place code inside a policy number: MIC/10-2026/OYO/0000001. Set to what the company uses.
+        'code' => env('AFISAB_POLICY_CODE', 'NG'),
+        // Issue the agreement automatically when a payment is confirmed (switched off in the test suite only).
+        'auto_issue' => filter_var(env('AFISAB_POLICY_AUTO_ISSUE', true), FILTER_VALIDATE_BOOLEAN),
+        // Printed in clause 9.2. The software does not yet process early withdrawals (DECISIONS.md).
+        'early_withdrawal_notice_months' => (int) env('AFISAB_EARLY_WITHDRAWAL_NOTICE_MONTHS', 1),
+        'arbitration_seat' => env('AFISAB_ARBITRATION_SEAT', 'Abuja, Federal Capital Territory, Nigeria'),
+        // How many times an investor may email themselves a copy, per policy per day.
+        'investor_copies_per_day' => 3,
+    ],
+
     // Days before maturity to send the reminder email.
     'maturity_reminder_days' => 14,
 

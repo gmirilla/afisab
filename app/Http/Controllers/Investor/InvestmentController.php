@@ -54,7 +54,8 @@ class InvestmentController extends Controller
             'investment_plan_id' => ['required', 'exists:investment_plans,id'],
             'amount' => ['required', 'string', 'max:20'],
             'profit_frequency' => ['nullable', Rule::enum(ProfitFrequency::class)],
-        ]);
+            'accept_terms' => ['accepted'],
+        ], ['accept_terms.accepted' => 'Please confirm that you have read and agree to the Investment Agreement.']);
 
         try {
             $investment = $subscriptions->subscribe(
@@ -62,6 +63,7 @@ class InvestmentController extends Controller
                 InvestmentPlan::findOrFail($data['investment_plan_id']),
                 Money::fromNaira($data['amount']),
                 ProfitFrequency::tryFrom($data['profit_frequency'] ?? '') ?? ProfitFrequency::Monthly,
+                ['ip' => $request->ip()],
             );
         } catch (InvalidArgumentException) {
             return back()->withInput()->withErrors(['amount' => 'Enter a valid amount in naira.']);

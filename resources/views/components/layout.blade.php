@@ -11,6 +11,7 @@
                 ['Payments', 'admin.payments', $u->can('payments.confirm')],
                 ['KYC review', 'admin.kyc', $u->can('kyc.review')],
                 ['Plans', 'admin.plans', $u->can('plans.manage')],
+                ['Policy signatory', 'admin.signatory', $u->can('signatory.manage')],
                 ['Bank accounts', 'admin.bank-accounts', $u->can('bank.manage')],
                 ['Paystack', 'admin.paystack', $u->can('paystack.manage')],
             ]],
@@ -24,6 +25,7 @@
             ['Treasury', [
                 ['Funds', 'admin.funds', $u->can('funds.view')],
                 ['Profit runs', 'admin.distributions', $u->canAny(['payouts.prepare', 'ledger.view'])],
+                ['Early withdrawals', 'admin.withdrawals', $u->canAny(['payouts.prepare', 'payouts.approve', 'ledger.view'])],
                 ['Capital payouts', 'admin.payouts', $u->canAny(['payouts.prepare', 'payouts.approve', 'ledger.view'])],
                 ['Reconciliation', 'admin.reconciliation', $u->can('ledger.view')],
                 ['Reversals', 'admin.reversals', $u->canAny(['reversals.request', 'reversals.approve', 'ledger.view'])],

@@ -68,6 +68,14 @@ after changing it (safe to re-run). `super-admin` receives every permission and 
 | Investor directory, investor page, CSV | `/admin/investors`, `/admin/investors/{id}`, `/admin/investors/export` | `investors.view` (accounts, sales, compliance, auditor). Full BVN and ID document: `kyc.review`. Activity trail: `audit.view`. Views and exports are audited |
 | Website enquiries: inbox, view, update | `/admin/enquiries`, `/admin/enquiries/{id}` | `enquiries.manage` (sales, super-admin) |
 | Enquiry to supplier record | `POST /admin/enquiries/{id}/supplier` | `enquiries.manage` and `suppliers.manage` |
+| Investment agreement: read before subscribing, download, email a copy | `/investor/agreement`, `/investor/investments/{id}/policy`, `.../policy/email` | investor, own policies only; 3 emailed copies per policy per day |
+| Investment agreement: download any version | `GET /admin/policies/{id}/download` | `investors.view`; audited |
+| Investment agreement: resend to the investor | `POST /admin/investments/{id}/policy/send` | `policies.send` (accounts, compliance); audited |
+| Investment agreement: generate or re-issue (new version, reason required) | `POST /admin/investments/{id}/policy/reissue` | `policies.issue` (compliance); audited |
+| Policy signatory (MD signature): view, upload, reactivate | `/admin/signatory` | `signatory.manage` (super-admin only); password required |
+| Early withdrawal: give notice, cancel it | `POST /investor/investments/{id}/withdrawal`, `DELETE /investor/withdrawals/{id}` | investor, own policies only |
+| Early withdrawals: view | `/admin/withdrawals` | `payouts.prepare`, `payouts.approve` or `ledger.view` |
+| Early withdrawals: mature now, cancel with a reason | `POST /admin/withdrawals/{id}/process`, `.../cancel` | `payouts.prepare` (accounts) |
 | Capital payouts: view | `/admin/payouts` | `payouts.prepare`, `payouts.approve` or `ledger.view` |
 | Capital payouts: prepare, mark paid | `POST /admin/payouts/...` | `payouts.prepare` (accounts) |
 | Capital payouts: approve, reject | `POST /admin/payouts/{id}/approve|reject` | `payouts.approve` (super-admin); not the person who prepared it |

@@ -24,6 +24,10 @@
                         </div>
                         <p class="mt-2 text-xs text-gray-500">This is fixed once you subscribe. Profit is the net result of the period, so with quarterly or one-off payment a weaker month is netted against a stronger one before your share is worked out.</p>
                     </fieldset>
+                    <label class="flex items-start gap-2 text-sm text-gray-700">
+                        <input type="checkbox" name="accept_terms" value="1" required class="mt-1 rounded border-gray-300 text-brand-700 focus:ring-brand-600">
+                        <span>I have read and agree to the <a class="font-bold text-brand-700 underline" target="_blank" rel="noopener" href="{{ route('investor.agreement', ['plan' => $plan->id]) }}">Mudharabah Investment Agreement</a> (opens in a new tab). My choice of profit payment is part of it.</span>
+                    </label>
                     <x-btn class="w-full">Subscribe</x-btn>
                 </form>
             </x-card>

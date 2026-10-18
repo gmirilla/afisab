@@ -92,13 +92,13 @@ class ProfitFrequencyTest extends TestCase
         $this->actingAs($user)->get(route('investor.plans'))->assertOk()
             ->assertSee('How do you want your profit paid?')->assertSee('Quarterly')->assertSee('One-off at maturity')->assertSee('fixed once you subscribe');
 
-        $this->actingAs($user)->post(route('investor.investments.store'), ['investment_plan_id' => $plan->id, 'amount' => '500,000', 'profit_frequency' => 'weekly'])->assertSessionHasErrors('profit_frequency');
+        $this->actingAs($user)->post(route('investor.investments.store'), ['investment_plan_id' => $plan->id, 'amount' => '500,000', 'profit_frequency' => 'weekly', 'accept_terms' => '1'])->assertSessionHasErrors('profit_frequency');
         $this->assertSame(0, Investment::count());
 
-        $this->actingAs($user)->post(route('investor.investments.store'), ['investment_plan_id' => $plan->id, 'amount' => '500,000', 'profit_frequency' => 'at_maturity'])->assertSessionHasNoErrors();
+        $this->actingAs($user)->post(route('investor.investments.store'), ['investment_plan_id' => $plan->id, 'amount' => '500,000', 'profit_frequency' => 'at_maturity', 'accept_terms' => '1'])->assertSessionHasNoErrors();
         $this->assertSame(ProfitFrequency::AtMaturity, Investment::firstOrFail()->profit_frequency);
 
-        $this->actingAs($user)->post(route('investor.investments.store'), ['investment_plan_id' => $plan->id, 'amount' => '500,000'])->assertSessionHasNoErrors(); // omitted = monthly
+        $this->actingAs($user)->post(route('investor.investments.store'), ['investment_plan_id' => $plan->id, 'amount' => '500,000', 'accept_terms' => '1'])->assertSessionHasNoErrors(); // omitted = monthly
         $this->assertSame(ProfitFrequency::Monthly, Investment::orderByDesc('id')->first()->profit_frequency);
     }
 

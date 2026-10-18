@@ -41,7 +41,7 @@ class CycleController extends Controller
         $cycle->load(['commodity', 'proposer', 'approver', 'allocations.investment.user', 'purchases.supplier', 'purchases.proposer', 'purchases.lot', 'expenses', 'lots.commodity', 'sales.buyer']);
 
         $allocatable = in_array($cycle->status, TradeCycle::HOLDING, true)
-            ? Investment::with('user')->where('status', InvestmentStatus::Active)->orderBy('reference')->get()
+            ? Investment::with('user')->where('status', InvestmentStatus::Active)->whereDoesntHave('withdrawalRequests', fn ($q) => $q->where('status', 'requested'))->orderBy('reference')->get()
                 ->map(fn (Investment $i) => ['investment' => $i, 'free' => $cycles->unallocated($i, $cycle)])
                 ->filter(fn ($row) => $row['free'] > 0 || $cycle->allocations->contains('investment_id', $row['investment']->id))
             : collect();

@@ -40,6 +40,7 @@ class DashboardController extends Controller
             'investorFunds' => $canSeeFunds ? $ledger->balance(LedgerAccount::INVESTOR_FUNDS) : null,
             'activeInvestments' => Investment::where('status', InvestmentStatus::Active)->count(),
             'queue' => $this->queue($user),
+            'signatoryWarning' => $user->can('signatory.manage') && ! \App\Models\Signatory::active() ? 'No signatory is set. Investment agreements will be issued without the company signature until one is uploaded (Investors > Policy signatory).' : null,
             'mailWarning' => $user->canAny(['payouts.prepare', 'payouts.approve', 'payroll.pay']) ? \App\Support\QueueHealth::warning() : null,
             'schedulerWarning' => $user->canAny(['payouts.prepare', 'payouts.approve', 'payroll.pay']) ? SchedulerHealth::warning() : null,
         ]);
@@ -64,6 +65,7 @@ class DashboardController extends Controller
             ['sales.receive', 'Sales awaiting buyer payment', Sale::where('status', Sale::CONFIRMED)->count(), 'admin.trading.cycles'],
             ['payouts.approve', 'Profit distribution runs to approve', DistributionRun::where('status', DistributionRun::CALCULATED)->count(), 'admin.distributions'],
             ['payouts.prepare', 'Investor profit payments to make', DistributionLine::where('status', DistributionLine::PAYABLE)->count(), 'admin.distributions'],
+            ['payouts.prepare', 'Early withdrawals ready to mature', \App\Models\WithdrawalRequest::where('status', 'requested')->whereDate('notice_ends_on', '<=', now()->startOfDay())->count(), 'admin.withdrawals'],
             ['payouts.approve', 'Capital payouts to approve', CapitalPayout::where('status', CapitalPayout::PREPARED)->count(), 'admin.payouts'],
             ['payouts.prepare', 'Capital payouts to pay', CapitalPayout::where('status', CapitalPayout::APPROVED)->count(), 'admin.payouts'],
             ['reversals.approve', 'Ledger reversals to approve', LedgerReversal::where('status', LedgerReversal::REQUESTED)->count(), 'admin.reversals'],

@@ -6,6 +6,10 @@
         <div class="mb-6 rounded border border-red-300 bg-red-50 px-4 py-3 font-bold text-red-800">⚠ {{ $schedulerWarning }}</div>
     @endif
 
+    @if($signatoryWarning)
+        <div class="mb-6 rounded border border-amber-300 bg-amber-50 px-4 py-3 font-bold text-amber-900">✍ {{ $signatoryWarning }}</div>
+    @endif
+
     @if($mailWarning)
         <div class="mb-6 rounded border border-amber-300 bg-amber-50 px-4 py-3 font-bold text-amber-900">✉ {{ $mailWarning }}</div>
     @endif

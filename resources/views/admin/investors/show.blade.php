@@ -67,7 +67,7 @@
                 <td class="py-2 font-mono">{{ $i->reference }}<br><span class="text-xs text-gray-500">{{ $i->certificate_number }}</span></td>
                 <td>{{ $i->plan->name }}</td>
                 <td class="text-right font-mono">{{ Money::format($i->amount) }}</td>
-                <td>{{ $i->status->label() }}</td>
+                <td>{{ $i->status->label() }}@if($w = $i->openWithdrawal())<br><a class="text-xs font-bold text-amber-700 underline" href="{{ route('admin.withdrawals') }}">Withdrawal notice until {{ $w->notice_ends_on->format('d M Y') }}</a>@endif</td>
                 <td class="text-xs text-gray-600">{{ $i->start_date?->format('d M Y') ?? 'Not started' }} → {{ $i->maturity_date?->format('d M Y') ?? '—' }}</td>
                 <td>{{ $i->profit_frequency->label() }}</td>
                 <td class="text-right font-mono">{{ Money::format($pos['paid']) }} / {{ Money::format($pos['payable']) }}</td>
@@ -84,6 +84,52 @@
         @endforelse
         </tbody></table>
     </x-card>
+
+    @if($investments->contains(fn ($i) => $i->hasCertificate()))
+        <x-card class="mb-6">
+            <h2 class="mb-1 font-black text-brand-700">Investment agreements</h2>
+            <p class="mb-3 text-xs text-gray-500">The exact file issued to the investor. Downloading, resending and re-issuing are all recorded.</p>
+            @if($errors->has('policy'))<p class="mb-3 rounded bg-red-50 p-2 text-sm text-red-700">{{ $errors->first('policy') }}</p>@endif
+            <div class="space-y-5">
+            @foreach($investments->filter(fn ($i) => $i->hasCertificate()) as $i)
+                <div class="rounded-lg border border-stone-200 p-4">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p class="font-mono text-sm font-bold">{{ $i->reference }} <span class="font-normal text-gray-500">· {{ $i->policy_number ?? 'no policy number yet' }}</span></p>
+                            <p class="text-xs text-gray-500">@if($i->terms_accepted_at)Terms accepted electronically {{ $i->terms_accepted_at->format('d M Y H:i') }} @else No electronic acceptance recorded @endif</p>
+                        </div>
+                        <div class="flex flex-wrap items-start gap-2">
+                            @can('policies.send')@if($i->currentPolicyDocument())<form method="POST" action="{{ route('admin.policies.send', $i) }}" data-confirm="Email this agreement to {{ $user->email }}?">@csrf<x-btn variant="ghost">Resend to investor</x-btn></form>@endif @endcan
+                        </div>
+                    </div>
+                    @if($i->policyDocuments->isNotEmpty())
+                        <table class="mt-3 w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-1">Version</th><th>Issued</th><th>Signed by</th><th>Fingerprint (SHA-256)</th><th></th></tr></thead><tbody>
+                        @foreach($i->policyDocuments as $d)
+                            <tr class="border-b last:border-0 {{ $d->status === 'superseded' ? 'text-gray-400' : '' }}">
+                                <td class="py-1.5">v{{ $d->version }} {{ $d->status === 'superseded' ? '(superseded)' : '(current)' }}@if($d->reason)<br><span class="text-xs">{{ $d->reason }}</span>@endif</td>
+                                <td>{{ $d->issued_at->format('d M Y H:i') }}<br><span class="text-xs">{{ $d->issuer?->name ?? 'automatic' }}</span></td>
+                                <td>{{ $d->signatory?->name ?? 'unsigned' }}</td>
+                                <td class="font-mono text-xs">{{ substr($d->sha256, 0, 16) }}…</td>
+                                <td class="text-right"><a class="font-bold text-brand-700 underline" href="{{ route('admin.policies.download', $d) }}">Download</a></td>
+                            </tr>
+                        @endforeach
+                        </tbody></table>
+                    @else
+                        <p class="mt-3 text-sm text-amber-700">No agreement has been issued for this policy yet.</p>
+                    @endif
+                    @can('policies.issue')
+                        <form method="POST" action="{{ route('admin.policies.reissue', $i) }}" class="mt-3 flex flex-wrap items-end gap-2 border-t pt-3">@csrf
+                            <label class="block text-xs font-bold text-gray-700">{{ $i->policyDocuments->isEmpty() ? 'Reason for generating it' : 'Reason for re-issuing (required)' }}
+                                <input name="reason" required minlength="5" maxlength="200" placeholder="{{ $i->policyDocuments->isEmpty() ? 'e.g. automatic issue did not run' : 'e.g. address corrected, new signatory' }}" class="mt-1 block w-72 rounded border border-gray-300 px-2 py-1.5 text-sm font-normal"></label>
+                            <label class="flex items-center gap-1 pb-1.5 text-xs"><input type="checkbox" name="send_copy" value="1"> email it to the investor</label>
+                            <x-btn variant="ghost">{{ $i->policyDocuments->isEmpty() ? 'Generate agreement' : 'Re-issue as a new version' }}</x-btn>
+                        </form>
+                    @endcan
+                </div>
+            @endforeach
+            </div>
+        </x-card>
+    @endif
 
     <div class="mb-6 grid gap-6 lg:grid-cols-2">
         <x-card class="overflow-x-auto">

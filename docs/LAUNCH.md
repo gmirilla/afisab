@@ -31,6 +31,16 @@ Work top to bottom. Nothing in section 1 is a software task: each needs the owne
 | ☐ | Supply the content listed in WEBSITE.md (logo, photos, address, RC number ...) | Owner |
 | ☐ | Send a test enquiry from each form and confirm it reaches info@afisab.com | IT |
 
+## 1c. Investment agreement (see [POLICY.md](POLICY.md))
+
+| ✔ | Item | Owner |
+|---|---|---|
+| ☐ | Counsel reviews the agreement wording and decides Q19 to Q27 in DECISIONS.md (losses, early withdrawal, term, electronic signing, Shariah wording) | Legal counsel / owner |
+| ☐ | Upload the Managing Director's signature (Investors > Policy signatory) and confirm the name and title | Director |
+| ☐ | Set `AFISAB_POLICY_CODE` to the code the company wants in policy numbers | Owner |
+| ☐ | Issue one test agreement end to end on staging: subscribe, tick the agreement, pay, receive the emailed PDF, check every figure against the plan | IT / Accounts |
+| ☐ | Make sure the queue cron (deploy/crontab.txt) runs: agreements are issued and emailed by the queue | IT |
+
 ## 2. Hosting
 
 | ✔ | Item |

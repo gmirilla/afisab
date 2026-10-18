@@ -12,7 +12,27 @@
         <x-card><p class="text-sm text-gray-500">Maturity</p><p class="text-xl font-black">{{ $investment->maturity_date?->format('d M Y') ?? '—' }}</p></x-card>
     </div>
 
+    @php($policy = $investment->currentPolicyDocument())
+    @if($errors->has('policy'))<p class="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">{{ $errors->first('policy') }}</p>@endif
     @if($investment->hasCertificate())
+        <x-card class="mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-sm text-gray-500">Mudharabah Investment Agreement</p>
+                    @if($policy)
+                        <p class="font-mono text-lg font-black text-brand-700">{{ $policy->policy_number }}</p>
+                        <p class="text-xs text-gray-500">Version {{ $policy->version }}, issued {{ $policy->issued_at->format('d M Y') }}@if($investment->terms_accepted_at) · you agreed to its terms on {{ $investment->terms_accepted_at->format('d M Y H:i') }}@endif</p>
+                    @else
+                        <p class="text-sm text-amber-700">Your agreement is being prepared. It is emailed to you as soon as it is ready.</p>
+                    @endif
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    @if($policy)<a class="rounded bg-brand-700 px-4 py-2 text-sm font-bold text-white" href="{{ route('investor.policy.download', $investment) }}">Download agreement (PDF)</a>@endif
+                    <form method="POST" action="{{ route('investor.policy.email', $investment) }}">@csrf<x-btn variant="ghost">{{ $policy ? 'Email me a copy' : 'Prepare and email it to me' }}</x-btn></form>
+                </div>
+            </div>
+        </x-card>
+
         <x-card class="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <p class="text-sm text-gray-500">Investment certificate</p>
@@ -57,7 +77,7 @@
 
         <x-card class="mb-6">
             <h2 class="mb-3 font-black text-brand-700">Trading performance</h2>
-            <p class="mb-3 text-sm text-gray-600">Your funds are deployed into commodity trading cycles. On the 27th of each month the net profit is calculated; your share is approved and paid {{ match($investment->profit_frequency) { \App\Enums\ProfitFrequency::Monthly => 'by the end of that month', \App\Enums\ProfitFrequency::Quarterly => 'every 3 months (and at maturity)', default => 'once, at maturity' } }}. Returns are not guaranteed.</p>
+            <p class="mb-3 text-sm text-gray-600">Your funds are deployed into commodity trading cycles. On the 27th of each month the net profit is calculated; your share is approved and paid {{ match($investment->profit_frequency) { \App\Enums\ProfitFrequency::Monthly => 'by the end of that month', \App\Enums\ProfitFrequency::Quarterly => 'every 3 months (and at maturity)', \App\Enums\ProfitFrequency::HalfYearly => 'every 6 months (and at maturity)', \App\Enums\ProfitFrequency::Annually => 'once a year (and at maturity)', default => 'once, at maturity' } }}. Returns are not guaranteed.</p>
             <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-2">Cycle</th><th>Closed</th><th>Your capital in cycle</th><th>Included in</th></tr></thead><tbody>
                 @forelse($entries as $e)
                     <tr class="border-b last:border-0">
@@ -70,6 +90,41 @@
                 @endforelse
             </tbody></table>
         </x-card>
+    @elseif($investment->terms_accepted_at)
+        <x-card class="mb-6 text-sm text-gray-700">You agreed to the Mudharabah Investment Agreement on {{ $investment->terms_accepted_at->format('d M Y H:i') }}.
+            Your signed copy is issued, and emailed to you, once your payment is confirmed.
+            <a class="font-bold text-brand-700 underline" target="_blank" rel="noopener" href="{{ route('investor.agreement', ['plan' => $investment->investment_plan_id, 'frequency' => $investment->profit_frequency->value, 'amount' => number_format($investment->amount / 100, 2, '.', '')]) }}">Read it again</a></x-card>
+    @endif
+
+    @php($withdrawal = $investment->openWithdrawal())
+    @php($lastWithdrawal = $investment->withdrawalRequests()->first())
+    @if($errors->has('withdrawal'))<p class="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">{{ $errors->first('withdrawal') }}</p>@endif
+    @if($investment->status === InvestmentStatus::Active)
+        <x-card class="mb-6">
+            <h2 class="font-black text-brand-700">Early withdrawal</h2>
+            @if($withdrawal)
+                <p class="mt-2 text-sm text-gray-700">You gave notice on <strong>{{ $withdrawal->requested_at->format('d M Y') }}</strong>. Your notice period runs until <strong>{{ $withdrawal->notice_ends_on->format('d M Y') }}</strong>.
+                    Your investment keeps earning until then. As your agreement says, the withdrawal is subject to the availability of funds and the settlement of ongoing transactions: if any of your capital is still in a trading cycle when the notice ends, it waits until that cycle closes. We will email you when your investment matures and your payout is prepared.</p>
+                <form method="POST" action="{{ route('investor.withdrawal.cancel', $withdrawal) }}" class="mt-3" data-confirm="Cancel your notice of early withdrawal?">@csrf @method('DELETE')<x-btn variant="ghost">Cancel my notice</x-btn></form>
+            @else
+                @php($months = (int) ($investment->terms['early_withdrawal_notice_months'] ?? config('afisab.policy.early_withdrawal_notice_months')))
+                <p class="mt-2 text-sm text-gray-700">You can ask for your capital back before {{ $investment->maturity_date?->format('d M Y') }}. Your agreement (clause 9.2) needs <strong>{{ $months }} month{{ $months === 1 ? '' : 's' }}' notice</strong> and the withdrawal is subject to the availability of funds and the settlement of ongoing transactions.</p>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-600">
+                    <li>Your investment stays active and keeps earning during the notice, but its capital is not placed in new trading cycles.</li>
+                    <li>When the notice ends, and none of your capital is still in a trading cycle, your investment matures early. Profit held back for your payment frequency is settled in that month's profit run, and no profit is earned after that.</li>
+                    <li>Your capital is then paid to your bank account after a second person approves the payout. Capital is not guaranteed (clause 9.3).</li>
+                    <li>You can cancel the notice at any time before your investment matures.</li>
+                </ul>
+                <form method="POST" action="{{ route('investor.withdrawal.store', $investment) }}" class="mt-4 space-y-3 border-t pt-4">@csrf
+                    <x-field name="reason" label="Reason (optional)" :value="old('reason')" maxlength="500" />
+                    <label class="flex items-start gap-2 text-sm text-gray-700"><input type="checkbox" name="understand" value="1" required class="mt-1 rounded border-gray-300 text-brand-700 focus:ring-brand-600"><span>I understand how early withdrawal works and I want to give notice.</span></label>
+                    <x-btn variant="danger">Give notice of early withdrawal</x-btn>
+                </form>
+            @endif
+        </x-card>
+    @elseif($lastWithdrawal && in_array($lastWithdrawal->status, ['matured', 'completed']))
+        <x-card class="mb-6 text-sm text-gray-700">You gave notice of early withdrawal on {{ $lastWithdrawal->requested_at->format('d M Y') }}. Your investment matured early on {{ $lastWithdrawal->matured_at?->format('d M Y') }}.
+            {{ $lastWithdrawal->status === 'completed' ? 'Your capital was returned on '.$lastWithdrawal->completed_at?->format('d M Y').'.' : 'Your capital payout is being prepared; we will email you when it has been paid.' }}</x-card>
     @endif
 
     @if($investment->status === InvestmentStatus::PendingPayment)

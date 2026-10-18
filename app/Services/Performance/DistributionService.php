@@ -71,7 +71,7 @@ class DistributionService
                     continue;
                 }
                 $net = (int) $group->sum('net_profit');
-                $split = $this->split->split($net);
+                $split = $this->split->split($net, $investment->terms); // the terms the investor accepted, or today's rules for older policies
 
                 $run->lines()->create([
                     'investment_id' => $investmentId,

@@ -15,6 +15,9 @@ use App\Models\DistributionLine;
 use App\Models\DistributionRun;
 use App\Models\Employee;
 use App\Models\Enquiry;
+use App\Models\PolicyDocument;
+use App\Models\Signatory;
+use App\Models\WithdrawalRequest;
 use App\Models\InventoryLot;
 use App\Models\Investment;
 use App\Models\InvestmentPlan;
@@ -83,6 +86,9 @@ class AppServiceProvider extends ServiceProvider
             'bank_account' => BankAccount::class,
             'paystack_setting' => PaystackSetting::class,
             'enquiry' => Enquiry::class,
+            'signatory' => Signatory::class,
+            'withdrawal_request' => WithdrawalRequest::class,
+            'policy_document' => PolicyDocument::class,
             'pension_administrator' => PensionAdministrator::class,
             'statutory_rule_set' => StatutoryRuleSet::class,
             'statutory_remittance' => StatutoryRemittance::class,

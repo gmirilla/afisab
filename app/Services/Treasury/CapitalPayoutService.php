@@ -119,6 +119,7 @@ class CapitalPayoutService
 
             $payout->update(['status' => CapitalPayout::PAID, 'paid_by' => $by->id, 'paid_at' => now(), 'payment_reference' => $reference]);
             $payout->investment->update(['status' => InvestmentStatus::PaidOut]);
+            app(WithdrawalService::class)->completed($payout->investment);
             activity()->performedOn($payout->investment)->causedBy($by)->withProperties(['reference' => $reference])->log('Capital returned to investor');
 
             return $payout;

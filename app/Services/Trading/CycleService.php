@@ -105,7 +105,7 @@ class CycleService
         $cutoff = now()->startOfDay()->addDays($buffer);
 
         $eligible = $excluded = [];
-        foreach (Investment::with('user')->where('status', InvestmentStatus::Active)->orderBy('id')->get() as $investment) {
+        foreach (Investment::with('user')->where('status', InvestmentStatus::Active)->whereDoesntHave('withdrawalRequests', fn ($q) => $q->where('status', 'requested'))->orderBy('id')->get() as $investment) {
             $free = $this->unallocated($investment);
             if ($free <= 0) {
                 continue;
@@ -250,6 +250,9 @@ class CycleService
 
             if ($investment->status !== InvestmentStatus::Active) {
                 throw new BusinessRuleException('Only active investments can be allocated to a cycle.');
+            }
+            if ($investment->openWithdrawal()) {
+                throw new BusinessRuleException('This investment has given notice of early withdrawal, so its capital cannot be put into a trading cycle.');
             }
             if ($amount <= 0) {
                 throw new BusinessRuleException('The allocation must be greater than zero.');

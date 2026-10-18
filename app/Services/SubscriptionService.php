@@ -8,12 +8,14 @@ use App\Exceptions\BusinessRuleException;
 use App\Models\Investment;
 use App\Models\InvestmentPlan;
 use App\Models\User;
+use App\Services\Policy\PolicyTerms;
 use App\Support\Money;
 use Illuminate\Support\Str;
 
 class SubscriptionService
 {
-    public function subscribe(User $user, InvestmentPlan $plan, int $amount, ProfitFrequency $frequency = ProfitFrequency::Monthly): Investment
+    /** @param  array{ip?: string}|null  $acceptance  set when the investor ticked agreement to the terms (the web flow); recorded with the time */
+    public function subscribe(User $user, InvestmentPlan $plan, int $amount, ProfitFrequency $frequency = ProfitFrequency::Monthly, ?array $acceptance = null): Investment
     {
         if (! $plan->is_active) {
             throw new BusinessRuleException('This plan is not currently open for subscription.');
@@ -38,10 +40,13 @@ class SubscriptionService
             'amount' => $amount,
             'duration_months' => $plan->duration_months, // snapshot: later plan edits don't change this policy
             'profit_frequency' => $frequency,         // fixed for the life of the policy
+            'terms' => PolicyTerms::snapshot($plan, $frequency), // what the agreement says and the distribution uses
+            'terms_accepted_at' => $acceptance ? now() : null,
+            'terms_accepted_ip' => $acceptance['ip'] ?? null,
             'status' => InvestmentStatus::PendingPayment,
         ]);
 
-        activity()->performedOn($investment)->causedBy($user)->withProperties(['profit_frequency' => $frequency->value])->log('Investment subscription created');
+        activity()->performedOn($investment)->causedBy($user)->withProperties(['profit_frequency' => $frequency->value, 'terms_accepted' => (bool) $acceptance])->log('Investment subscription created');
 
         return $investment;
     }

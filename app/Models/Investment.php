@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'reference', 'user_id', 'investment_plan_id', 'amount', 'duration_months', 'status',
     'start_date', 'maturity_date', 'certificate_number', 'certificate_token', 'certificate_issued_at', 'maturity_reminder_sent_at',
-    'profit_frequency',
+    'profit_frequency', 'terms', 'policy_number', 'terms_accepted_at', 'terms_accepted_ip',
 ])]
 class Investment extends Model
 {
@@ -23,6 +23,8 @@ class Investment extends Model
             'duration_months' => 'integer',
             'status' => InvestmentStatus::class,
             'profit_frequency' => ProfitFrequency::class,
+            'terms' => 'array',
+            'terms_accepted_at' => 'datetime',
             'start_date' => 'date',
             'maturity_date' => 'date',
             'certificate_issued_at' => 'datetime',
@@ -71,6 +73,28 @@ class Investment extends Model
     public function daysToMaturity(): ?int
     {
         return $this->maturity_date ? max(0, (int) now()->startOfDay()->diffInDays($this->maturity_date, false)) : null;
+    }
+
+    public function policyDocuments(): HasMany
+    {
+        return $this->hasMany(PolicyDocument::class)->orderByDesc('version');
+    }
+
+    /** The agreement currently in force for this policy, if one has been issued. */
+    public function currentPolicyDocument(): ?PolicyDocument
+    {
+        return $this->policyDocuments()->where('status', PolicyDocument::ISSUED)->first();
+    }
+
+    public function withdrawalRequests(): HasMany
+    {
+        return $this->hasMany(WithdrawalRequest::class)->orderByDesc('id');
+    }
+
+    /** A notice of early withdrawal that is still running, if there is one. */
+    public function openWithdrawal(): ?WithdrawalRequest
+    {
+        return $this->withdrawalRequests()->where('status', WithdrawalRequest::REQUESTED)->first();
     }
 
     public function payments(): HasMany

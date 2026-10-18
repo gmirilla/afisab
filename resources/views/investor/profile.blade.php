@@ -20,4 +20,18 @@
             </form>
         </x-card>
     @endif
+
+    <x-card class="mt-6">
+        <h2 class="font-black text-brand-700">Details for your investment agreement</h2>
+        <p class="mb-4 text-sm text-gray-600">Your agreement lists your occupation and a nominee. These are optional and you can change them at any time.</p>
+        <form method="POST" action="{{ route('investor.profile.update') }}" class="grid gap-4 md:grid-cols-2">@csrf @method('PUT')
+            <input type="hidden" name="section" value="agreement">
+            <x-field name="occupation" label="Occupation" :value="$profile->occupation" />
+            <x-field name="occupation_address" label="Business or work address" :value="$profile->occupation_address" />
+            <x-field name="nominee_name" label="Nominee (who should be contacted on your behalf)" :value="$profile->nominee_name" />
+            <x-field name="nominee_relationship" label="Nominee's relationship to you" :value="$profile->nominee_relationship" />
+            <x-field name="nominee_phone" label="Nominee's phone" :value="$profile->nominee_phone" />
+            <div class="flex items-end"><x-btn>Save</x-btn></div>
+        </form>
+    </x-card>
 </x-layout>

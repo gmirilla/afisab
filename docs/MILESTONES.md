@@ -238,6 +238,32 @@ Addendum, 2026-10-18: **public marketing website** (see [WEBSITE.md](WEBSITE.md)
 - [ ] Real photography; registered address, RC number, year founded and certifications once confirmed; logo in emails
 - [ ] Have counsel review the privacy notice, terms and risk notice before launch
 
+Addendum, 2026-10-18: **investment agreement (policy document) for every investment** (see [POLICY.md](POLICY.md))
+
+- [x] A Mudharabah Investment Agreement PDF (cover, parties and certificate number, 18 clauses, schedule, execution page) built from the company's template, with the amount in words, the investor's details and nominee, and the chosen profit frequency. The investor reads the same wording on screen before agreeing
+- [x] **Terms are frozen when the investor subscribes** (profit shares, term, frequency, notice period, arbitration seat) and the monthly distribution now calculates with those frozen terms, so the contract and the payments cannot drift apart if company rules change later
+- [x] **Electronic acceptance**: the investor must tick agreement on the subscription form; the time and IP address are recorded and printed on the issued agreement
+- [x] Issued automatically after payment is confirmed (off the web request, retried if it fails) and emailed to the investor with the PDF attached. The exact file is stored with its SHA-256 fingerprint; reprints return that file unchanged; a correction is a new version that supersedes the old one (which is kept)
+- [x] Policy numbers `MIC/MM-YYYY/CODE/0000001`, gap-free (the code is `AFISAB_POLICY_CODE`; built-in default NG, the sample used OYO)
+- [x] **MD signature**: the super-admin uploads and replaces it (password, validation, resized, private storage, audited); every document records who signed it, and replacing the signature never alters issued documents. Dashboard warns until one is set
+- [x] **Reprint and resend**: investors download or email themselves a copy (3 a day, to their registered address only); staff download any version (`investors.view`), resend (`policies.send`: accounts, compliance) and re-issue with a reason (`policies.issue`: compliance). Every action is audited
+- [x] Profit frequency now also offers half-yearly and annual (with monthly, quarterly and one-off at maturity)
+- [x] Investor profile gains occupation and nominee (editable at any time, even after KYC)
+- [x] 27 new tests
+- [ ] **Open decisions the template raised** (DECISIONS.md Q19 to Q27): losses clause, early withdrawal, term, takaful-style schedule items, policy-number code, electronic signing and witnesses, Shariah wording, cover artwork
+- [ ] Counsel to review the agreement wording before it is issued to real investors
+
+Addendum, 2026-10-19: **early withdrawal on one month's notice** (agreement clause 9.2; DECISIONS.md Q6 and Q20)
+
+- [x] The investor gives notice from their policy page (reason optional, confirmation tick). The notice period is the one **frozen on their policy** (default 1 month), so it always matches their agreement. Refused if the policy is not active, already has a notice, or matures before the notice would end
+- [x] During the notice the policy stays active and keeps earning, but its capital is **not put into new trading cycles** (cycle allocation and "allocate free capital" both skip it)
+- [x] Built as an **early maturity**: when the notice has run **and** none of the policy's capital is in a pending or open trading cycle ("ongoing transactions settled"), the policy matures early (status Matured, maturity date = that day). A daily job does this at 06:30; Accounts can do it now with a button. Anything still holding it back is listed in words
+- [x] From there it is the ordinary maturity path: the final profit run settles any profit held back for the policy's payment frequency, then the capital payout is prepared (Accounts), approved (a Director) and paid (Accounts) with the cash check, which is the "availability of funds" in the clause. Paying closes the request
+- [x] The investor can cancel the notice until the policy matures; staff can cancel with a reason. Emails: the investor on receipt and on maturing, Accounts and Directors on a new notice
+- [x] **Early withdrawals** page for staff (notices running with what each waits for, history); dashboard queue "Early withdrawals ready to mature"; the investor page for staff flags a running notice
+- [x] 12 new tests
+- [ ] Not built: a penalty or fee for early exit (the template has none), partial withdrawals (the whole policy matures), notice by staff on the investor's behalf (the investor can phone and staff cancel/record outside the system)
+
 Outstanding, not engineering:
 
 - [ ] **Legal/regulatory sign-off** on investor wording, structure and KYC (DECISIONS.md Q5)

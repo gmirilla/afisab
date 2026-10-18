@@ -64,6 +64,15 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
             Route::get('/investments/{investment}', [Investor\InvestmentController::class, 'show'])->name('investments.show');
             Route::delete('/investments/{investment}', [Investor\InvestmentController::class, 'cancel'])->name('investments.cancel');
 
+            // Early withdrawal (agreement clause 9.2): give notice, or cancel it
+            Route::post('/investments/{investment}/withdrawal', [Investor\WithdrawalController::class, 'store'])->name('withdrawal.store');
+            Route::delete('/withdrawals/{withdrawal}', [Investor\WithdrawalController::class, 'cancel'])->name('withdrawal.cancel');
+
+            // The investment agreement: read before subscribing, then download or email a copy
+            Route::get('/agreement', [Investor\PolicyController::class, 'preview'])->name('agreement');
+            Route::get('/investments/{investment}/policy', [Investor\PolicyController::class, 'download'])->name('policy.download');
+            Route::post('/investments/{investment}/policy/email', [Investor\PolicyController::class, 'email'])->middleware('throttle:10,60')->name('policy.email');
+
             Route::post('/investments/{investment}/pay/paystack', [Investor\PaymentController::class, 'paystack'])->name('payments.paystack');
             Route::post('/investments/{investment}/pay/transfer', [Investor\PaymentController::class, 'transfer'])->name('payments.transfer');
             Route::get('/payments/callback', [Investor\PaymentController::class, 'callback'])->name('payments.callback');
@@ -256,6 +265,24 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::get('/{enquiry}', [Admin\EnquiryController::class, 'show'])->name('.show');
                 Route::put('/{enquiry}', [Admin\EnquiryController::class, 'update'])->name('.update');
                 Route::post('/{enquiry}/supplier', [Admin\EnquiryController::class, 'makeSupplier'])->middleware('permission:suppliers.manage')->name('.supplier');
+            });
+
+            // Investment agreements: staff can reprint (investors.view), resend, and re-issue
+            Route::get('/policies/{document}/download', [Admin\PolicyDocumentController::class, 'download'])->middleware('permission:investors.view')->name('policies.download');
+            Route::post('/investments/{investment}/policy/send', [Admin\PolicyDocumentController::class, 'send'])->middleware('permission:policies.send')->name('policies.send');
+            Route::post('/investments/{investment}/policy/reissue', [Admin\PolicyDocumentController::class, 'reissue'])->middleware('permission:policies.issue')->name('policies.reissue');
+
+            // Early-withdrawal notices: view (accounts, directors, auditors), mature or cancel (accounts)
+            Route::get('/withdrawals', [Admin\WithdrawalController::class, 'index'])->middleware('permission:payouts.prepare|payouts.approve|ledger.view')->name('withdrawals');
+            Route::post('/withdrawals/{withdrawal}/process', [Admin\WithdrawalController::class, 'process'])->middleware('permission:payouts.prepare')->name('withdrawals.process');
+            Route::post('/withdrawals/{withdrawal}/cancel', [Admin\WithdrawalController::class, 'cancel'])->middleware('permission:payouts.prepare')->name('withdrawals.cancel');
+
+            // Who signs the agreements for the company
+            Route::middleware('permission:signatory.manage')->prefix('signatory')->name('signatory')->group(function () {
+                Route::get('/', [Admin\SignatoryController::class, 'index']);
+                Route::post('/', [Admin\SignatoryController::class, 'store'])->name('.store');
+                Route::post('/{signatory}/activate', [Admin\SignatoryController::class, 'activate'])->name('.activate');
+                Route::get('/{signatory}/image', [Admin\SignatoryController::class, 'image'])->name('.image');
             });
 
             Route::middleware('permission:bank.manage')->group(function () {

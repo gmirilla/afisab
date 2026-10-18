@@ -37,10 +37,11 @@ class ProfitSchedule
             return true; // final run
         }
 
-        if ($frequency === ProfitFrequency::Quarterly && $investment->start_date !== null) {
+        $interval = $frequency->intervalMonths();
+        if ($interval !== null && $investment->start_date !== null) {
             $elapsed = ($monthStart->year * 12 + $monthStart->month) - ($investment->start_date->year * 12 + $investment->start_date->month);
 
-            return $elapsed > 0 && $elapsed % 3 === 0;
+            return $elapsed > 0 && $elapsed % $interval === 0;
         }
 
         return false;

@@ -6,6 +6,7 @@ use App\Enums\InvestmentStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Exceptions\BusinessRuleException;
+use App\Jobs\IssuePolicyDocument;
 use App\Models\Investment;
 use App\Models\Payment;
 use App\Models\User;
@@ -143,6 +144,10 @@ class PaymentService
                 ->log('Payment confirmed; investment activated');
 
             $investment->user->notify(new PaymentConfirmed($investment));
+
+            if (config('afisab.policy.auto_issue')) {
+                IssuePolicyDocument::dispatch($investment->id)->afterCommit();
+            }
 
             return $payment;
         });
