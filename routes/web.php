@@ -283,6 +283,19 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
             Route::post('/withdrawals/{withdrawal}/process', [Admin\WithdrawalController::class, 'process'])->middleware('permission:payouts.prepare')->name('withdrawals.process');
             Route::post('/withdrawals/{withdrawal}/cancel', [Admin\WithdrawalController::class, 'cancel'])->middleware('permission:payouts.prepare')->name('withdrawals.cancel');
 
+            // Background-job queue: super-admin only
+            Route::middleware('permission:queue.manage')->prefix('queue')->name('queue')->group(function () {
+                Route::get('/', [Admin\QueueController::class, 'index']);
+                Route::post('/pause', [Admin\QueueController::class, 'pause'])->name('.pause');
+                Route::post('/resume', [Admin\QueueController::class, 'resume'])->name('.resume');
+                Route::post('/restart', [Admin\QueueController::class, 'restart'])->name('.restart');
+                Route::post('/run', [Admin\QueueController::class, 'run'])->middleware('throttle:6,1')->name('.run');
+                Route::post('/retry-all', [Admin\QueueController::class, 'retryAll'])->name('.retry-all');
+                Route::post('/flush', [Admin\QueueController::class, 'flush'])->name('.flush');
+                Route::post('/failed/{uuid}/retry', [Admin\QueueController::class, 'retry'])->name('.retry');
+                Route::delete('/failed/{uuid}', [Admin\QueueController::class, 'forget'])->name('.forget');
+            });
+
             // Who signs the agreements for the company
             Route::middleware('permission:signatory.manage')->prefix('signatory')->name('signatory')->group(function () {
                 Route::get('/', [Admin\SignatoryController::class, 'index']);

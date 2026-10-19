@@ -274,6 +274,13 @@ Addendum, 2026-10-19: **early withdrawal on one month's notice** (agreement clau
 - [x] Terminology everywhere: profit frequency labels are **Yearly** and **One-Off Payment** (stored values unchanged)
 - [ ] Not built: cross-referencing the receipt number on the certificate and agreement schedule; one receipt per payment only (no part-payments)
 
+### Addendum: job queue management (2026-10-19)
+
+- [x] `/admin/queue` (super-admin only, `queue.manage`): health banner (working, idle, paused, no worker running), counts (waiting, running, scheduled, failed), waiting/running list, failed list with the reason
+- [x] Controls: **pause / resume** (pause needs the password), **restart workers** (after a deployment), **run now** (processes waiting jobs inside the request for up to 20 seconds, for when cron is not running), **retry** one or all failed jobs, **delete** one or all failed jobs (password). Every action is audited; job payloads are never shown
+- [x] Works with the database queue only; on any other connection the page explains why. Because the host has no always-on process, the worker itself is still the cron entry in `deploy/crontab.txt`
+- [ ] Not built: starting a permanent worker process (not possible on shared hosting), and per-job cancel of a waiting job
+
 Outstanding, not engineering:
 
 - [ ] **Legal/regulatory sign-off** on investor wording, structure and KYC (DECISIONS.md Q5)

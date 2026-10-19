@@ -60,6 +60,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Lets the super-admin's queue page tell whether a worker is alive.
+        \Illuminate\Support\Facades\Event::listen([\Illuminate\Queue\Events\JobProcessed::class, \Illuminate\Queue\Events\JobFailed::class, \Illuminate\Queue\Events\JobProcessing::class], fn () => \App\Support\QueueMonitor::touch());
+
         // Stable names for polymorphic ledger subjects (survives class renames).
         Relation::enforceMorphMap([
             'user' => User::class,

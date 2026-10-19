@@ -73,6 +73,7 @@ after changing it (safe to re-run). `super-admin` receives every permission and 
 | Investment agreement: resend to the investor | `POST /admin/investments/{id}/policy/send` | `policies.send` (accounts, compliance); audited |
 | Investment agreement: generate or re-issue (new version, reason required) | `POST /admin/investments/{id}/policy/reissue` | `policies.issue` (compliance); audited |
 | Policy signatory (MD signature), company stamp and receipt address/contact lines: view, upload, reactivate, edit | `/admin/signatory` | `signatory.manage` (super-admin only); password required |
+| Job queue: view, pause/resume, restart workers, run now, retry failed jobs, delete failed jobs | `/admin/queue` | `queue.manage` (super-admin only); password for pause and delete |
 | Receipts: download | `/admin/receipts/{id}/download` | `investors.view` |
 | Receipts: resend to investor | `/admin/investments/{id}/receipt/send` | `policies.send` |
 | Receipts: re-issue a corrected version, void | `/admin/investments/{id}/receipt/reissue`, `/admin/receipts/{id}/void` | `policies.issue` |

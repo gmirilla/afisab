@@ -26,7 +26,7 @@ class RolesAndPermissionsSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $all = collect(self::ROLES)->flatten()->reject(fn ($p) => $p === '*')
-            ->merge(['plans.manage', 'users.manage', 'payouts.approve', 'risk.manage', 'payroll.approve', 'reversals.approve', 'bank.manage', 'paystack.manage', 'statutory.manage', 'cycles.approve', 'signatory.manage'])->unique();
+            ->merge(['plans.manage', 'users.manage', 'payouts.approve', 'risk.manage', 'payroll.approve', 'reversals.approve', 'bank.manage', 'paystack.manage', 'statutory.manage', 'cycles.approve', 'signatory.manage', 'queue.manage'])->unique();
         $all->each(fn ($name) => Permission::findOrCreate($name, 'web'));
         app(PermissionRegistrar::class)->forgetCachedPermissions(); // permissions were cached empty on a fresh DB
 

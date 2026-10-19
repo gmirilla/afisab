@@ -34,6 +34,7 @@
                 ['Risk', 'admin.risk', $u->can('risk.view')],
                 ['Reports', 'admin.reports.index', $u->can('reports.view')],
                 ['Audit trail', 'admin.audit', $u->can('audit.view')],
+                ['Job queue', 'admin.queue', $u->can('queue.manage')],
             ]],
             ['People', [
                 ['Employees', 'admin.hr.employees', $u->can('staff.manage')],
