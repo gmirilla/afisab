@@ -37,8 +37,10 @@ class PaymentController extends Controller
     {
         abort_unless($payment->status === PaymentStatus::AwaitingConfirmation, 422, 'No receipt has been submitted for this payment.');
 
+        $data = $request->validate(['received_on' => ['nullable', 'date', 'before_or_equal:today', 'after_or_equal:'.$payment->investment->created_at->toDateString()]]);
+
         try {
-            $payments->confirm($payment, $request->user());
+            $payments->confirm($payment, $request->user(), null, null, isset($data['received_on']) ? \Illuminate\Support\Carbon::parse($data['received_on']) : null);
         } catch (BusinessRuleException $e) {
             return back()->withErrors(['payment' => $e->getMessage()]);
         }

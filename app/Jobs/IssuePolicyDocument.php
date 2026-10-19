@@ -3,8 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\Investment;
-use App\Notifications\PolicyDocumentDelivered;
+use App\Notifications\InvestmentDocumentsIssued;
 use App\Services\Policy\PolicyDocumentService;
+use App\Services\Policy\ReceiptService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
- * Issues the investment agreement once a payment is confirmed, and emails it. Runs after the payment's database
+ * Issues the investment receipt and agreement once a payment is confirmed, and emails them together. Runs after the payment's database
  * transaction has committed, off the web request, so a PDF problem can never undo or delay a confirmed payment.
  * If it keeps failing it appears under failed jobs, and staff can still press "Generate" on the investor's page.
  */
@@ -32,15 +33,16 @@ class IssuePolicyDocument implements ShouldQueue
 
     public function __construct(public int $investmentId) {}
 
-    public function handle(PolicyDocumentService $documents): void
+    public function handle(PolicyDocumentService $documents, ReceiptService $receipts): void
     {
         $investment = Investment::with('user')->findOrFail($this->investmentId);
-        $already = $investment->currentPolicyDocument() !== null;
+        $already = $investment->currentPolicyDocument() !== null && $investment->currentReceipt() !== null;
 
+        $receipt = $receipts->issueForInvestment($investment, null, 'Issued on payment confirmation');
         $document = $documents->issue($investment);
 
-        if (! $already) { // a retry that finds the document already there must not email it twice
-            $investment->user->notify(new PolicyDocumentDelivered($document, 'issued'));
+        if (! $already) { // a retry that finds both already there must not email them twice
+            $investment->user->notify(new InvestmentDocumentsIssued($receipt, $document));
         }
     }
 

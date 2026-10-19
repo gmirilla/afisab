@@ -14,7 +14,27 @@
 
     @php($policy = $investment->currentPolicyDocument())
     @if($errors->has('policy'))<p class="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">{{ $errors->first('policy') }}</p>@endif
+    @if($errors->has('receipt'))<p class="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">{{ $errors->first('receipt') }}</p>@endif
     @if($investment->hasCertificate())
+        @php($receipt = $investment->currentReceipt())
+        <x-card class="mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-sm text-gray-500">Investment Receipt</p>
+                    @if($receipt)
+                        <p class="font-mono text-lg font-black text-brand-700">{{ $receipt->receipt_number }}</p>
+                        <p class="text-xs text-gray-500">Money received {{ $receipt->received_on->format('d M Y') }}@if($receipt->version > 1) · version {{ $receipt->version }}@endif</p>
+                    @else
+                        <p class="text-sm text-amber-700">Your receipt is being prepared. It is emailed to you with your agreement as soon as it is ready.</p>
+                    @endif
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    @if($receipt)<a class="rounded bg-brand-700 px-4 py-2 text-sm font-bold text-white" href="{{ route('investor.receipt.download', $investment) }}">Download receipt (PDF)</a>@endif
+                    <form method="POST" action="{{ route('investor.receipt.email', $investment) }}">@csrf<x-btn variant="ghost">{{ $receipt ? 'Email me a copy' : 'Prepare and email it to me' }}</x-btn></form>
+                </div>
+            </div>
+        </x-card>
+
         <x-card class="mb-6">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -77,7 +97,7 @@
 
         <x-card class="mb-6">
             <h2 class="mb-3 font-black text-brand-700">Trading performance</h2>
-            <p class="mb-3 text-sm text-gray-600">Your funds are deployed into commodity trading cycles. On the 27th of each month the net profit is calculated; your share is approved and paid {{ match($investment->profit_frequency) { \App\Enums\ProfitFrequency::Monthly => 'by the end of that month', \App\Enums\ProfitFrequency::Quarterly => 'every 3 months (and at maturity)', \App\Enums\ProfitFrequency::HalfYearly => 'every 6 months (and at maturity)', \App\Enums\ProfitFrequency::Annually => 'once a year (and at maturity)', default => 'once, at maturity' } }}. Returns are not guaranteed.</p>
+            <p class="mb-3 text-sm text-gray-600">Your funds are deployed into commodity trading cycles. On the 27th of each month the net profit is calculated; your share is approved and paid {{ match($investment->profit_frequency) { \App\Enums\ProfitFrequency::Monthly => 'by the end of that month', \App\Enums\ProfitFrequency::Quarterly => 'every 3 months (and at maturity)', \App\Enums\ProfitFrequency::HalfYearly => 'every 6 months (and at maturity)', \App\Enums\ProfitFrequency::Annually => 'once a year (and at maturity)', default => 'in one payment, at maturity' } }}. Returns are not guaranteed.</p>
             <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-2">Cycle</th><th>Closed</th><th>Your capital in cycle</th><th>Included in</th></tr></thead><tbody>
                 @forelse($entries as $e)
                     <tr class="border-b last:border-0">

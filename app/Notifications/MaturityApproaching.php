@@ -23,7 +23,7 @@ class MaturityApproaching extends AfisabNotification
             ->line("Investment {$i->reference} (".Money::format($i->amount).") matures on {$i->maturity_date->format('d M Y')}.");
 
         if ($i->profit_frequency !== ProfitFrequency::Monthly) {
-            $mail->line('Because you chose '.strtolower($i->profit_frequency->label()).' profit payments, any profit not yet paid to you is settled in the distribution for the month of maturity.');
+            $mail->line("Because your profit payment frequency is {$i->profit_frequency->label()}, any profit not yet paid to you is settled in the distribution for the month of maturity.");
         }
 
         return $mail

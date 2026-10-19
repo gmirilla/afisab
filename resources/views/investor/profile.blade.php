@@ -23,9 +23,16 @@
 
     <x-card class="mt-6">
         <h2 class="font-black text-brand-700">Details for your investment agreement</h2>
-        <p class="mb-4 text-sm text-gray-600">Your agreement lists your occupation and a nominee. These are optional and you can change them at any time.</p>
+        <p class="mb-4 text-sm text-gray-600">Your receipt and agreement use your title, and the agreement lists your occupation and a nominee. These are optional and you can change them at any time.</p>
         <form method="POST" action="{{ route('investor.profile.update') }}" class="grid gap-4 md:grid-cols-2">@csrf @method('PUT')
             <input type="hidden" name="section" value="agreement">
+            <label class="block text-sm font-bold text-gray-700">Title
+                <select name="title" class="mt-1 block w-full rounded border border-gray-300 px-3 py-2 font-normal">
+                    <option value="">None</option>
+                    @foreach(['Mr.','Mrs.','Miss','Ms.','Alh.','Alhaja','Chief','Dr.','Engr.','Prof.'] as $t)
+                        <option value="{{ $t }}" @selected(old('title', $profile->title) === $t)>{{ $t }}</option>
+                    @endforeach
+                </select></label>
             <x-field name="occupation" label="Occupation" :value="$profile->occupation" />
             <x-field name="occupation_address" label="Business or work address" :value="$profile->occupation_address" />
             <x-field name="nominee_name" label="Nominee (who should be contacted on your behalf)" :value="$profile->nominee_name" />

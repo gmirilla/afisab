@@ -198,7 +198,7 @@ Addendum, 2026-10-17: **cycle capital from free capital, and Director approval o
 - [x] Directors are emailed when a cycle is proposed; pending cycles appear in their "Waiting for you" queue
 - [x] 18 new tests; existing trading tests now approve their cycles
 
-Addendum, 2026-10-17: **profit payment frequency** (monthly, quarterly, one-off at maturity)
+Addendum, 2026-10-17: **profit payment frequency** (monthly, quarterly, one-off payment)
 
 - [x] The investor chooses it on the plans page when subscribing; it is stored on the policy (`profit_frequency`) and **fixed for its life** (to change it, cancel an unpaid subscription and subscribe again). Existing policies are monthly
 - [x] The monthly run (27th calculation) now only includes policies **due that month**: monthly every month; quarterly every third month counted from the policy's start month (start +3, +6, +9 ...); one-off only in the final run. A policy that is not due keeps its results recorded and unassigned, and they are **netted together** in the run where it falls due
@@ -247,7 +247,7 @@ Addendum, 2026-10-18: **investment agreement (policy document) for every investm
 - [x] Policy numbers `MIC/MM-YYYY/CODE/0000001`, gap-free (the code is `AFISAB_POLICY_CODE`; built-in default NG, the sample used OYO)
 - [x] **MD signature**: the super-admin uploads and replaces it (password, validation, resized, private storage, audited); every document records who signed it, and replacing the signature never alters issued documents. Dashboard warns until one is set
 - [x] **Reprint and resend**: investors download or email themselves a copy (3 a day, to their registered address only); staff download any version (`investors.view`), resend (`policies.send`: accounts, compliance) and re-issue with a reason (`policies.issue`: compliance). Every action is audited
-- [x] Profit frequency now also offers half-yearly and annual (with monthly, quarterly and one-off at maturity)
+- [x] Profit frequency now also offers half-yearly and yearly (with monthly, quarterly and one-off payment)
 - [x] Investor profile gains occupation and nominee (editable at any time, even after KYC)
 - [x] 27 new tests
 - [ ] **Open decisions the template raised** (DECISIONS.md Q19 to Q27): losses clause, early withdrawal, term, takaful-style schedule items, policy-number code, electronic signing and witnesses, Shariah wording, cover artwork
@@ -264,6 +264,16 @@ Addendum, 2026-10-19: **early withdrawal on one month's notice** (agreement clau
 - [x] 12 new tests
 - [ ] Not built: a penalty or fee for early exit (the template has none), partial withdrawals (the whole policy matures), notice by staff on the investor's behalf (the investor can phone and staff cancel/record outside the system)
 
+### Addendum: investment receipts (2026-10-19)
+
+- [x] One **Investment Receipt** per confirmed payment (A5 PDF, logo, address/contacts, sentence and table as in the company's samples, authorised signatory and company stamp), numbered `AFISAB/INV/{year}/0001`: gap-free, four digits, restarts at 0001 each year
+- [x] Issued automatically with the agreement when a payment is confirmed; the investor gets **one email with both PDFs**. Download and "email me a copy" (3 a day) for the investor; download, resend, re-issue (new version, same number) and void for staff with reasons; stored file + SHA-256, never edited
+- [x] Staff enter the **date the money was received** when confirming a payment (default today, not in the future, not before the investor subscribed). The investment still **starts on the day of confirmation**
+- [x] Super-admin only (on the signatory page, password required, audited): office address, second phone, investment email, website, and the **company stamp** (private, resized, old ones kept). No address is printed until one is entered
+- [x] Investor profile gets an optional **title** (Mr., Alh., Dr. ...) used on the receipt and the agreement
+- [x] Terminology everywhere: profit frequency labels are **Yearly** and **One-Off Payment** (stored values unchanged)
+- [ ] Not built: cross-referencing the receipt number on the certificate and agreement schedule; one receipt per payment only (no part-payments)
+
 Outstanding, not engineering:
 
 - [ ] **Legal/regulatory sign-off** on investor wording, structure and KYC (DECISIONS.md Q5)
@@ -278,6 +288,7 @@ Outstanding, not engineering:
 
 | Date | Change |
 |---|---|
+| 2026-10-19 | Investment receipts, company stamp/address (super-admin), received-on date, investor title, Yearly / One-Off Payment wording |
 | 2026-10-14 | Milestones 1 and 2 completed; documentation added |
 | 2026-10-14 | Milestone 3 completed: certificates, verification, performance tracking, statements, notifications, maturity job. Profit split left configurable |
 | 2026-10-15 | Milestone 7 engineering completed: security review and fixes, enforced staff 2FA, CSP and headers, route audit tests, concurrency proof on MySQL, MySQL test run, backup and restore drill, preflight, heartbeat, deployment kit, launch and UAT documents |

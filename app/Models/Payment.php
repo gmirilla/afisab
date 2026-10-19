@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'investment_id', 'method', 'amount', 'status', 'reference', 'gateway_reference',
-    'proof_path', 'confirmed_by', 'confirmed_at', 'note',
+    'proof_path', 'confirmed_by', 'confirmed_at', 'note', 'received_on',
 ])]
 class Payment extends Model
 {
@@ -21,6 +21,7 @@ class Payment extends Model
             'method' => PaymentMethod::class,
             'status' => PaymentStatus::class,
             'confirmed_at' => 'datetime',
+            'received_on' => 'date',
         ];
     }
 

@@ -90,7 +90,7 @@ class ProfitFrequencyTest extends TestCase
         $plan = InvestmentPlan::first();
 
         $this->actingAs($user)->get(route('investor.plans'))->assertOk()
-            ->assertSee('How do you want your profit paid?')->assertSee('Quarterly')->assertSee('One-off at maturity')->assertSee('fixed once you subscribe');
+            ->assertSee('How do you want your profit paid?')->assertSee('Quarterly')->assertSee('One-Off Payment')->assertSee('fixed once you subscribe');
 
         $this->actingAs($user)->post(route('investor.investments.store'), ['investment_plan_id' => $plan->id, 'amount' => '500,000', 'profit_frequency' => 'weekly', 'accept_terms' => '1'])->assertSessionHasErrors('profit_frequency');
         $this->assertSame(0, Investment::count());

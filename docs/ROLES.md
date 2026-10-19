@@ -72,7 +72,10 @@ after changing it (safe to re-run). `super-admin` receives every permission and 
 | Investment agreement: download any version | `GET /admin/policies/{id}/download` | `investors.view`; audited |
 | Investment agreement: resend to the investor | `POST /admin/investments/{id}/policy/send` | `policies.send` (accounts, compliance); audited |
 | Investment agreement: generate or re-issue (new version, reason required) | `POST /admin/investments/{id}/policy/reissue` | `policies.issue` (compliance); audited |
-| Policy signatory (MD signature): view, upload, reactivate | `/admin/signatory` | `signatory.manage` (super-admin only); password required |
+| Policy signatory (MD signature), company stamp and receipt address/contact lines: view, upload, reactivate, edit | `/admin/signatory` | `signatory.manage` (super-admin only); password required |
+| Receipts: download | `/admin/receipts/{id}/download` | `investors.view` |
+| Receipts: resend to investor | `/admin/investments/{id}/receipt/send` | `policies.send` |
+| Receipts: re-issue a corrected version, void | `/admin/investments/{id}/receipt/reissue`, `/admin/receipts/{id}/void` | `policies.issue` |
 | Early withdrawal: give notice, cancel it | `POST /investor/investments/{id}/withdrawal`, `DELETE /investor/withdrawals/{id}` | investor, own policies only |
 | Early withdrawals: view | `/admin/withdrawals` | `payouts.prepare`, `payouts.approve` or `ledger.view` |
 | Early withdrawals: mature now, cancel with a reason | `POST /admin/withdrawals/{id}/process`, `.../cancel` | `payouts.prepare` (accounts) |

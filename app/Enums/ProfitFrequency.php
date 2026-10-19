@@ -17,8 +17,8 @@ enum ProfitFrequency: string
             self::Monthly => 'Monthly',
             self::Quarterly => 'Quarterly',
             self::HalfYearly => 'Half-yearly',
-            self::Annually => 'Annually',
-            self::AtMaturity => 'One-off at maturity',
+            self::Annually => 'Yearly',
+            self::AtMaturity => 'One-Off Payment',
         };
     }
 
@@ -30,7 +30,7 @@ enum ProfitFrequency: string
             self::Quarterly => 'Your share builds up and is paid every 3 months from your start date, with anything left paid at maturity.',
             self::HalfYearly => 'Your share builds up and is paid every 6 months from your start date, with anything left paid at maturity.',
             self::Annually => 'Your share builds up and is paid once a year from your start date, with anything left paid at maturity.',
-            self::AtMaturity => 'Your whole profit share is paid once, at the end of the term.',
+            self::AtMaturity => 'Your whole profit share is paid in one payment, at the end of the term.',
         };
     }
 

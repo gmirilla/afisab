@@ -82,7 +82,7 @@ class InvestorDirectoryController extends Controller
             activity()->performedOn($user)->causedBy($viewer)->log('Investor record viewed');
         }
 
-        $investments = $user->investments()->with(['plan', 'policyDocuments.signatory', 'policyDocuments.issuer'])->orderByDesc('id')->get();
+        $investments = $user->investments()->with(['plan', 'policyDocuments.signatory', 'policyDocuments.issuer', 'receipts.signatory', 'receipts.issuer'])->orderByDesc('id')->get();
         $ids = $investments->pluck('id');
         $lines = DistributionLine::with(['run', 'investment'])->whereIn('investment_id', $ids)->orderByDesc('id')->get();
 

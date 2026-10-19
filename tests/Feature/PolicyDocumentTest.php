@@ -295,7 +295,7 @@ class PolicyDocumentTest extends TestCase
 
     // ---- automatic issue after payment ----
 
-    public function test_confirming_a_payment_issues_the_agreement_and_emails_it(): void
+    public function test_confirming_a_payment_issues_the_receipt_and_agreement_and_emails_them_together(): void
     {
         config(['afisab.policy.auto_issue' => true]);
         Notification::fake();
@@ -305,7 +305,8 @@ class PolicyDocumentTest extends TestCase
 
         $doc = $i->currentPolicyDocument();
         $this->assertNotNull($doc);
-        Notification::assertSentTo($i->user, PolicyDocumentDelivered::class, fn ($n) => $n->reason === 'issued' && $n->document->is($doc));
+        Notification::assertSentTo($i->user, \App\Notifications\InvestmentDocumentsIssued::class, fn ($n) => $n->document->is($doc) && $n->receipt->is($i->currentReceipt()));
+        Notification::assertSentToTimes($i->user, \App\Notifications\InvestmentDocumentsIssued::class, 1);
     }
 
     public function test_the_agreement_email_carries_the_pdf(): void
@@ -331,7 +332,7 @@ class PolicyDocumentTest extends TestCase
         $plan = InvestmentPlan::where('slug', '12-month')->first();
         $base = ['investment_plan_id' => $plan->id, 'amount' => '500,000', 'profit_frequency' => 'annually'];
 
-        $this->actingAs($user)->get(route('investor.plans'))->assertOk()->assertSee('name="accept_terms"', false)->assertSee(route('investor.agreement', ['plan' => $plan->id]), false)->assertSee('Annually');
+        $this->actingAs($user)->get(route('investor.plans'))->assertOk()->assertSee('name="accept_terms"', false)->assertSee(route('investor.agreement', ['plan' => $plan->id]), false)->assertSee('Yearly');
         $this->actingAs($user)->post(route('investor.investments.store'), $base)->assertSessionHasErrors('accept_terms');
         $this->assertSame(0, Investment::count());
 
@@ -452,7 +453,7 @@ class PolicyDocumentTest extends TestCase
         $compliance = User::factory()->create()->assignRole('compliance');
 
         $this->actingAs($accounts)->get(route('admin.investors.show', $i->user))->assertOk()
-            ->assertSee('Investment agreements')->assertSee('v2 (current)')->assertSee('v1 (superseded)')->assertSee('Signatory changed')->assertSee('Resend to investor')->assertDontSee('Re-issue as a new version');
+            ->assertSee('Investment receipts and agreements')->assertSee('v2 (current)')->assertSee('v1 (superseded)')->assertSee('Signatory changed')->assertSee('Resend to investor')->assertDontSee('Re-issue as a new version');
         $this->actingAs($compliance)->get(route('admin.investors.show', $i->user))->assertSee('Re-issue as a new version');
     }
 
@@ -505,7 +506,7 @@ class PolicyDocumentTest extends TestCase
         $this->actingAs($director)->post(route('admin.signatory.activate', $first), ['password' => 'wrong'])->assertSessionHasErrors('password');
         $this->actingAs($director)->post(route('admin.signatory.activate', $first), ['password' => 'password'])->assertSessionHasNoErrors();
         $this->assertSame('First', Signatory::active()->name);
-        $this->actingAs($director)->get(route('admin.signatory'))->assertOk()->assertSee('Policy signatory')->assertSee('Earlier signatories');
+        $this->actingAs($director)->get(route('admin.signatory'))->assertOk()->assertSee('Policy signatory')->assertSee('Company stamp')->assertSee('Earlier signatories');
     }
 
     public function test_the_signature_image_is_never_public_and_is_private_to_the_super_admin(): void

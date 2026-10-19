@@ -87,9 +87,10 @@
 
     @if($investments->contains(fn ($i) => $i->hasCertificate()))
         <x-card class="mb-6">
-            <h2 class="mb-1 font-black text-brand-700">Investment agreements</h2>
+            <h2 class="mb-1 font-black text-brand-700">Investment receipts and agreements</h2>
             <p class="mb-3 text-xs text-gray-500">The exact file issued to the investor. Downloading, resending and re-issuing are all recorded.</p>
             @if($errors->has('policy'))<p class="mb-3 rounded bg-red-50 p-2 text-sm text-red-700">{{ $errors->first('policy') }}</p>@endif
+            @if($errors->has('receipt'))<p class="mb-3 rounded bg-red-50 p-2 text-sm text-red-700">{{ $errors->first('receipt') }}</p>@endif
             <div class="space-y-5">
             @foreach($investments->filter(fn ($i) => $i->hasCertificate()) as $i)
                 <div class="rounded-lg border border-stone-200 p-4">
@@ -117,6 +118,36 @@
                     @else
                         <p class="mt-3 text-sm text-amber-700">No agreement has been issued for this policy yet.</p>
                     @endif
+                    <div class="mt-4 border-t pt-3">
+                        <p class="mb-1 text-sm font-bold text-brand-700">Receipt</p>
+                        @if($i->receipts->isNotEmpty())
+                            <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-1">Number</th><th>Received</th><th>Issued</th><th>Fingerprint (SHA-256)</th><th></th></tr></thead><tbody>
+                            @foreach($i->receipts as $r)
+                                <tr class="border-b last:border-0 {{ $r->status === 'issued' ? '' : 'text-gray-400' }}">
+                                    <td class="py-1.5">{{ $r->receipt_number }} v{{ $r->version }} ({{ $r->status === 'issued' ? 'current' : $r->status }})@if($r->reason)<br><span class="text-xs">{{ $r->reason }}</span>@endif @if($r->void_reason)<br><span class="text-xs">Voided: {{ $r->void_reason }}</span>@endif</td>
+                                    <td>{{ $r->received_on->format('d M Y') }}</td>
+                                    <td>{{ $r->issued_at->format('d M Y H:i') }}<br><span class="text-xs">{{ $r->issuer?->name ?? 'automatic' }}</span></td>
+                                    <td class="font-mono text-xs">{{ substr($r->sha256, 0, 16) }}…</td>
+                                    <td class="text-right"><a class="font-bold text-brand-700 underline" href="{{ route('admin.receipts.download', $r) }}">Download</a>
+                                        @can('policies.issue')@if($r->status === 'issued')<form method="POST" action="{{ route('admin.receipts.void', $r) }}" class="mt-1 flex justify-end gap-1">@csrf<input name="reason" required minlength="5" maxlength="200" placeholder="Reason to void" class="w-32 rounded border px-2 py-1 text-xs"><x-btn variant="danger">Void</x-btn></form>@endif @endcan</td>
+                                </tr>
+                            @endforeach
+                            </tbody></table>
+                        @else
+                            <p class="text-sm text-amber-700">No receipt has been issued for this policy yet.</p>
+                        @endif
+                        <div class="mt-2 flex flex-wrap items-end gap-2">
+                            @can('policies.send')@if($i->currentReceipt())<form method="POST" action="{{ route('admin.receipts.send', $i) }}" data-confirm="Email this receipt to {{ $user->email }}?">@csrf<x-btn variant="ghost">Resend receipt</x-btn></form>@endif @endcan
+                            @can('policies.issue')
+                                <form method="POST" action="{{ route('admin.receipts.reissue', $i) }}" class="flex flex-wrap items-end gap-2">@csrf
+                                    <label class="block text-xs font-bold text-gray-700">{{ $i->receipts->isEmpty() ? 'Reason for generating it' : 'Reason for re-issuing (required)' }}
+                                        <input name="reason" required minlength="5" maxlength="200" placeholder="e.g. address updated, new stamp" class="mt-1 block w-64 rounded border border-gray-300 px-2 py-1.5 text-sm font-normal"></label>
+                                    <label class="flex items-center gap-1 pb-1.5 text-xs"><input type="checkbox" name="send_copy" value="1"> email it to the investor</label>
+                                    <x-btn variant="ghost">{{ $i->receipts->isEmpty() ? 'Generate receipt' : 'Re-issue as a new version' }}</x-btn>
+                                </form>
+                            @endcan
+                        </div>
+                    </div>
                     @can('policies.issue')
                         <form method="POST" action="{{ route('admin.policies.reissue', $i) }}" class="mt-3 flex flex-wrap items-end gap-2 border-t pt-3">@csrf
                             <label class="block text-xs font-bold text-gray-700">{{ $i->policyDocuments->isEmpty() ? 'Reason for generating it' : 'Reason for re-issuing (required)' }}

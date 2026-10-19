@@ -56,7 +56,7 @@ The investor can cancel until the policy matures. There is no fee in the templat
 
 ## Profit frequency
 
-Monthly, quarterly, half-yearly, annually, or one-off at maturity. See `ProfitSchedule` for when each is due.
+Monthly, quarterly, half-yearly, yearly, or one-off payment. See `ProfitSchedule` for when each is due.
 
 ## Changing the wording
 

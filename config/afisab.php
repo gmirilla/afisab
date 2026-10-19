@@ -65,6 +65,11 @@ return [
         'investor_copies_per_day' => 3,
     ],
 
+    // Investment receipts: AFISAB/INV/2026/0001, restarting at 0001 each year.
+    'receipt' => [
+        'prefix' => env('AFISAB_RECEIPT_PREFIX', 'AFISAB/INV'),
+    ],
+
     // Days before maturity to send the reminder email.
     'maturity_reminder_days' => 14,
 

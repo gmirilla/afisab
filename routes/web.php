@@ -72,6 +72,8 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
             Route::get('/agreement', [Investor\PolicyController::class, 'preview'])->name('agreement');
             Route::get('/investments/{investment}/policy', [Investor\PolicyController::class, 'download'])->name('policy.download');
             Route::post('/investments/{investment}/policy/email', [Investor\PolicyController::class, 'email'])->middleware('throttle:10,60')->name('policy.email');
+            Route::get('/investments/{investment}/receipt', [Investor\ReceiptController::class, 'download'])->name('receipt.download');
+            Route::post('/investments/{investment}/receipt/email', [Investor\ReceiptController::class, 'email'])->middleware('throttle:10,60')->name('receipt.email');
 
             Route::post('/investments/{investment}/pay/paystack', [Investor\PaymentController::class, 'paystack'])->name('payments.paystack');
             Route::post('/investments/{investment}/pay/transfer', [Investor\PaymentController::class, 'transfer'])->name('payments.transfer');
@@ -271,6 +273,10 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
             Route::get('/policies/{document}/download', [Admin\PolicyDocumentController::class, 'download'])->middleware('permission:investors.view')->name('policies.download');
             Route::post('/investments/{investment}/policy/send', [Admin\PolicyDocumentController::class, 'send'])->middleware('permission:policies.send')->name('policies.send');
             Route::post('/investments/{investment}/policy/reissue', [Admin\PolicyDocumentController::class, 'reissue'])->middleware('permission:policies.issue')->name('policies.reissue');
+            Route::get('/receipts/{receipt}/download', [Admin\ReceiptController::class, 'download'])->middleware('permission:investors.view')->name('receipts.download');
+            Route::post('/investments/{investment}/receipt/send', [Admin\ReceiptController::class, 'send'])->middleware('permission:policies.send')->name('receipts.send');
+            Route::post('/investments/{investment}/receipt/reissue', [Admin\ReceiptController::class, 'reissue'])->middleware('permission:policies.issue')->name('receipts.reissue');
+            Route::post('/receipts/{receipt}/void', [Admin\ReceiptController::class, 'void'])->middleware('permission:policies.issue')->name('receipts.void');
 
             // Early-withdrawal notices: view (accounts, directors, auditors), mature or cancel (accounts)
             Route::get('/withdrawals', [Admin\WithdrawalController::class, 'index'])->middleware('permission:payouts.prepare|payouts.approve|ledger.view')->name('withdrawals');
@@ -283,6 +289,10 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::post('/', [Admin\SignatoryController::class, 'store'])->name('.store');
                 Route::post('/{signatory}/activate', [Admin\SignatoryController::class, 'activate'])->name('.activate');
                 Route::get('/{signatory}/image', [Admin\SignatoryController::class, 'image'])->name('.image');
+                Route::put('/company-details', [Admin\SignatoryController::class, 'details'])->name('.details');
+                Route::post('/stamp', [Admin\SignatoryController::class, 'stampStore'])->name('.stamp.store');
+                Route::post('/stamp/{stamp}/activate', [Admin\SignatoryController::class, 'stampActivate'])->name('.stamp.activate');
+                Route::get('/stamp/{stamp}/image', [Admin\SignatoryController::class, 'stampImage'])->name('.stamp.image');
             });
 
             Route::middleware('permission:bank.manage')->group(function () {

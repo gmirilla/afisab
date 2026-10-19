@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use Carbon\CarbonInterface;
 use App\Enums\InvestmentStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
@@ -95,9 +96,9 @@ class PaymentService
      * Confirm a payment: activate the policy and book the funds into the ledger.
      * Idempotent and safe under concurrent webhook + callback + staff action.
      */
-    public function confirm(Payment $payment, ?User $by = null, ?int $paidAmount = null, ?string $gatewayReference = null): Payment
+    public function confirm(Payment $payment, ?User $by = null, ?int $paidAmount = null, ?string $gatewayReference = null, ?CarbonInterface $receivedOn = null): Payment
     {
-        return DB::transaction(function () use ($payment, $by, $paidAmount, $gatewayReference) {
+        return DB::transaction(function () use ($payment, $by, $paidAmount, $gatewayReference, $receivedOn) {
             $payment = Payment::whereKey($payment->id)->lockForUpdate()->firstOrFail();
 
             if ($payment->status === PaymentStatus::Confirmed) {
@@ -119,6 +120,7 @@ class PaymentService
                 'status' => PaymentStatus::Confirmed,
                 'confirmed_by' => $by?->id,
                 'confirmed_at' => now(),
+                'received_on' => ($receivedOn ?? now())->toDateString(),
                 'gateway_reference' => $gatewayReference ?? $payment->gateway_reference,
             ]);
 

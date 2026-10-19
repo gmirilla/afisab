@@ -21,6 +21,7 @@ class ProfileController extends Controller
 
         // The agreement's schedule asks for these. They are not identity checks, so they can be updated at any time.
         $extras = $request->validate([
+            'title' => ['nullable', 'string', 'in:Mr.,Mrs.,Miss,Ms.,Alh.,Alhaja,Chief,Dr.,Engr.,Prof.'],
             'occupation' => ['nullable', 'string', 'max:120'],
             'occupation_address' => ['nullable', 'string', 'max:255'],
             'nominee_name' => ['nullable', 'string', 'max:150'],

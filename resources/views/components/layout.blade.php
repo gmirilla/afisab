@@ -11,7 +11,7 @@
                 ['Payments', 'admin.payments', $u->can('payments.confirm')],
                 ['KYC review', 'admin.kyc', $u->can('kyc.review')],
                 ['Plans', 'admin.plans', $u->can('plans.manage')],
-                ['Policy signatory', 'admin.signatory', $u->can('signatory.manage')],
+                ['Signatory, stamp & address', 'admin.signatory', $u->can('signatory.manage')],
                 ['Bank accounts', 'admin.bank-accounts', $u->can('bank.manage')],
                 ['Paystack', 'admin.paystack', $u->can('paystack.manage')],
             ]],

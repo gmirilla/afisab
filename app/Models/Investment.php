@@ -97,6 +97,17 @@ class Investment extends Model
         return $this->withdrawalRequests()->where('status', WithdrawalRequest::REQUESTED)->first();
     }
 
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class)->orderByDesc('id');
+    }
+
+    /** The receipt currently in force (latest issued version), or null. */
+    public function currentReceipt(): ?Receipt
+    {
+        return $this->receipts()->where('status', Receipt::ISSUED)->first();
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
