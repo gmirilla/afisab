@@ -31,6 +31,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ReceiptService
 {
+    /** Width x height in points: 148 x 222 mm, the 2:3 shape of the receipt design. */
+    public const PAPER = [0, 0, 420, 630];
+
+    private const ASSETS = ['lockup', 'banner', 'footer', 'user', 'coins', 'naira', 'calendar', 'target', 'document', 'wallet', 'pin', 'phone', 'mail', 'globe'];
+
     public function issue(Payment $payment, ?User $by = null, ?string $reason = null, bool $force = false): Receipt
     {
         return DB::transaction(function () use ($payment, $by, $reason, $force) {
@@ -54,7 +59,7 @@ class ReceiptService
             $receivedOn = ($payment->received_on ?? $payment->confirmed_at ?? now())->copy();
             $context = $this->context($payment, $number, $receivedOn, $signatory, $stamp);
 
-            $bytes = Pdf::loadView('pdf.receipt', $context)->setPaper('a5')->output();
+            $bytes = Pdf::loadView('pdf.receipt', $context)->setPaper(self::PAPER)->output();
             $version = ($latest?->version ?? 0) + 1;
             $path = "receipts/{$payment->investment_id}/{$payment->id}-v{$version}.pdf";
             Storage::put($path, $bytes);
@@ -129,7 +134,7 @@ class ReceiptService
         return [
             'company' => config('afisab.company_name'),
             'slogan' => config('afisab.slogan'),
-            'logo' => $this->logo(),
+            'assets' => $this->assets(),
             'details' => ['address' => $company->addressLines(), 'phones' => $company->phones(), 'emails' => $company->emails(), 'website' => $company->website],
             'receipt_number' => $number,
             'issued_on' => now()->format('d F Y'),
@@ -185,10 +190,13 @@ class ReceiptService
         return $path && Storage::exists($path) ? 'data:image/png;base64,'.base64_encode(Storage::get($path)) : null;
     }
 
-    private function logo(): string
+    /** The receipt's artwork (public/image/receipt, rebuilt by resources/receipt-assets/build.sh) as data URIs. */
+    private function assets(): array
     {
-        $path = public_path('image/logo-full.jpg');
+        return collect(self::ASSETS)->mapWithKeys(function (string $name) {
+            $file = public_path('image/receipt/'.($name === 'lockup' || $name === 'banner' || $name === 'footer' ? $name : "icon-{$name}").'.png');
 
-        return is_file($path) ? 'data:image/jpeg;base64,'.base64_encode((string) file_get_contents($path)) : '';
+            return [$name => is_file($file) ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($file)) : ''];
+        })->all();
     }
 }

@@ -202,8 +202,7 @@ class PolicyDocumentService
             ]],
             ['no' => '3', 'title' => 'INVESTMENT CAPITAL', 'break' => true, 'blocks' => [
                 ['p' => 'The Investor hereby contributes the sum of:'],
-                ['p' => "**{$c['amount']}** (Amount in Words: {$c['amount_words']})"],
-                ['p' => "to {$company} as Mudharabah Capital."],
+                ['p' => "amount stated in the policy schedule to {$company}, which shall be referred to as the “Mudaharabah Capital”."],
                 ['p' => 'The Mudarib acknowledges receipt of the capital and undertakes to utilize it solely for lawful business activities relating to agricultural produce trading.'],
             ]],
             ['no' => '4', 'title' => 'NATURE OF THE AGREEMENT', 'blocks' => [
@@ -217,7 +216,7 @@ class PolicyDocumentService
             ]],
             ['no' => '6', 'title' => 'PROFIT SHARING', 'blocks' => [
                 ['p' => '6.1 Net profits generated from the Mudharabah business shall be shared as follows:'],
-                ['ul' => ["Investor: {$c['shares']['investor']}", "{$company} (Mudarib): {$c['shares']['company']}", "Risk Fund: {$c['shares']['risk_fund']}", "Reserve Fund: {$c['shares']['reserve']}"]],
+                ['ul' => ["Investor: {$c['shares']['investor']}", "{$company} (Mudarib): {$c['shares']['company']}", "Reserve Fund: {$c['shares']['reserve']}"]],
                 ['p' => '6.2 The profit-sharing ratio shall be determined as a percentage and not as a fixed monetary amount.'],
                 ['p' => '6.3 AFISAB may, with the Investor’s written consent or as stated in the Schedule, retain a reasonable reserve from profits for:'],
                 ['ul' => ['business contingencies;', 'logistics volatility;', 'spoilage, market fluctuation, or storage risk;', 'tax, statutory, or regulatory obligations;', 'GIT Takaful Insurance.']],
@@ -301,7 +300,7 @@ class PolicyDocumentService
             ['DATE OF BIRTH', [$c['dob']]],
             ['NOMINEE', [$c['nominee']]],
             ['PROFIT PAYMENT', [$c['frequency'] ? strtoupper($c['frequency']->label()) : 'AS CHOSEN BY THE INVESTOR']],
-            ['PROFIT SHARING (OF NET PROFIT)', ["Investor {$c['shares']['investor']} · {$c['company']} {$c['shares']['company']}", "Risk Fund {$c['shares']['risk_fund']} · Reserve Fund {$c['shares']['reserve']}"]],
+            ['PROFIT SHARING (OF NET PROFIT)', ["Investor {$c['shares']['investor']} · {$c['company']} {$c['shares']['company']}", "Risk Fund covers capital losses · Reserve Fund {$c['shares']['reserve']}"]],
         ];
     }
 

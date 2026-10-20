@@ -160,7 +160,7 @@ class PolicyDocumentTest extends TestCase
 
         foreach ([
             '12,500,000.00', 'Twelve Million, Five Hundred Thousand Naira Only',
-            'Investor: 24.00%', 'Mudarib): 56.00%', 'Risk Fund: 0.00%', 'Reserve Fund: 20.00%',
+            'Investor: 24.00%', 'Mudarib): 56.00%', 'Risk Fund covers capital losses', 'Reserve Fund: 20.00%',
             'OCTOBER 20TH, 2026', 'OCTOBER 20TH, 2027', '1 YEAR', 'MIC/10-2026/OYO/0000001',
             'One (1) Month', 'Abuja, Federal Capital Territory, Nigeria', 'QUARTERLY',
             'Aisha Farayola (Spouse), 08035556666', 'Tailoring', 'OCTOBER 10TH, 1977', 'RIDWAN FARAYOLA',

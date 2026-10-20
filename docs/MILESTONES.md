@@ -271,6 +271,7 @@ Addendum, 2026-10-19: **early withdrawal on one month's notice** (agreement clau
 - [x] Staff enter the **date the money was received** when confirming a payment (default today, not in the future, not before the investor subscribed). The investment still **starts on the day of confirmation**
 - [x] Super-admin only (on the signatory page, password required, audited): office address, second phone, investment email, website, and the **company stamp** (private, resized, old ones kept). No address is printed until one is entered
 - [x] Investor profile gets an optional **title** (Mr., Alh., Dr. ...) used on the receipt and the agreement
+- [x] **Receipt design** follows the company's artwork: 148 x 222 mm, logo lock-up with address/phones/emails/website (from the super-admin page, nothing hard-coded), gold-and-green title banner, icon table (now including the payment reference), "For: AFISAB NIG. LTD" with signature, round stamp and "Company Stamp" line, gold swoosh footer with the slogan. The artwork images are built from `resources/receipt-assets/` by `build.sh`
 - [x] Terminology everywhere: profit frequency labels are **Yearly** and **One-Off Payment** (stored values unchanged)
 - [ ] Not built: cross-referencing the receipt number on the certificate and agreement schedule; one receipt per payment only (no part-payments)
 

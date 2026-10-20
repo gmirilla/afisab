@@ -105,6 +105,19 @@ class ReceiptTest extends TestCase
         $this->assertDatabaseHas('activity_log', ['description' => 'Receipt issued']);
     }
 
+    public function test_the_receipt_is_one_page_of_the_design_size_even_with_long_names_and_amounts(): void
+    {
+        $user = $this->investor('Ridwan Olamilekan Abdulrazaq Farayola-Okonkwo', ['title' => 'Alh.']);
+        CompanyDetail::create(['address' => "No. 12, Commerce Street
+Central Business District
+Abuja, FCT, Nigeria.", 'phone_secondary' => '08164552029', 'investment_email' => 'investment@afisab.com', 'website' => 'www.afisab.com']);
+        $receipt = $this->receiptFor($this->policy($user, amount: 12_575_250_50));
+
+        $bytes = Storage::get($receipt->file_path);
+        $this->assertSame(1, preg_match_all('/\/Type\s*\/Page[^s]/', $bytes), 'one page');
+        $this->assertMatchesRegularExpression('/MediaBox\s*\[0(\.0+)?\s+0(\.0+)?\s+420(\.0+)?\s+630(\.0+)?\]/', $bytes);
+    }
+
     public function test_the_receipt_says_what_the_sample_says(): void
     {
         $user = $this->investor('Ridwan Farayola', ['title' => 'Alh.']);
