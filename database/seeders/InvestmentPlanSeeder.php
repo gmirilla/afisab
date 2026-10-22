@@ -22,7 +22,7 @@ class InvestmentPlanSeeder extends Seeder
                 'minimum_amount' => config('afisab.minimum_investment'),
                 'description' => $description,
                 'is_active' => true,
-                'sort_order' => $i,
+                'sort_order' => $i + 1,
             ]);
         }
     }

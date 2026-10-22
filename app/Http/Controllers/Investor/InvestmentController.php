@@ -43,7 +43,7 @@ class InvestmentController extends Controller
     public function plans(): View
     {
         return view('investor.plans', [
-            'plans' => InvestmentPlan::where('is_active', true)->orderBy('sort_order')->get(),
+            'plans' => InvestmentPlan::where('is_active', true)->orderBy('sort_order')->orderBy('id')->get(),
         ]);
     }
 

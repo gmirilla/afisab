@@ -317,6 +317,7 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::get('/plans', [Admin\PlanController::class, 'index'])->name('plans');
                 Route::post('/plans', [Admin\PlanController::class, 'store'])->name('plans.store');
                 Route::put('/plans/{plan}', [Admin\PlanController::class, 'update'])->name('plans.update');
+                Route::post('/plans/{plan}/move', [Admin\PlanController::class, 'move'])->name('plans.move');
             });
         });
     });
