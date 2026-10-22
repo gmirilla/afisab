@@ -73,8 +73,8 @@
         <a href="{{ route('home') }}" class="flex items-center gap-2.5">
             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white p-1 shadow-inner ring-1 ring-gold-500/60"><img src="{{ asset('image/logo-mark.png') }}" alt="AFISAB NIG. LTD logo" width="40" height="40" class="h-full w-full object-contain"></span>
             <span class="leading-tight">
-                <span class="font-display text-lg font-bold tracking-wide">AFISAB</span>
-                <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-gold-500">Nig. Ltd</span>
+                <font class="font-display text-lg font-bold tracking-wide">AFISAB</font>
+                <font class="text-[10px] font-bold uppercase tracking-[0.25em] text-gold-500">Nig. Ltd</font>
             </span>
         </a>
 
