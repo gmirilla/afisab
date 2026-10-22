@@ -34,6 +34,24 @@ enum ProfitFrequency: string
         };
     }
 
+    /**
+     * The options worth offering on a plan of this length: a frequency only makes sense if at least one payment falls
+     * before maturity, so its interval must be shorter than the plan. One-Off is always offered. Anything not paid
+     * before maturity is paid at maturity, so the interval need not divide the duration (9 months: monthly,
+     * quarterly, half-yearly, one-off).
+     *
+     * @return list<self>
+     */
+    public static function availableFor(int $months): array
+    {
+        return array_values(array_filter(self::cases(), fn (self $f) => $f->intervalMonths() === null || $f->intervalMonths() < $months));
+    }
+
+    public function isAvailableFor(int $months): bool
+    {
+        return in_array($this, self::availableFor($months), true);
+    }
+
     /** Months between payments; null for a single payment at maturity. */
     public function intervalMonths(): ?int
     {

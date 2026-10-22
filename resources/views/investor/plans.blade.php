@@ -13,11 +13,13 @@
                     <input type="hidden" name="investment_plan_id" value="{{ $plan->id }}">
                     <x-field name="amount" label="Amount (₦)" inputmode="decimal" :value="number_format($plan->minimum_amount / 100, 0, '.', '')" required />
                     <fieldset>
+                        @php($options = \App\Enums\ProfitFrequency::availableFor($plan->duration_months))
                         <legend class="text-sm font-bold text-gray-700">How do you want your profit paid?</legend>
+                        <p class="text-xs text-gray-500">Options for a {{ $plan->duration_months }}-month plan.</p>
                         <div class="mt-1 space-y-2">
-                            @foreach($frequencies as $f)
+                            @foreach($options as $f)
                                 <label class="flex items-start gap-2 text-sm">
-                                    <input type="radio" name="profit_frequency" value="{{ $f->value }}" class="mt-1" @checked(old('profit_frequency', 'monthly') === $f->value)>
+                                    <input type="radio" name="profit_frequency" value="{{ $f->value }}" class="mt-1" @checked(old('profit_frequency', $options[0]->value) === $f->value)>
                                     <span><strong>{{ $f->label() }}</strong><br><span class="text-xs text-gray-500">{{ $f->description() }}</span></span>
                                 </label>
                             @endforeach

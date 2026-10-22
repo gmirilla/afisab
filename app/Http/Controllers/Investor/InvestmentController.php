@@ -44,7 +44,6 @@ class InvestmentController extends Controller
     {
         return view('investor.plans', [
             'plans' => InvestmentPlan::where('is_active', true)->orderBy('sort_order')->get(),
-            'frequencies' => ProfitFrequency::cases(),
         ]);
     }
 
@@ -58,11 +57,12 @@ class InvestmentController extends Controller
         ], ['accept_terms.accepted' => 'Please confirm that you have read and agree to the Investment Agreement.']);
 
         try {
+            $plan = InvestmentPlan::findOrFail($data['investment_plan_id']);
             $investment = $subscriptions->subscribe(
                 $request->user(),
-                InvestmentPlan::findOrFail($data['investment_plan_id']),
+                $plan,
                 Money::fromNaira($data['amount']),
-                ProfitFrequency::tryFrom($data['profit_frequency'] ?? '') ?? ProfitFrequency::Monthly,
+                ProfitFrequency::tryFrom($data['profit_frequency'] ?? '') ?? ProfitFrequency::availableFor($plan->duration_months)[0],
                 ['ip' => $request->ip()],
             );
         } catch (InvalidArgumentException) {

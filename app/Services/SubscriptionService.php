@@ -30,8 +30,9 @@ class SubscriptionService
             throw new BusinessRuleException('The minimum investment for this plan is '.Money::format($minimum).'.');
         }
 
-        if ($frequency->intervalMonths() !== null && $plan->duration_months < $frequency->intervalMonths()) {
-            throw new BusinessRuleException("This plan is shorter than one {$frequency->label()} payment period; choose another payment frequency.");
+        if (! $frequency->isAvailableFor($plan->duration_months)) {
+            $options = implode(', ', array_map(fn ($f) => $f->label(), ProfitFrequency::availableFor($plan->duration_months)));
+            throw new BusinessRuleException("{$frequency->label()} is not available on a {$plan->duration_months}-month plan. Choose one of: {$options}.");
         }
 
         $investment = $user->investments()->create([

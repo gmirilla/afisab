@@ -132,7 +132,8 @@ class PolicyDocumentTest extends TestCase
     public function test_half_yearly_and_annual_payments_fall_due_on_their_months(): void
     {
         $half = $this->policy(ProfitFrequency::HalfYearly, $this->investor('Half'));
-        $annual = $this->policy(ProfitFrequency::Annually, $this->investor('Annual'));
+        InvestmentPlan::create(['name' => '24-Month Plan', 'slug' => '24-month', 'duration_months' => 24, 'minimum_amount' => 500_000_00, 'is_active' => true, 'sort_order' => 9]);
+        $annual = $this->policy(ProfitFrequency::Annually, $this->investor('Annual'), slug: '24-month');
         $due = fn (Investment $i, string $month) => ProfitSchedule::isDue($i, Carbon::parse($month.'-01'));
 
         foreach (['2027-01', '2027-03', '2027-05'] as $m) {
@@ -142,7 +143,8 @@ class PolicyDocumentTest extends TestCase
             $this->assertTrue($due($half, $m), "half-yearly $m");
         }
         $this->assertFalse($due($annual, '2027-04'));
-        $this->assertTrue($due($annual, '2027-10'));
+        $this->assertTrue($due($annual, '2027-10'), 'a year after the start, well before the final run');
+        $this->assertFalse($due($annual, '2028-03'));
         $this->assertSame('2027-04-30', ProfitSchedule::nextRun($half)['pay_by']->toDateString());
 
         $this->expectException(BusinessRuleException::class);
@@ -330,9 +332,9 @@ class PolicyDocumentTest extends TestCase
     {
         $user = $this->investor();
         $plan = InvestmentPlan::where('slug', '12-month')->first();
-        $base = ['investment_plan_id' => $plan->id, 'amount' => '500,000', 'profit_frequency' => 'annually'];
+        $base = ['investment_plan_id' => $plan->id, 'amount' => '500,000', 'profit_frequency' => 'half_yearly'];
 
-        $this->actingAs($user)->get(route('investor.plans'))->assertOk()->assertSee('name="accept_terms"', false)->assertSee(route('investor.agreement', ['plan' => $plan->id]), false)->assertSee('Yearly');
+        $this->actingAs($user)->get(route('investor.plans'))->assertOk()->assertSee('name="accept_terms"', false)->assertSee(route('investor.agreement', ['plan' => $plan->id]), false)->assertSee('Half-yearly');
         $this->actingAs($user)->post(route('investor.investments.store'), $base)->assertSessionHasErrors('accept_terms');
         $this->assertSame(0, Investment::count());
 
@@ -340,7 +342,7 @@ class PolicyDocumentTest extends TestCase
         $i = Investment::firstOrFail();
         $this->assertNotNull($i->terms_accepted_at);
         $this->assertSame('127.0.0.1', $i->terms_accepted_ip);
-        $this->assertSame(ProfitFrequency::Annually, $i->profit_frequency);
+        $this->assertSame(ProfitFrequency::HalfYearly, $i->profit_frequency);
 
         $this->actingAs($user)->get(route('investor.investments.show', $i))->assertOk()->assertSee('You agreed to the Mudharabah Investment Agreement');
     }

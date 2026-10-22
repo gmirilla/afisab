@@ -49,10 +49,10 @@ class ReceiptTest extends TestCase
         return $user;
     }
 
-    private function policy(?User $user = null, string $slug = '12-month', int $amount = 12_500_000_00, ?Carbon $receivedOn = null): Investment
+    private function policy(?User $user = null, string $slug = '12-month', int $amount = 12_500_000_00, ?Carbon $receivedOn = null, ProfitFrequency $frequency = ProfitFrequency::Quarterly): Investment
     {
         $user ??= $this->investor();
-        $investment = app(SubscriptionService::class)->subscribe($user, InvestmentPlan::where('slug', $slug)->first(), $amount, ProfitFrequency::Quarterly, ['ip' => '102.89.1.1']);
+        $investment = app(SubscriptionService::class)->subscribe($user, InvestmentPlan::where('slug', $slug)->first(), $amount, $frequency, ['ip' => '102.89.1.1']);
         $payments = app(PaymentService::class);
         $payments->confirm($payments->startTransfer($investment), null, null, null, $receivedOn);
 
@@ -135,7 +135,7 @@ Abuja, FCT, Nigeria.", 'phone_secondary' => '08164552029', 'investment_email' =>
         $this->assertStringContainsString($payment->reference, $context['payment_reference']);
         $this->assertSame('One (1) Year', $this->receipts->context($payment, 'x', now(), null, null)['period']);
 
-        $short = $this->policy(slug: '3-month');
+        $short = $this->policy(slug: '3-month', frequency: ProfitFrequency::Monthly);
         $this->assertSame('Three (3) Months', $this->receipts->context($short->payments()->first(), 'x', now(), null, null)['period']);
     }
 
