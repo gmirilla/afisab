@@ -67,14 +67,15 @@ class BrandingTest extends TestCase
 
         $data = ['investment' => $investment, 'verifyUrl' => 'x', 'qr' => 'data:image/png;base64,AAAA', 'position' => ['principal' => 1, 'earned' => 0, 'paid' => 0, 'payable' => 0, 'current_value' => 1, 'pending_entries' => 0, 'recorded_net_profit' => 0, 'cycles' => 0], 'entries' => collect(), 'generatedAt' => now()];
 
-        $withLogo = view('pdf.certificate', $data + ['logo' => $logo])->render();
-        $this->assertStringContainsString('<img class="logo" src="data:image/jpeg;base64,', $withLogo);
+        $context = $service->certificateContext($investment);
+        $withLogo = view('pdf.certificate', $context)->render();
+        $this->assertStringContainsString('<img class="lockup" src="data:image/png;base64,', $withLogo);
         $this->assertStringNotContainsString('class="brand"', $withLogo);
         $this->assertStringContainsString('<img class="logo" src="data:image/jpeg;base64,', view('pdf.statement', $data + ['logo' => $logo])->render());
 
-        $withoutLogo = view('pdf.certificate', $data + ['logo' => ''])->render();
+        $withoutLogo = view('pdf.certificate', ['assets' => []] + $context)->render();
         $this->assertStringContainsString('<div class="brand">AFISAB NIG. LTD</div>', $withoutLogo);
-        $this->assertStringNotContainsString('<img class="logo"', $withoutLogo);
+        $this->assertStringNotContainsString('<img class="lockup"', $withoutLogo);
 
         // And the real PDFs still build.
         $this->assertStringStartsWith('%PDF', $service->certificate($investment));

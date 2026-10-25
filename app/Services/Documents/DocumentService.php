@@ -2,7 +2,12 @@
 
 namespace App\Services\Documents;
 
+use App\Models\CompanyStamp;
 use App\Models\Investment;
+use App\Models\Signatory;
+use App\Support\Money;
+use App\Support\NumberToWords;
+use App\Support\PdfArt;
 use App\Services\Performance\PerformanceService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Endroid\QrCode\Builder\Builder;
@@ -15,14 +20,40 @@ class DocumentService
 
     public function certificate(Investment $investment): string
     {
-        $investment->loadMissing(['user', 'plan']);
+        return Pdf::loadView('pdf.certificate', $this->certificateContext($investment))->setPaper('a4', 'landscape')->output();
+    }
 
-        return Pdf::loadView('pdf.certificate', [
+    /**
+     * What the certificate shows. A certificate is drawn fresh on every download, so it signs and stamps with whatever
+     * the investor's own agreement and receipt were issued with (not whoever is active today), and only falls back to
+     * the active ones when those documents do not exist yet.
+     *
+     * @return array<string, mixed>
+     */
+    public function certificateContext(Investment $investment): array
+    {
+        $investment->loadMissing(['user.investorProfile', 'plan']);
+        $policy = $investment->currentPolicyDocument();
+        $receipt = $investment->currentReceipt();
+        $title = $investment->user->investorProfile?->title;
+
+        return [
             'investment' => $investment,
+            'investor_name' => trim(($title ? $title.' ' : '').$investment->user->name),
+            'amount' => Money::format($investment->amount),
+            'amount_words' => NumberToWords::naira($investment->amount),
+            'policy_number' => $investment->policy_number,
+            'receipt_number' => $receipt?->receipt_number,
+            'received_on' => $receipt?->received_on?->format('jS F, Y'),
+            'frequency' => $investment->profit_frequency?->label(),
             'verifyUrl' => $this->verifyUrl($investment),
             'qr' => $this->qrDataUri($this->verifyUrl($investment)),
-            'logo' => $this->logoDataUri(),
-        ])->setPaper('a4', 'landscape')->output();
+            'assets' => PdfArt::assets(),
+            'signatory' => PdfArt::stored(($policy?->signatory ?? Signatory::active())?->signature_path),
+            'stamp' => PdfArt::stored(($receipt?->stamp ?? CompanyStamp::active())?->image_path),
+            'company' => config('afisab.company_name'),
+            'slogan' => config('afisab.slogan'),
+        ];
     }
 
     public function statement(Investment $investment): string

@@ -34,8 +34,6 @@ class ReceiptService
     /** Width x height in points: 148 x 222 mm, the 2:3 shape of the receipt design. */
     public const PAPER = [0, 0, 420, 630];
 
-    private const ASSETS = ['lockup', 'banner', 'footer', 'user', 'coins', 'naira', 'calendar', 'target', 'document', 'wallet', 'pin', 'phone', 'mail', 'globe'];
-
     public function issue(Payment $payment, ?User $by = null, ?string $reason = null, bool $force = false): Receipt
     {
         return DB::transaction(function () use ($payment, $by, $reason, $force) {
@@ -190,13 +188,8 @@ class ReceiptService
         return $path && Storage::exists($path) ? 'data:image/png;base64,'.base64_encode(Storage::get($path)) : null;
     }
 
-    /** The receipt's artwork (public/image/receipt, rebuilt by resources/receipt-assets/build.sh) as data URIs. */
     private function assets(): array
     {
-        return collect(self::ASSETS)->mapWithKeys(function (string $name) {
-            $file = public_path('image/receipt/'.($name === 'lockup' || $name === 'banner' || $name === 'footer' ? $name : "icon-{$name}").'.png');
-
-            return [$name => is_file($file) ? 'data:image/png;base64,'.base64_encode((string) file_get_contents($file)) : ''];
-        })->all();
+        return \App\Support\PdfArt::assets();
     }
 }

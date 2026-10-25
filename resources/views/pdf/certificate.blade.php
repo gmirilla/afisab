@@ -1,57 +1,76 @@
-@php use App\Support\Money; @endphp
+@php
+    $left = [
+        ['Amount Invested', $amount],
+        ['Investment Period', $investment->duration_months.' '.($investment->duration_months === 1 ? 'month' : 'months')],
+        ['Start Date', $investment->start_date->format('jS \o\f F, Y')],
+        ['Maturity Date', $investment->maturity_date->format('jS \o\f F, Y')],
+        ['Profit Payment', $frequency],
+    ];
+    $right = array_values(array_filter([
+        ['Certificate No.', $investment->certificate_number],
+        $policy_number ? ['Policy No.', $policy_number] : null,
+        $receipt_number ? ['Receipt No.', $receipt_number] : null,
+        $received_on ? ['Funds Received', $received_on] : null,
+        ['Reference', $investment->reference],
+    ]));
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <style>
     @page { margin: 0; }
-    body { font-family: 'DejaVu Sans', sans-serif; color: #1f2937; margin: 0; }
-    .frame { margin: 22px; border: 6px double #c9a227; padding: 26px 40px; height: 480px; position: relative; }
-    .center { text-align: center; }
-    .brand { color: #08532a; font-size: 26px; font-weight: bold; letter-spacing: 2px; }
-    .logo { height: 96px; }
-    .tag { color: #a8861b; font-style: italic; font-size: 12px; }
-    h1 { color: #08532a; font-size: 26px; margin: 4px 0 2px; letter-spacing: 3px; }
-    .name { font-size: 28px; color: #08532a; border-bottom: 1px solid #c9a227; display: inline-block; padding: 0 30px 4px; margin: 6px 0; }
-    .muted { color: #6b7280; font-size: 11px; }
-    table.facts { margin: 8px auto 0; border-collapse: collapse; font-size: 12px; }
-    table.facts td { padding: 4px 18px; border-bottom: 1px solid #e5e7eb; }
-    table.facts td.k { color: #6b7280; text-align: right; }
-    .foot { position: absolute; bottom: 20px; left: 40px; right: 40px; }
-    .qr { float: right; text-align: center; font-size: 9px; color: #6b7280; width: 120px; }
-    .qr img { width: 96px; height: 96px; }
-    .sig { float: left; width: 220px; border-top: 1px solid #6b7280; padding-top: 4px; font-size: 10px; color: #6b7280; margin-top: 40px; }
-    .disclaimer { clear: both; font-size: 8px; color: #6b7280; text-align: center; padding-top: 6px; }
+    body { font-family: 'DejaVu Sans', sans-serif; color: #0b4f2a; margin: 0; }
+    .abs { position: absolute; }
+    .c { text-align: center; }
+    .brand { color: #0b4f2a; font-size: 24pt; font-weight: bold; letter-spacing: 2pt; }
+    table.facts { border-collapse: collapse; border: 0.75pt solid #d9b441; }
+    table.facts td { height: 18pt; padding: 0; vertical-align: middle; font-size: 8pt; border-bottom: 0.75pt solid #e8d38a; }
+    table.facts td.k { width: 104pt; padding-left: 8pt; background: #0b4f2a; color: #fff; font-weight: bold; font-size: 7.4pt; border-bottom: 0.75pt solid #2d7048; }
+    table.facts td.v { background: #fffdf5; padding-left: 8pt; color: #14472e; }
+    table.facts tr.last td { border-bottom: 0; }
+    .line { border-top: 0.75pt solid #0b4f2a; }
+    .cap { font-size: 7.4pt; color: #14472e; text-align: center; }
+    .small { font-size: 7.6pt; font-weight: bold; color: #14472e; }
+    .slogan { text-align: center; font-family: 'DejaVu Serif', serif; font-style: italic; font-size: 10pt; color: #fff; }
 </style>
 </head>
 <body>
-<div class="frame">
-    <div class="center">
-        @if($logo)<img class="logo" src="{{ $logo }}" alt="AFISAB NIG. LTD">@else<div class="brand">AFISAB NIG. LTD</div>@endif
-        <div class="tag">Building Trust, Delivering Excellence</div>
-        <h1>INVESTMENT CERTIFICATE</h1>
-        <div class="muted">This certifies that</div>
-        <div class="name">{{ $investment->user->name }}</div>
-        <div class="muted">has subscribed to the {{ $investment->plan->name }} commodity trading investment programme</div>
-    </div>
+    <div class="abs" style="left:12pt; top:12pt; width:810pt; height:563pt; border:4pt double #c9a227;"></div>
 
-    <table class="facts">
-        <tr><td class="k">Amount invested</td><td><strong>{{ Money::format($investment->amount) }}</strong></td>
-            <td class="k">Certificate no.</td><td><strong>{{ $investment->certificate_number }}</strong></td></tr>
-        <tr><td class="k">Duration</td><td>{{ $investment->duration_months }} months</td>
-            <td class="k">Reference</td><td>{{ $investment->reference }}</td></tr>
-        <tr><td class="k">Start date</td><td>{{ $investment->start_date->format('d F Y') }}</td>
-            <td class="k">Maturity date</td><td>{{ $investment->maturity_date->format('d F Y') }}</td></tr>
+    <div class="abs c" style="left:0; top:26pt; width:842pt;">
+        @if($assets['lockup'] ?? '')<img class="lockup" src="{{ $assets['lockup'] }}" alt="{{ $company }}" style="width:250pt; height:58pt;">@else<div class="brand">{{ $company }}</div>@endif
+    </div>
+    @if($assets['banner-certificate'] ?? '')<img class="abs" src="{{ $assets['banner-certificate'] }}" alt="Investment Certificate" style="left:186pt; top:90pt; width:470pt; height:61pt;">@else<div class="abs c" style="left:0; top:105pt; width:842pt; font-size:20pt; font-weight:bold; letter-spacing:3pt;">INVESTMENT CERTIFICATE</div>@endif
+
+    <div class="abs c" style="left:0; top:160pt; width:842pt; font-size:9pt; font-style: italic; color:#4b5563;">This certifies that</div>
+    <div class="abs c" style="left:0; top:174pt; width:842pt;"><span style="font-family:'DejaVu Serif', serif; font-size:23pt; font-style:italic; color:#0b4f2a; border-bottom:1pt solid #c9a227; padding:0 30pt 3pt;">{{ $investor_name }}</span></div>
+    <div class="abs c" style="left:60pt; top:213pt; width:722pt; font-size:9pt; color:#14472e;">has subscribed to the <strong>{{ $investment->plan->name }}</strong> commodity trading investment programme<br><span style="font-size:8pt; color:#4b5563;">{{ $amount_words }}</span></div>
+
+    <table class="abs facts" style="left:60pt; top:250pt; width:340pt;">
+        @foreach($left as [$k, $v])<tr class="{{ $loop->last ? 'last' : '' }}"><td class="k">{{ $k }}</td><td class="v">{{ $v }}</td></tr>@endforeach
+    </table>
+    <table class="abs facts" style="left:442pt; top:250pt; width:340pt;">
+        @foreach($right as [$k, $v])<tr class="{{ $loop->last ? 'last' : '' }}"><td class="k">{{ $k }}</td><td class="v">{{ $v }}</td></tr>@endforeach
     </table>
 
-    <div class="foot">
-        <div class="qr"><img src="{{ $qr }}" alt="QR"><br>Scan to verify<br>Code: {{ $investment->certificate_token }}</div>
-        <div class="sig">Authorised signatory, AFISAB NIG. LTD<br>Issued {{ $investment->certificate_issued_at->format('d F Y') }}</div>
-        <div class="disclaimer">
-            Participation in agricultural commodity trading involves risk. Returns, if any, are a share of actual trading profit and are not guaranteed.
-            Verify this certificate at {{ route('verify.form') }}.
-        </div>
+    {{-- signature, stamp, verification --}}
+    <div class="abs small" style="left:60pt; top:362pt;">For: {{ $company }}</div>
+    @if($signatory)<img class="abs" src="{{ $signatory }}" alt="" style="left:80pt; top:376pt; height:42pt;">@endif
+    <div class="abs line" style="left:60pt; top:422pt; width:200pt;"></div>
+    <div class="abs cap" style="left:60pt; top:426pt; width:200pt;">Authorized Signatory<br>Issued {{ $investment->certificate_issued_at->format('d F Y') }}</div>
+    @if($stamp)<img class="abs" src="{{ $stamp }}" alt="" style="left:376pt; top:360pt; width:90pt; height:90pt;">@endif
+    <div class="abs c" style="left:582pt; top:356pt; width:200pt;">
+        <img src="{{ $qr }}" alt="QR" style="width:76pt; height:76pt;">
+        <div style="font-size:7pt; color:#14472e;">Scan to verify this certificate<br>Code: <strong>{{ $investment->certificate_token }}</strong></div>
     </div>
-</div>
+
+    <div class="abs c" style="left:70pt; top:488pt; width:702pt; font-size:6.4pt; color:#6b7280; line-height:1.4;">
+        Participation in agricultural commodity trading involves risk. Returns, if any, are a share of actual trading profit and are not guaranteed.
+        Verify this certificate at {{ route('verify.form') }}.
+    </div>
+
+    @if($assets['footer-wide'] ?? '')<img class="abs" src="{{ $assets['footer-wide'] }}" alt="" style="left:16pt; top:516pt; width:810pt; height:62.5pt;">@endif
+    <div class="abs slogan" style="left:0; top:552pt; width:842pt;">{{ $slogan }}</div>
 </body>
 </html>
