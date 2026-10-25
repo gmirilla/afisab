@@ -9,7 +9,7 @@ prove it works.
 |---|---|---|
 | **Database** | MySQL/MariaDB | Everything: investors, ledger, payments, audit trail |
 | **Private files** | `storage/app/private` | KYC documents and payment receipts (cannot be recreated) |
-| **`APP_KEY`** | `.env` | Encrypts BVNs. **Without it a restored database has unreadable BVNs.** Store it in a password manager, *separately* from the backups |
+| **`APP_KEY`** | `.env` | Encrypts NINs. **Without it a restored database has unreadable NINs.** Store it in a password manager, *separately* from the backups |
 | `.env` (the rest) | server | Paystack keys, DB password, mail settings. Keep an up-to-date copy in a password manager |
 | Code | git / the release zip | Reproducible from the repository; not part of the nightly backup |
 
@@ -56,7 +56,7 @@ Record each drill in the table below.
 ## Disaster recovery: restoring for real
 
 1. Provision the new host (see [DEPLOYMENT.md](DEPLOYMENT.md)): PHP, empty database, the release zip.
-2. Put the **original `APP_KEY`** and other settings in `.env`. (A new key means unreadable BVNs.)
+2. Put the **original `APP_KEY`** and other settings in `.env`. (A new key means unreadable NINs.)
 3. Restore the database: `mysql -u USER -p DATABASE < database.sql` (from the archive).
 4. Restore files: extract `private-files.tar.gz` into `storage/app/`.
 5. `php artisan migrate --force` (applies any newer migrations), then `php artisan afisab:preflight`.

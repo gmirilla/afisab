@@ -28,7 +28,7 @@ class ProfitFrequencyAvailabilityTest extends TestCase
     private function investor(): User
     {
         $user = User::factory()->create()->assignRole('investor');
-        $user->investorProfile()->create(['phone' => '08031234567', 'kyc_status' => 'approved', 'address' => 'Abuja', 'date_of_birth' => '1980-01-01']);
+        $user->investorProfile()->create(['phone' => '08031234567', 'nin' => (string) random_int(10_000_000_000, 99_999_999_999), 'kyc_status' => 'approved', 'address' => 'Abuja', 'date_of_birth' => '1980-01-01']);
 
         return $user;
     }

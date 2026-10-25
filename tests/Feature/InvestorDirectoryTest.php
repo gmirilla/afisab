@@ -50,7 +50,7 @@ class InvestorDirectoryTest extends TestCase
         // Ada: verified, bank details, a quarterly policy that has been paid some profit.
         $this->ada = User::factory()->create(['name' => 'Ada Obi', 'email' => 'ada@example.com'])->assignRole('investor');
         $this->ada->investorProfile()->create([
-            'phone' => '08031112222', 'kyc_status' => 'approved', 'bvn' => '12345678901', 'address' => '1 Marina, Lagos',
+            'phone' => '08031112222', 'kyc_status' => 'approved', 'nin' => '12345678901', 'address' => '1 Marina, Lagos',
             'bank_name' => 'Zenith', 'account_number' => '1012345678', 'account_name' => 'Ada Obi', 'id_document_path' => 'kyc/ada.pdf',
             'kyc_reviewed_by' => $this->compliance->id, 'kyc_reviewed_at' => now(),
         ]);
@@ -176,7 +176,7 @@ class InvestorDirectoryTest extends TestCase
         $this->actingAs($this->accounts)->get(route('admin.investors.show', $this->chika))->assertOk()->assertSee('not started their profile')->assertSee('No investments yet');
     }
 
-    public function test_bvn_id_document_and_pdfs_are_limited_to_the_right_roles(): void
+    public function test_nin_id_document_and_pdfs_are_limited_to_the_right_roles(): void
     {
         $masked = $this->actingAs($this->accounts)->get(route('admin.investors.show', $this->ada))->assertOk();
         $masked->assertSee('•••••••8901')->assertDontSee('12345678901')->assertDontSee('View ID document')->assertDontSee('Certificate');

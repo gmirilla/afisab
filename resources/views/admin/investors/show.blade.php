@@ -32,12 +32,13 @@
     <div class="mb-6 grid gap-4 md:grid-cols-2">
         <x-card>
             <h2 class="mb-2 font-black text-brand-700">Personal details</h2>
+            @if($profile?->photo_path)<img src="{{ route('admin.investors.photo', $user) }}" alt="Profile picture of {{ $user->name }}" class="mb-3 h-24 w-24 rounded-lg border border-stone-200 object-cover">@endif
             @if($profile)
                 <dl class="grid grid-cols-3 gap-y-1 text-sm">
                     <dt class="text-gray-500">Phone</dt><dd class="col-span-2">{{ $profile->phone ?: '—' }}</dd>
                     <dt class="text-gray-500">Date of birth</dt><dd class="col-span-2">{{ $profile->date_of_birth?->format('d M Y') ?? '—' }}</dd>
                     <dt class="text-gray-500">Address</dt><dd class="col-span-2">{{ $profile->address ?: '—' }}</dd>
-                    <dt class="text-gray-500">BVN</dt><dd class="col-span-2 font-mono">{{ $profile->bvn ? ($showFullBvn ? $profile->bvn : $profile->maskedBvn()) : '—' }}</dd>
+                    <dt class="text-gray-500">NIN</dt><dd class="col-span-2 font-mono">{{ $profile->nin ? ($showFullNin ? $profile->nin : $profile->maskedNin()) : 'Not provided' }}</dd>
                 </dl>
             @else
                 <p class="text-sm text-gray-500">This investor has not started their profile.</p>

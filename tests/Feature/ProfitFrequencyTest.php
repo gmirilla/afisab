@@ -86,7 +86,7 @@ class ProfitFrequencyTest extends TestCase
     public function test_investors_choose_it_on_the_plans_page_and_bad_values_are_refused(): void
     {
         $user = User::factory()->create()->assignRole('investor');
-        $user->investorProfile()->create(['phone' => '0800', 'kyc_status' => 'approved']);
+        $user->investorProfile()->create(['phone' => '0800', 'kyc_status' => 'approved', 'nin' => '12345678901']);
         $plan = InvestmentPlan::first();
 
         $this->actingAs($user)->get(route('investor.plans'))->assertOk()

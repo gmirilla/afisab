@@ -65,7 +65,7 @@ after changing it (safe to re-run). `super-admin` receives every permission and 
 | Remittances: mark paid | `POST /admin/hr/remittances/{id}/pay` | `payroll.pay` (accounts); not the person who prepared that payroll |
 | Cycles: propose, allocate, withdraw | `POST /admin/trading/cycles...` | `cycles.manage` (sales). Adding capital to an already-approved cycle needs `cycles.approve` |
 | Cycles: approve, reject | `POST /admin/trading/cycles/{id}/approve|reject` | `cycles.approve` (super-admin); not the person who proposed it |
-| Investor directory, investor page, CSV | `/admin/investors`, `/admin/investors/{id}`, `/admin/investors/export` | `investors.view` (accounts, sales, compliance, auditor). Full BVN and ID document: `kyc.review`. Activity trail: `audit.view`. Views and exports are audited |
+| Investor directory, investor page, CSV | `/admin/investors`, `/admin/investors/{id}`, `/admin/investors/export` | `investors.view` (accounts, sales, compliance, auditor). Full NIN and ID document: `kyc.review`. Activity trail: `audit.view`. Views and exports are audited |
 | Website enquiries: inbox, view, update | `/admin/enquiries`, `/admin/enquiries/{id}` | `enquiries.manage` (sales, super-admin) |
 | Enquiry to supplier record | `POST /admin/enquiries/{id}/supplier` | `enquiries.manage` and `suppliers.manage` |
 | Investment agreement: read before subscribing, download, email a copy | `/investor/agreement`, `/investor/investments/{id}/policy`, `.../policy/email` | investor, own policies only; 3 emailed copies per policy per day |

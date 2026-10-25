@@ -53,8 +53,8 @@ if you like. The script never touches your `.env`, database or live site.
 1. Create the MySQL database and user in cPanel (*MySQL Databases*); give the user all privileges.
 2. `cp deploy/.env.production.example .env` inside `/home/USER/afisab`, then fill in every blank (database, mail, Paystack
    **live** keys only after testing with test keys, bank details for transfers).
-3. `php artisan key:generate --force`, **once only**. Copy `APP_KEY` into a password manager now. It encrypts every investor's BVN;
-   losing it means the BVNs cannot be read, and changing it later breaks them.
+3. `php artisan key:generate --force`, **once only**. Copy `APP_KEY` into a password manager now. It encrypts every investor's NIN;
+   losing it means the NINs cannot be read, and changing it later breaks them.
 4. Folder permissions: `storage` and `bootstrap/cache` writable by the PHP user.
 
 ## 5. Install

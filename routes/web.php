@@ -58,6 +58,9 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
             Route::get('/', [Investor\InvestmentController::class, 'dashboard'])->name('dashboard');
             Route::get('/profile', [Investor\ProfileController::class, 'edit'])->name('profile');
             Route::put('/profile', [Investor\ProfileController::class, 'update'])->name('profile.update');
+            Route::get('/profile/photo', [Investor\ProfileController::class, 'photo'])->name('profile.photo');
+            Route::post('/profile/photo', [Investor\ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
+            Route::delete('/profile/photo', [Investor\ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
 
             Route::get('/plans', [Investor\InvestmentController::class, 'plans'])->name('plans');
             Route::post('/investments', [Investor\InvestmentController::class, 'store'])->name('investments.store');
@@ -90,6 +93,7 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::get('/', [Admin\InvestorDirectoryController::class, 'index']);
                 Route::get('/export', [Admin\InvestorDirectoryController::class, 'export'])->name('.export');
                 Route::get('/{user}', [Admin\InvestorDirectoryController::class, 'show'])->name('.show');
+                Route::get('/{user}/photo', [Admin\InvestorDirectoryController::class, 'photo'])->name('.photo');
             });
 
             Route::middleware('permission:payments.confirm')->group(function () {
@@ -253,6 +257,7 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::get('/kyc', [Admin\KycController::class, 'index'])->name('kyc');
                 Route::get('/kyc/{profile}/document', [Admin\KycController::class, 'document'])->name('kyc.document');
                 Route::post('/kyc/{profile}/review', [Admin\KycController::class, 'review'])->name('kyc.review');
+                Route::get('/kyc/{profile}/photo', [Admin\KycController::class, 'photo'])->name('kyc.photo');
             });
 
             Route::middleware('permission:paystack.manage')->prefix('paystack')->name('paystack')->group(function () {

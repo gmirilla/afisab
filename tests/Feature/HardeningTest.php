@@ -237,7 +237,7 @@ class HardeningTest extends TestCase
         Storage::fake();
         $user = User::factory()->create()->assignRole('investor');
         $user->investorProfile()->create(['phone' => '0800']);
-        $base = ['phone' => '08031234567', 'date_of_birth' => '1990-01-01', 'address' => '1 Street', 'bvn' => '12345678901', 'bank_name' => 'B', 'account_number' => '0123456789', 'account_name' => 'N'];
+        $base = ['phone' => '08031234567', 'date_of_birth' => '1990-01-01', 'address' => '1 Street', 'nin' => '12345678901', 'bank_name' => 'B', 'account_number' => '0123456789', 'account_name' => 'N'];
 
         $this->actingAs($user)->put(route('investor.profile.update'), $base + ['id_document' => UploadedFile::fake()->create('shell.php', 10, 'application/x-php')])->assertSessionHasErrors('id_document');
         $this->actingAs($user)->put(route('investor.profile.update'), $base + ['id_document' => UploadedFile::fake()->create('big.pdf', 5_000, 'application/pdf')])->assertSessionHasErrors('id_document');

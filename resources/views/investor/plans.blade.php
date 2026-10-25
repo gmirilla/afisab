@@ -1,6 +1,9 @@
 @php use App\Support\Money; @endphp
 <x-layout title="Invest">
     <h1 class="mb-1 text-2xl font-black text-brand-700">Choose a plan</h1>
+    @unless(auth()->user()->investorProfile?->nin)
+        <p class="mb-4 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">Please <a class="font-bold underline" href="{{ route('investor.profile') }}">add your NIN</a> on your profile before you invest.</p>
+    @endunless
     <p class="mb-6 text-sm text-gray-600">Returns are a share of actual commodity trading profit and are not guaranteed. Capital is at risk.</p>
     <div class="grid gap-4 md:grid-cols-3">
         @foreach($plans as $plan)

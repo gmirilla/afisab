@@ -15,6 +15,7 @@ use App\Notifications\PaymentConfirmed;
 use App\Services\Ledger\InvestorFundsService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PaymentService
@@ -33,6 +34,37 @@ class PaymentService
             ['method' => PaymentMethod::Transfer, 'status' => PaymentStatus::Pending],
             ['amount' => $investment->amount, 'reference' => $this->newReference()],
         );
+    }
+
+    /**
+     * The investor's bank-transfer payment, created only when they actually submit their receipt. Nothing is written
+     * when they merely look at the bank details or start and abandon the step. Uploading again before Accounts has
+     * confirmed replaces the earlier receipt (and reuses a payment left in "pending" by the older two-step flow).
+     */
+    public function submitTransfer(Investment $investment, UploadedFile $proof): Payment
+    {
+        $this->assertPayable($investment);
+        $path = $proof->store('payment-proofs'); // private disk
+
+        try {
+            [$payment, $old] = DB::transaction(function () use ($investment, $path) {
+                $payment = $investment->payments()->where('method', PaymentMethod::Transfer)
+                    ->whereIn('status', [PaymentStatus::Pending, PaymentStatus::AwaitingConfirmation])->lockForUpdate()->latest('id')->first();
+                $old = $payment?->proof_path;
+                $payment ??= $investment->payments()->create(['method' => PaymentMethod::Transfer, 'amount' => $investment->amount, 'reference' => $this->newReference(), 'status' => PaymentStatus::Pending]);
+                $payment->update(['proof_path' => $path, 'status' => PaymentStatus::AwaitingConfirmation]);
+
+                return [$payment, $old];
+            });
+        } catch (\Throwable $e) {
+            Storage::delete($path); // never leave an unreferenced receipt behind
+            throw $e;
+        }
+        if ($old && $old !== $path) {
+            Storage::delete($old); // the receipt it replaced
+        }
+
+        return $payment;
     }
 
     public function submitProof(Payment $payment, UploadedFile $proof): Payment

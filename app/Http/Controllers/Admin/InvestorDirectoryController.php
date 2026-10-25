@@ -19,13 +19,15 @@ use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Read-only directory of investors for back-office staff (permission investors.view): who they are, their KYC
  * state and every policy, payment, profit payment and payout. Nothing here changes data.
  *
- * Full BVN and the ID document are for KYC reviewers only; everyone else sees the BVN masked. Opening a record
+ * Full NIN and the ID document are for KYC reviewers only; everyone else sees the NIN masked. Opening a record
  * and exporting the list are written to the audit trail, because they expose personal data.
  */
 class InvestorDirectoryController extends Controller
@@ -69,6 +71,15 @@ class InvestorDirectoryController extends Controller
         return Csv::download('investors.csv', $rows);
     }
 
+    /** The investor's profile picture, for staff who may open the record. Never cached. */
+    public function photo(User $user): Response
+    {
+        $path = $user->investorProfile?->photo_path;
+        abort_unless($path && Storage::exists($path), 404);
+
+        return response(Storage::get($path), 200, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, no-store']);
+    }
+
     public function show(Request $request, User $user, PerformanceService $performance): View
     {
         abort_unless($user->hasRole('investor'), 404);
@@ -102,7 +113,7 @@ class InvestorDirectoryController extends Controller
                 'payable' => (int) $lines->where('status', DistributionLine::PAYABLE)->sum('investor_share'),
                 'value' => (int) $investments->whereIn('status', [InvestmentStatus::Active, InvestmentStatus::Matured])->sum(fn ($i) => $positions[$i->id]['current_value']),
             ],
-            'showFullBvn' => $viewer->can('kyc.review'),
+            'showFullNin' => $viewer->can('kyc.review'),
             'activity' => $viewer->can('audit.view') ? $this->activityFor($user, $investments, $ids) : null,
         ]);
     }

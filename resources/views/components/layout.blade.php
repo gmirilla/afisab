@@ -73,7 +73,7 @@
         <a href="{{ route('home') }}" class="flex items-center gap-2.5">
             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white p-1 shadow-inner ring-1 ring-gold-500/60"><img src="{{ asset('image/logo-mark.png') }}" alt="AFISAB NIG. LTD logo" width="40" height="40" class="h-full w-full object-contain"></span>
             <span class="leading-tight">
-                <font class="font-display text-lg font-bold tracking-wide">AFISAB Nig. Ltd</font>
+                <font class="font-display text-lg font-bold tracking-wide">AFISAB NIG. LTD</font>
             </span>
         </a>
 
@@ -112,7 +112,7 @@
 
                 <div class="relative border-white/10 max-lg:mt-2 max-lg:border-t max-lg:pt-3" data-dropdown>
                     <button type="button" data-dropdown-toggle aria-expanded="false" class="flex w-full items-center gap-2 rounded-full py-1 pl-1 pr-3 hover:bg-white/10">
-                        <span class="grid h-8 w-8 place-items-center rounded-full bg-gold-500 text-sm font-black text-brand-800">{{ strtoupper(mb_substr($u->name, 0, 1)) }}</span>
+                        @if($u->investorProfile?->photo_path)<img src="{{ route('investor.profile.photo') }}?v={{ $u->investorProfile->updated_at->timestamp }}" alt="" class="h-8 w-8 rounded-full object-cover ring-1 ring-gold-500/60">@else<span class="grid h-8 w-8 place-items-center rounded-full bg-gold-500 text-sm font-black text-brand-800">{{ strtoupper(mb_substr($u->name, 0, 1)) }}</span>@endif
                         <span class="max-w-32 truncate text-sm font-bold">{{ $u->name }}</span>
                         <svg class="h-3.5 w-3.5 opacity-70" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
                     </button>

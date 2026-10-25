@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class KycController extends Controller
@@ -25,6 +26,13 @@ class KycController extends Controller
         abort_unless($profile->id_document_path && Storage::exists($profile->id_document_path), 404);
 
         return Storage::response($profile->id_document_path);
+    }
+
+    public function photo(InvestorProfile $profile): Response
+    {
+        abort_unless($profile->photo_path && Storage::exists($profile->photo_path), 404);
+
+        return response(Storage::get($profile->photo_path), 200, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, no-store']);
     }
 
     public function review(Request $request, InvestorProfile $profile): RedirectResponse

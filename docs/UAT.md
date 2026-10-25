@@ -15,7 +15,7 @@ every person sets a password and turns on two-factor authentication.
 | A1 | Register with name, email, phone and a weak password | Weak password is refused; a strong one works | | |
 | A2 | Click the verification link in the email | You are signed in and see "My investments" | | |
 | A3 | Try to open **Invest** before KYC | You are told to complete KYC first | | |
-| A4 | Fill in Profile & KYC (BVN 11 digits, bank, ID upload as `.exe`) | The `.exe` upload is refused; a JPG/PDF is accepted; status "Submitted" | | |
+| A4 | Fill in Profile & KYC (NIN 11 digits, bank, ID upload as `.exe`) | The `.exe` upload is refused; a JPG/PDF is accepted; status "Submitted" | | |
 | A5 | (Compliance) Approve the KYC | Investor sees "Approved" | | |
 | A6 | Subscribe ₦400,000 to the 6-month plan | Refused: minimum is ₦500,000 | | |
 | A7 | Subscribe ₦500,000 to the 6-month plan | A pending policy appears with payment options | | |

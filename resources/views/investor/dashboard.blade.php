@@ -8,6 +8,12 @@
         </div>
     @endif
 
+    @if($profile->kyc_status === KycStatus::Approved && ! $profile->nin)
+        <div class="mb-6 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900">
+            Please <a class="font-bold underline" href="{{ route('investor.profile') }}">add your NIN</a> (National Identification Number). You need it on your profile before you can make a new investment.
+        </div>
+    @endif
+
     <p class="mb-4 text-sm text-gray-600">Profit is calculated on the <strong>{{ $next['cutoff']->format('jS \o\f F') }}</strong> of each month and each policy is paid by the end of the month in which its payment frequency falls due (shown on each policy below). Returns are a share of actual trading profit and are not guaranteed.</p>
 
     <div class="mb-6 grid gap-4 md:grid-cols-4">

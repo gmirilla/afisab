@@ -56,6 +56,10 @@ class InvestmentController extends Controller
             'accept_terms' => ['accepted'],
         ], ['accept_terms.accepted' => 'Please confirm that you have read and agree to the Investment Agreement.']);
 
+        if (! $request->user()->investorProfile?->nin) {
+            return back()->withInput()->withErrors(['amount' => 'Please add your NIN (National Identification Number) on your profile before you invest.']);
+        }
+
         try {
             $plan = InvestmentPlan::findOrFail($data['investment_plan_id']);
             $investment = $subscriptions->subscribe(

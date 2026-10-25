@@ -31,11 +31,11 @@ penetration test. Commission one before taking significant investor funds (see "
 ### Protecting data
 | Control | Detail |
 |---|---|
-| BVN encrypted at rest | Laravel encryption keyed by `APP_KEY`. **Losing the key makes every BVN unreadable. Back it up separately from the database** |
+| NIN encrypted at rest | Laravel encryption keyed by `APP_KEY`. **Losing the key makes every NIN unreadable. Back it up separately from the database** |
 | KYC documents and receipts | Stored on a private disk, streamed only to staff with the right permission. The framework's public `/storage/...` route for that disk is switched off (found and fixed in this review) |
 | HTTPS only | HSTS header over HTTPS, secure and encrypted session cookies (`SESSION_SECURE_COOKIE`, `SESSION_ENCRYPT`), enforced by `afisab:preflight` |
 | Public certificate verification | Random 20-character token (not the sequential number), masked holder name, rate limited |
-| Minimal logging | No passwords or BVNs in logs or the audit trail |
+| Minimal logging | No passwords or NINs in logs or the audit trail |
 
 ### Application attacks
 | Attack | Defence |
@@ -76,7 +76,7 @@ penetration test. Commission one before taking significant investor funds (see "
 | 5 | CSP allows inline *style attributes* (progress bars) | Low | Scripts are fully locked down; style injection cannot execute code |
 | 6 | Password reset and 2FA recovery rely on email | Low-Medium | Protect the mailbox of every staff member with 2FA; recovery codes are shown once per generation |
 | 7 | Shared hosting: other accounts on the server, limited control of PHP | Medium | Use a reputable host with account isolation (CloudLinux/CageFS), keep PHP current, consider a VPS once volumes grow |
-| 8 | `APP_KEY` loss or leak | High if it happens | Store a copy in a password manager, separate from backups. If it leaks, rotate it and re-encrypt BVNs |
+| 8 | `APP_KEY` loss or leak | High if it happens | Store a copy in a password manager, separate from backups. If it leaks, rotate it and re-encrypt NINs |
 | 9 | No automatic alerts to approvers (email) when something waits | Low | The dashboard "Waiting for you" queue shows it; add email alerts if approvals lag |
 | 10 | Early-exit and loss rules are undecided (DECISIONS.md Q6, Q9) | Business | Decide before launch; investor wording must say returns are not guaranteed |
 | 11 | Regulatory status of pooled investor funds (SEC) | **High, business** | Obtain legal advice before launch (Q5). The application cannot fix a regulatory gap |

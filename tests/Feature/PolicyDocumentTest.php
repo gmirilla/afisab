@@ -48,6 +48,7 @@ class PolicyDocumentTest extends TestCase
     {
         $user = User::factory()->create(['name' => $name])->assignRole('investor');
         $user->investorProfile()->create($profile + [
+            'nin' => (string) random_int(10_000_000_000, 99_999_999_999),
             'phone' => '08031234567', 'kyc_status' => 'approved', 'address' => '40 Clinton Avenue, GAP Estate, Abuja', 'date_of_birth' => '1977-10-10',
             'occupation' => 'Tailoring', 'occupation_address' => 'Bodija, Ibadan', 'nominee_name' => 'Aisha Farayola', 'nominee_relationship' => 'Spouse', 'nominee_phone' => '08035556666',
         ]);

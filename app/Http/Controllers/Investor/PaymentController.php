@@ -44,14 +44,16 @@ class PaymentController extends Controller
     {
         abort_unless($investment->user_id === $request->user()->id, 404);
 
+        $request->validate(['proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:4096']], ['proof.required' => 'Please attach your transfer receipt.']);
+
         try {
-            $payments->startTransfer($investment);
+            $payments->submitTransfer($investment, $request->file('proof'));
         } catch (BusinessRuleException $e) {
-            return back()->withErrors(['payment' => $e->getMessage()]);
+            return back()->withErrors(['proof' => $e->getMessage()]);
         }
 
         return redirect()->route('investor.investments.show', $investment)
-            ->with('status', 'Transfer the exact amount to the account shown, then upload your receipt.');
+            ->with('status', 'Receipt uploaded. Accounts will confirm your payment shortly.');
     }
 
     public function proof(Request $request, Payment $payment, PaymentService $payments): RedirectResponse

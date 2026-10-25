@@ -21,7 +21,7 @@ class PaymentController extends Controller
         return view('admin.payments', [
             'payments' => Payment::with('investment.user')
                 ->where('method', PaymentMethod::Transfer)
-                ->whereIn('status', [PaymentStatus::AwaitingConfirmation, PaymentStatus::Pending])
+                ->where('status', PaymentStatus::AwaitingConfirmation)
                 ->latest()->get(),
         ]);
     }

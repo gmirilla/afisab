@@ -56,7 +56,7 @@ routes/web.php              All routes
 ## Data model
 
 ```
-users ──1:1── investor_profiles   (KYC: phone, DOB, address, encrypted BVN, bank, ID path, status)
+users ──1:1── investor_profiles   (KYC: phone, DOB, address, encrypted NIN, bank, ID path, status)
 users ──1:n── investments ──n:1── investment_plans
 investments ──1:n── payments       (method: paystack|transfer; status; proof_path)
 investments ──1:n── performance_entries  (per-cycle share of result; distribution_run_id set when swept into a run)
@@ -91,7 +91,7 @@ Payment status: `pending → awaiting_confirmation → confirmed`, or `rejected`
 1. Investor with approved KYC submits plan + amount → `SubscriptionService::subscribe()` checks plan active, KYC, minimum; creates investment (`pending_payment`) with the plan duration copied.
 2. Investor pays:
    - **Paystack:** `PaymentService::startPaystack()` creates a payment and redirects to checkout. On return (`/investor/payments/callback`) and on webhook (`/webhooks/paystack`, HMAC-SHA512 verified) the service calls `settlePaystack()`, which re-verifies with the gateway and checks amount and currency.
-   - **Transfer:** `startTransfer()` → investor uploads receipt (`submitProof()`) → Accounts calls `confirm()` after checking the bank.
+   - **Transfer:** the investor uploads the receipt and `submitTransfer()` creates the payment (awaiting confirmation) in one step, so nothing exists until they submit; they can replace the receipt until Accounts confirms → Accounts calls `confirm()` after checking the bank. (`startTransfer()` remains for staff/test use.)
 3. `PaymentService::confirm()` (one DB transaction, row-locked, idempotent): marks payment confirmed, activates the investment, sets start/maturity, issues certificate number, voids other open payments, and calls `InvestorFundsService::receive()`.
 
 ### Ledger postings on receipt (per policy)
@@ -138,6 +138,6 @@ Each step is one DB transaction with row locks.
 
 - Passwords: min 10 chars, mixed case, numbers; breach check in production.
 - Login and 2FA are rate-limited (Fortify limiters). 2FA is available to all users; staff should enable it.
-- BVN encrypted at rest (Laravel `encrypted` cast, keyed by `APP_KEY` — **back up the key**; losing it makes BVNs unreadable).
+- NIN encrypted at rest (Laravel `encrypted` cast, keyed by `APP_KEY` — **back up the key**; losing it makes NINs unreadable).
 - KYC documents and payment receipts are stored on the private `local` disk and streamed only to authorised staff.
 - CSRF is on everywhere except the Paystack webhook, which is authenticated by signature.

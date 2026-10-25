@@ -26,7 +26,7 @@ class Preflight extends Command
 
         $this->check('APP_ENV is production', $production, $production ? 'production' : 'currently "'.app()->environment().'"', 'warn');
         $this->check('APP_DEBUG is off', ! config('app.debug'), config('app.debug') ? 'Debug mode shows stack traces and secrets to visitors' : 'off', $production ? 'fail' : 'warn');
-        $this->check('APP_KEY is set', (bool) config('app.key'), 'Needed to encrypt BVNs and sessions. Back it up.', 'fail');
+        $this->check('APP_KEY is set', (bool) config('app.key'), 'Needed to encrypt NINs and sessions. Back it up.', 'fail');
         $this->check('APP_URL uses HTTPS', str_starts_with((string) config('app.url'), 'https://'), (string) config('app.url'), $production ? 'fail' : 'warn');
         $this->check('Time zone is Africa/Lagos', config('app.timezone') === 'Africa/Lagos', 'currently '.config('app.timezone').'; "the 27th" is judged in this zone', 'warn');
 

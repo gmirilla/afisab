@@ -3,9 +3,10 @@
     <div class="space-y-4">
     @forelse($profiles as $p)
         <x-card>
+            @if($p->photo_path)<img src="{{ route('admin.kyc.photo', $p) }}" alt="Profile picture of {{ $p->user->name }}" class="float-right ml-4 h-24 w-24 rounded-lg border border-stone-200 object-cover">@endif
             <p class="font-black">{{ $p->user->name }} <span class="text-sm font-normal text-gray-500">{{ $p->user->email }} · {{ $p->phone }}</span></p>
             <p class="text-sm text-gray-600">DOB {{ $p->date_of_birth?->format('d M Y') }} · {{ $p->address }}<br>
-               BVN {{ $p->bvn }} · {{ $p->bank_name }} {{ $p->account_number }} ({{ $p->account_name }})</p>
+               NIN {{ $p->nin }} · {{ $p->bank_name }} {{ $p->account_number }} ({{ $p->account_name }})</p>
             <p class="mt-1"><a class="text-brand-700 underline" target="_blank" href="{{ route('admin.kyc.document', $p) }}">View ID document</a></p>
             <form method="POST" action="{{ route('admin.kyc.review', $p) }}" class="mt-3 flex flex-wrap items-center gap-2">@csrf
                 <input name="note" placeholder="Note (required to reject)" class="w-64 rounded border px-2 py-1 text-sm">

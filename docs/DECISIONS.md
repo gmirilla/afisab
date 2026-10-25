@@ -17,7 +17,7 @@
 
 | 2026-10-14 | **Owner:** 30% of profit to investors, 70% to the company, taken after the 20% retention (Option A) | Q1 answered |
 | 2026-10-14 | **Owner:** distribution is monthly; calculated as of the 27th; investors paid by month end | Q1 answered |
-| 2026-10-15 | Staff two-factor authentication is mandatory in production and cannot be turned off by staff | Staff move money and see investors' BVNs; a stolen password must not be enough (Q17) |
+| 2026-10-15 | Staff two-factor authentication is mandatory in production and cannot be turned off by staff | Staff move money and see investors' NINs; a stolen password must not be enough (Q17) |
 | 2026-10-15 | A strict Content-Security-Policy: scripts only from this site; no inline scripts or handlers anywhere (a test enforces it) | Defence in depth against cross-site scripting |
 | 2026-10-15 | The framework's public route to the private disk is switched off | KYC documents and receipts must only be reachable through permission-checked controllers |
 | 2026-10-15 | Restore drills fail closed: anything unreadable is a failure | A drill that can pass vacuously gives false confidence about the backups |

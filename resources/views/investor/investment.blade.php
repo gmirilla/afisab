@@ -167,15 +167,13 @@
                     <p class="mb-2 text-sm text-red-700">Bank transfer details are unavailable right now. Please pay online or contact us.</p>
                 @endforelse
                 <p class="mb-3 text-sm text-gray-600">Narration: <span class="font-mono">{{ $investment->reference }}</span></p>
-                <form method="POST" action="{{ route('investor.payments.transfer', $investment) }}">@csrf<x-btn variant="ghost">I have made the transfer</x-btn></form>
-
-                @foreach($investment->payments->where('method', PaymentMethod::Transfer)->whereIn('status', [PaymentStatus::Pending, PaymentStatus::AwaitingConfirmation]) as $p)
-                    <form method="POST" action="{{ route('investor.payments.proof', $p) }}" enctype="multipart/form-data" class="mt-4 space-y-3 border-t pt-4">@csrf
-                        <x-field name="proof" label="Upload receipt (JPG, PNG or PDF, max 4MB)" type="file" required />
-                        <x-btn>Submit receipt</x-btn>
-                        @if($p->status === PaymentStatus::AwaitingConfirmation)<p class="text-sm text-amber-700">Receipt submitted; awaiting confirmation by Accounts.</p>@endif
-                    </form>
-                @endforeach
+                @php($awaiting = $investment->payments->where('method', PaymentMethod::Transfer)->firstWhere('status', PaymentStatus::AwaitingConfirmation))
+                @if($errors->has('proof'))<p class="mb-2 rounded bg-red-50 p-2 text-sm text-red-700">{{ $errors->first('proof') }}</p>@endif
+                @if($awaiting)<p class="mb-2 text-sm text-amber-700">Receipt submitted; awaiting confirmation by Accounts. You can upload a different receipt below if you sent the wrong file.</p>@endif
+                <form method="POST" action="{{ route('investor.payments.transfer', $investment) }}" enctype="multipart/form-data" class="space-y-3 border-t pt-3">@csrf
+                    <x-field name="proof" label="{{ $awaiting ? 'Replace your receipt' : 'After paying, upload your transfer receipt' }} (JPG, PNG or PDF, max 4MB)" type="file" required />
+                    <x-btn variant="{{ $awaiting ? 'ghost' : 'primary' }}">{{ $awaiting ? 'Replace receipt' : 'I have made the transfer: submit receipt' }}</x-btn>
+                </form>
             </x-card>
         </div>
         <form method="POST" action="{{ route('investor.investments.cancel', $investment) }}" class="mt-4">@csrf @method('DELETE')<x-btn variant="ghost">Cancel this subscription</x-btn></form>
@@ -184,7 +182,7 @@
     <x-card class="mt-6">
         <h2 class="mb-3 font-black text-brand-700">Payments</h2>
         <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-2">Reference</th><th>Method</th><th>Amount</th><th>Status</th></tr></thead><tbody>
-            @forelse($investment->payments as $p)
+            @forelse($investment->payments->reject(fn ($p) => $p->method === PaymentMethod::Transfer && $p->status === PaymentStatus::Pending && ! $p->proof_path) as $p)
                 <tr class="border-b last:border-0"><td class="py-2 font-mono">{{ $p->reference }}</td><td>{{ ucfirst($p->method->value) }}</td><td>{{ Money::format($p->amount) }}</td><td>{{ $p->status->label() }}</td></tr>
             @empty
                 <tr><td colspan="4" class="py-4 text-center text-gray-500">No payments yet.</td></tr>

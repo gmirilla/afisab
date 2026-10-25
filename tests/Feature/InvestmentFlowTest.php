@@ -189,13 +189,13 @@ class InvestmentFlowTest extends TestCase
 
         $this->actingAs($user)->put(route('investor.profile.update'), [
             'phone' => '08031234567', 'date_of_birth' => '1990-01-01', 'address' => '1 Test Street, Abuja',
-            'bvn' => '12345678901', 'bank_name' => 'Test Bank', 'account_number' => '0123456789',
+            'nin' => '12345678901', 'bank_name' => 'Test Bank', 'account_number' => '0123456789',
             'account_name' => $user->name, 'id_document' => UploadedFile::fake()->image('id.jpg'),
         ])->assertSessionHasNoErrors();
 
         $profile = $user->investorProfile->fresh();
         $this->assertSame(KycStatus::Submitted, $profile->kyc_status);
-        $this->assertNotSame('12345678901', $profile->getRawOriginal('bvn')); // stored encrypted
+        $this->assertNotSame('12345678901', $profile->getRawOriginal('nin')); // stored encrypted
 
         $compliance = User::factory()->create()->assignRole('compliance');
         $this->actingAs($compliance)->post(route('admin.kyc.review', $profile), ['decision' => 'approve'])->assertRedirect();
