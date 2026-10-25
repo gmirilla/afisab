@@ -42,6 +42,14 @@
         </x-card>
     </div>
 
+    @if($lastFailure)
+        <x-card class="mb-6 border-red-300 bg-red-50">
+            <p class="text-xs font-bold uppercase tracking-wider text-red-800">Last time an online payment could not be started</p>
+            <p class="mt-1 text-sm text-red-900">{{ \Illuminate\Support\Carbon::createFromTimestamp($lastFailure['at'])->format('d M Y H:i') }}@if($lastFailure['http']) · Paystack answered HTTP {{ $lastFailure['http'] }}@endif · <strong>{{ $lastFailure['message'] }}</strong>@if($lastFailure['code']) <span class="font-mono text-xs">({{ $lastFailure['code'] }})</span>@endif</p>
+            <p class="mt-2 text-sm text-red-900"><strong>What to check:</strong> {{ $lastFailure['hint'] }}</p>
+        </x-card>
+    @endif
+
     <x-card class="mb-6">
         <h2 class="mb-3 font-black text-brand-700">Keys and switch</h2>
         <form method="POST" action="{{ route('admin.paystack.save') }}" class="grid gap-3 md:grid-cols-2">@csrf

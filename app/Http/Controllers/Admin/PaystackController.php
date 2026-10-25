@@ -32,6 +32,7 @@ class PaystackController extends Controller
             'row' => $row,
             'secretMasked' => PaystackSettings::mask($settings->secret()),
             'publicMasked' => PaystackSettings::mask($settings->publicKey()),
+            'lastFailure' => \App\Services\Payments\PaystackClient::lastFailure(),
             'webhookUrl' => route('webhooks.paystack'),
             'callbackUrl' => route('investor.payments.callback'),
             'production' => app()->isProduction(),
