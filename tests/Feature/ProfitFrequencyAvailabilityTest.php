@@ -39,9 +39,11 @@ class ProfitFrequencyAvailabilityTest extends TestCase
         $this->assertSame([F::Monthly, F::AtMaturity], F::availableFor(2));
         $this->assertSame([F::Monthly, F::AtMaturity], F::availableFor(3));
         $this->assertSame([F::Monthly, F::Quarterly, F::AtMaturity], F::availableFor(6));
-        $this->assertSame([F::Monthly, F::Quarterly, F::HalfYearly, F::AtMaturity], F::availableFor(9));
+        $this->assertSame([F::Monthly, F::Quarterly, F::AtMaturity], F::availableFor(9), 'half-yearly would leave a 3-month stub');
+        $this->assertSame([F::Monthly, F::Quarterly, F::AtMaturity], F::availableFor(15));
+        $this->assertSame([F::Monthly, F::Quarterly, F::HalfYearly, F::AtMaturity], F::availableFor(18));
         $this->assertSame([F::Monthly, F::Quarterly, F::HalfYearly, F::AtMaturity], F::availableFor(12));
-        $this->assertSame(F::cases(), F::availableFor(13));
+        $this->assertSame([F::Monthly, F::AtMaturity], F::availableFor(13), 'only monthly divides 13 evenly');
         $this->assertSame(F::cases(), F::availableFor(24));
     }
 
@@ -83,16 +85,17 @@ class ProfitFrequencyAvailabilityTest extends TestCase
         app(SubscriptionService::class)->subscribe($this->investor(), InvestmentPlan::where('slug', '3-month')->first(), 500_000_00, F::Quarterly, ['ip' => '1.1.1.1']);
     }
 
-    public function test_a_nine_month_plan_pays_half_yearly_at_month_six_and_the_rest_at_maturity(): void
+    public function test_a_nine_month_plan_pays_quarterly_at_months_three_and_six_and_the_rest_at_maturity(): void
     {
         $plan = InvestmentPlan::create(['name' => '9-Month Plan', 'slug' => '9-month', 'duration_months' => 9, 'minimum_amount' => 500_000_00, 'is_active' => true, 'sort_order' => 5]);
-        $i = app(SubscriptionService::class)->subscribe($this->investor(), $plan, 500_000_00, F::HalfYearly, ['ip' => '1.1.1.1']);
+        $i = app(SubscriptionService::class)->subscribe($this->investor(), $plan, 500_000_00, F::Quarterly, ['ip' => '1.1.1.1']);
         $i->update(['start_date' => '2026-10-20', 'maturity_date' => '2027-07-20']);
 
         $due = fn (string $m) => ProfitSchedule::isDue($i->fresh(), Carbon::parse("$m-01"));
-        $this->assertFalse($due('2027-03'));
+        $this->assertFalse($due('2026-11'));
+        $this->assertTrue($due('2027-01'), 'three months in');
+        $this->assertFalse($due('2027-02'));
         $this->assertTrue($due('2027-04'), 'six months in');
-        $this->assertFalse($due('2027-05'));
-        $this->assertTrue($due('2027-07'), 'the final run at maturity');
+        $this->assertTrue($due('2027-07'), 'nine months: maturity itself');
     }
 }
