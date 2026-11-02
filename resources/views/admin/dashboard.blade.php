@@ -11,7 +11,8 @@
     @endif
 
     @if($mailWarning)
-        <div class="mb-6 rounded border border-amber-300 bg-amber-50 px-4 py-3 font-bold text-amber-900">✉ {{ $mailWarning }}</div>
+        <div class="mb-6 rounded border border-amber-300 bg-amber-50 px-4 py-3 font-bold text-amber-900">✉ {{ $mailWarning }}
+            @can('queue.manage') <a class="underline" href="{{ route('admin.queue') }}">Open the job queue</a>@else <span class="font-normal">Please tell the Super Admin.</span>@endcan</div>
     @endif
 
     <x-card class="mb-6">

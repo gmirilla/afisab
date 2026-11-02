@@ -23,7 +23,7 @@
         @forelse($enquiries as $e)
             <tr class="border-b align-top last:border-0">
                 <td class="py-2 text-gray-600">{{ $e->created_at->format('d M Y H:i') }}</td>
-                <td><a class="font-bold text-brand-700 underline" href="{{ route('admin.enquiries.show', $e) }}">{{ $e->name }}</a>@if($e->company)<br><span class="text-xs text-gray-500">{{ $e->company }}</span>@endif<br><span class="text-xs text-gray-500">{{ $e->phone }}</span></td>
+                <td><div><a class="font-bold text-brand-700 underline" href="{{ route('admin.enquiries.show', $e) }}">{{ $e->name }}</a></div>@if($e->company)<div class="text-xs text-gray-500">{{ $e->company }}</div>@endif<div class="text-xs text-gray-500">{{ $e->phone }}</div></td>
                 <td>{{ $e->label() }}</td>
                 <td>{{ $e->commodity ?: '—' }}@if($e->quantity)<br><span class="text-xs text-gray-500">{{ $e->quantity }}</span>@endif</td>
                 <td><span class="rounded px-2 py-0.5 text-xs font-bold {{ $e->status === Enquiry::NEW ? 'bg-amber-100 text-amber-800' : ($e->status === Enquiry::CONTACTED ? 'bg-sky-100 text-sky-800' : 'bg-gray-100 text-gray-600') }}">{{ Enquiry::STATUSES[$e->status] }}</span>

@@ -4,17 +4,20 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enquiry;
+use App\Notifications\EnquiryAcknowledged;
 use App\Notifications\EnquiryReceived;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Notification;
 
 /**
  * The forms on the public site. Open to anyone, so every defence is here: a rate limit (in the route), a hidden
  * field only a script would fill in, a minimum time to fill the form in, and strict validation. Nothing is emailed
- * to the person who wrote in (that would let anyone make us email a stranger); the shared mailbox is notified instead.
+ * to the person who wrote in except a short fixed acknowledgement, and only once an hour per address: it contains nothing the
+ * visitor typed, so the form cannot be used to send a stranger a message of the visitor's choosing. The shared mailbox is notified too.
  */
 class EnquiryController extends Controller
 {
@@ -34,12 +37,17 @@ class EnquiryController extends Controller
             'consent.required' => 'Please confirm that we may contact you about this enquiry.',
             'email.required' => 'Please give an email address so we can reply.',
             'phone.required' => 'Please give a phone number so we can reach you.',
+            'commodity.required' => 'Please choose a commodity (choose "Other, or several" and tell us in the message if yours is not listed).',
         ]);
 
         $enquiry = Enquiry::create(collect($data)->except(['consent', 'started', 'website'])->all() + ['type' => $type, 'consented_at' => now(), 'status' => Enquiry::NEW]);
         activity()->performedOn($enquiry)->log('Website enquiry received');
 
         Notification::route('mail', config('afisab.contact.enquiry_email'))->notify(new EnquiryReceived($enquiry));
+
+        if ($enquiry->email && Cache::add('enquiry-ack:'.sha1(strtolower($enquiry->email)), 1, now()->addHour())) {
+            Notification::route('mail', $enquiry->email)->notify(new EnquiryAcknowledged);
+        }
 
         $page = [Enquiry::QUOTE => 'public.buyers', Enquiry::SUPPLIER => 'public.suppliers'][$type] ?? 'public.contact';
 
@@ -61,7 +69,7 @@ class EnquiryController extends Controller
         return array_merge($common, match ($type) {
             Enquiry::QUOTE => [
                 'email' => ['required', 'email:rfc', 'max:150'], 'phone' => ['required', 'string', 'max:32', 'regex:/^[0-9+()\-\s]{7,32}$/'],
-                'commodity' => ['nullable', 'string', 'max:100'], 'quantity' => ['nullable', 'string', 'max:100'], 'location' => ['nullable', 'string', 'max:150'],
+                'commodity' => ['required', 'string', 'max:100'], 'quantity' => ['nullable', 'string', 'max:100'], 'location' => ['nullable', 'string', 'max:150'],
             ],
             Enquiry::SUPPLIER => [
                 'email' => ['nullable', 'email:rfc', 'max:150'], 'phone' => ['required', 'string', 'max:32', 'regex:/^[0-9+()\-\s]{7,32}$/'],

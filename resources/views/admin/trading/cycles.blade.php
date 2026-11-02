@@ -48,7 +48,7 @@
             <tr class="border-b last:border-0">
                 <td class="py-2 font-mono">{{ $c->reference }}</td><td>{{ $c->name }}</td><td>{{ $c->commodity->name }}</td>
                 <td>{{ ucfirst($c->status) }}</td>
-                <td class="text-right font-mono">{{ Money::format((int) $c->budget) }}</td>
+                <td class="text-right font-mono">@if($c->status === TradeCycle::CANCELLED)<span class="text-gray-400">{{ Money::format(0) }}</span><br><span class="font-sans text-xs text-gray-500">released</span>@else{{ Money::format((int) $c->budget) }}@endif</td>
                 <td class="text-right font-mono">{{ $c->status === TradeCycle::CLOSED ? Money::format($c->net_profit) : '—' }}</td>
                 <td><a class="text-brand-700 underline" href="{{ route('admin.trading.cycles.show', $c) }}">Open</a></td>
             </tr>

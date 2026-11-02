@@ -35,12 +35,22 @@ class PaymentController extends Controller
 
     public function confirm(Request $request, Payment $payment, PaymentService $payments): RedirectResponse
     {
-        abort_unless($payment->status === PaymentStatus::AwaitingConfirmation, 422, 'No receipt has been submitted for this payment.');
+        if ($payment->status === PaymentStatus::Confirmed) {
+            return back()->with('status', "Payment {$payment->reference} is already confirmed.");
+        }
+        if ($payment->status !== PaymentStatus::AwaitingConfirmation) {
+            return back()->withErrors(['payment' => $payment->status === PaymentStatus::Pending
+                ? 'The investor has not submitted a receipt for this payment yet.'
+                : 'This payment was '.strtolower($payment->status->label()).' and cannot be confirmed.']);
+        }
 
-        $data = $request->validate(['received_on' => ['nullable', 'date', 'before_or_equal:today', 'after_or_equal:'.$payment->investment->created_at->toDateString()]]);
+        $data = $request->validate(
+            ['received_on' => ['required', 'date', 'before_or_equal:today', 'after_or_equal:'.$payment->investment->created_at->toDateString()]],
+            ['received_on.required' => 'Please enter the date the money was received.', 'received_on.before_or_equal' => 'The date the money was received cannot be in the future.', 'received_on.after_or_equal' => 'The money cannot have been received before the investor subscribed.'],
+        );
 
         try {
-            $payments->confirm($payment, $request->user(), null, null, isset($data['received_on']) ? \Illuminate\Support\Carbon::parse($data['received_on']) : null);
+            $payments->confirm($payment, $request->user(), null, null, \Illuminate\Support\Carbon::parse($data['received_on']));
         } catch (BusinessRuleException $e) {
             return back()->withErrors(['payment' => $e->getMessage()]);
         }

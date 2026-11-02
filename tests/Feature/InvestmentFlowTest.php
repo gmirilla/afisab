@@ -133,7 +133,7 @@ class InvestmentFlowTest extends TestCase
         $payments->submitProof($payment, UploadedFile::fake()->image('r.png'));
 
         $staff = User::factory()->create()->assignRole('accounts');
-        $this->actingAs($staff)->post(route('admin.payments.confirm', $payment))->assertRedirect();
+        $this->actingAs($staff)->post(route('admin.payments.confirm', $payment), ['received_on' => now()->toDateString()])->assertRedirect();
 
         $this->assertSame(InvestmentStatus::Active, $investment->fresh()->status);
     }

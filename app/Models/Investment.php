@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'reference', 'user_id', 'investment_plan_id', 'amount', 'duration_months', 'status',
     'start_date', 'maturity_date', 'certificate_number', 'certificate_token', 'certificate_issued_at', 'maturity_reminder_sent_at',
-    'profit_frequency', 'terms', 'policy_number', 'terms_accepted_at', 'terms_accepted_ip',
+    'profit_frequency', 'terms', 'policy_number', 'terms_accepted_at', 'terms_accepted_ip', 'expired_at',
 ])]
 class Investment extends Model
 {
@@ -29,6 +29,7 @@ class Investment extends Model
             'maturity_date' => 'date',
             'certificate_issued_at' => 'datetime',
             'maturity_reminder_sent_at' => 'datetime',
+            'expired_at' => 'datetime',
         ];
     }
 
@@ -50,6 +51,18 @@ class Investment extends Model
     public function capitalPayouts(): HasMany
     {
         return $this->hasMany(CapitalPayout::class);
+    }
+
+    /** The status as investors and staff should read it: a request that lapsed unpaid is "Expired", not "Cancelled". */
+    public function statusLabel(): string
+    {
+        return $this->status === InvestmentStatus::Cancelled && $this->expired_at ? 'Expired (unpaid)' : $this->status->label();
+    }
+
+    /** Is this investor's money actually with us? Unpaid, cancelled and paid-out policies hold nothing, so they have no current value. */
+    public function holdsFunds(): bool
+    {
+        return in_array($this->status, [InvestmentStatus::Active, InvestmentStatus::Matured], true);
     }
 
     public function hasCertificate(): bool

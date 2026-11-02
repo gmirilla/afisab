@@ -68,7 +68,7 @@
                 <td class="py-2 font-mono">{{ $i->reference }}<br><span class="text-xs text-gray-500">{{ $i->certificate_number }}</span></td>
                 <td>{{ $i->plan->name }}</td>
                 <td class="text-right font-mono">{{ Money::format($i->amount) }}</td>
-                <td>{{ $i->status->label() }}@if($w = $i->openWithdrawal())<br><a class="text-xs font-bold text-amber-700 underline" href="{{ route('admin.withdrawals') }}">Withdrawal notice until {{ $w->notice_ends_on->format('d M Y') }}</a>@endif</td>
+                <td>{{ $i->statusLabel() }}@if($w = $i->openWithdrawal())<br><a class="text-xs font-bold text-amber-700 underline" href="{{ route('admin.withdrawals') }}">Withdrawal notice until {{ $w->notice_ends_on->format('d M Y') }}</a>@endif</td>
                 <td class="text-xs text-gray-600">{{ $i->start_date?->format('d M Y') ?? 'Not started' }} → {{ $i->maturity_date?->format('d M Y') ?? '—' }}</td>
                 <td>{{ $i->profit_frequency->label() }}</td>
                 <td class="text-right font-mono">{{ Money::format($pos['paid']) }} / {{ Money::format($pos['payable']) }}</td>

@@ -2,7 +2,7 @@
 <x-layout :title="$investment->reference">
     <div class="mb-4 flex items-center justify-between">
         <h1 class="text-2xl font-black text-brand-700">{{ $investment->plan->name }} <span class="font-mono text-base text-gray-500">{{ $investment->reference }}</span></h1>
-        <span class="rounded bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">{{ $investment->status->label() }}</span>
+        <span class="rounded bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">{{ $investment->statusLabel() }}</span>
     </div>
 
     <div class="mb-6 grid gap-4 md:grid-cols-4">
@@ -70,7 +70,7 @@
             <x-card><p class="text-sm text-gray-500">Principal</p><p class="text-xl font-black">{{ Money::format($position['principal']) }}</p></x-card>
             <x-card><p class="text-sm text-gray-500">Profit received</p><p class="text-xl font-black">{{ Money::format($position['paid']) }}</p></x-card>
             <x-card><p class="text-sm text-gray-500">Profit approved, awaiting payment</p><p class="text-xl font-black">{{ Money::format($position['payable']) }}</p></x-card>
-            <x-card><p class="text-sm text-gray-500">Current value</p><p class="text-xl font-black text-brand-700">{{ Money::format($position['current_value']) }}</p></x-card>
+            <x-card><p class="text-sm text-gray-500">Current value</p><p class="text-xl font-black {{ $investment->holdsFunds() ? 'text-brand-700' : 'text-gray-400' }}">{{ $investment->holdsFunds() ? Money::format($position['current_value']) : '—' }}</p></x-card>
         </div>
         <p class="mb-6 text-sm text-gray-600">Profit payment: <strong>{{ $investment->profit_frequency->label() }}</strong>. {{ $investment->profit_frequency->description() }}
             Next calculation: <strong>{{ $next['cutoff']->format('d F Y') }}</strong> · payment by <strong>{{ $next['pay_by']->format('d F Y') }}</strong>.</p>

@@ -87,6 +87,10 @@ class PaymentService
             throw new BusinessRuleException('Online payment is not available right now. Please use bank transfer.');
         }
 
+        // Earlier card attempts that were never completed are tidied away; one that is paid later is still honoured.
+        $investment->payments()->where('method', PaymentMethod::Paystack)->where('status', PaymentStatus::Pending)->where('created_at', '<', now()->subHour())
+            ->update(['status' => PaymentStatus::Expired, 'note' => 'Replaced by a newer attempt']);
+
         $payment = $investment->payments()->create([
             'method' => PaymentMethod::Paystack,
             'amount' => $investment->amount,
@@ -115,7 +119,7 @@ class PaymentService
 
         $result = $this->paystack->verify($reference);
         if (! $result['paid'] || $result['currency'] !== 'NGN') {
-            if ($payment->status === PaymentStatus::Pending && ! $result['paid']) {
+            if (in_array($payment->status, [PaymentStatus::Pending, PaymentStatus::Expired], true) && ! $result['paid']) {
                 return $payment; // still pending / abandoned; leave it open for the webhook
             }
             throw new BusinessRuleException('Payment could not be verified.');
@@ -144,6 +148,11 @@ class PaymentService
             }
 
             $investment = Investment::whereKey($payment->investment_id)->lockForUpdate()->firstOrFail();
+            if ($investment->status === InvestmentStatus::Cancelled && $investment->expired_at !== null) {
+                // The request lapsed, but the money has now arrived (the gateway verified it, or Accounts checked the bank): honour it.
+                $investment->update(['status' => InvestmentStatus::PendingPayment, 'expired_at' => null]);
+                activity()->performedOn($investment)->causedBy($by)->log('Expired subscription request revived by a late payment');
+            }
             if ($investment->status !== InvestmentStatus::PendingPayment) {
                 throw new BusinessRuleException('This investment is not awaiting payment.');
             }

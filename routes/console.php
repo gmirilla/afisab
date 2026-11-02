@@ -13,6 +13,7 @@ Artisan::command('inspire', function () {
 Schedule::call(fn () => SchedulerHealth::beat())->name('heartbeat')->everyMinute();
 
 Schedule::command('afisab:process-maturities')->dailyAt('06:00')->withoutOverlapping();
+Schedule::command('afisab:expire-unpaid')->dailyAt('03:15')->withoutOverlapping();
 Schedule::command('afisab:process-withdrawals')->dailyAt('06:30')->withoutOverlapping();
 
 // Monthly profit distribution: calculate on the 27th (end of day) so approval and payment can finish by month end.

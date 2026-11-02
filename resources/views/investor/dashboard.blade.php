@@ -14,7 +14,7 @@
         </div>
     @endif
 
-    <p class="mb-4 text-sm text-gray-600">Profit is calculated on the <strong>{{ $next['cutoff']->format('jS \o\f F') }}</strong> of each month and each policy is paid by the end of the month in which its payment frequency falls due (shown on each policy below). Returns are a share of actual trading profit and are not guaranteed.</p>
+    <p class="mb-4 text-sm text-gray-600">Profit is calculated on the <strong>{{ $next['cutoff']->format('jS') }}</strong> of each month and each policy is paid by the end of the month in which its payment frequency falls due (shown on each policy below). Returns are a share of actual trading profit and are not guaranteed.</p>
 
     <div class="mb-6 grid gap-4 md:grid-cols-4">
         <x-card><p class="text-sm text-gray-500">Total invested (active)</p><p class="text-2xl font-black text-brand-700">{{ Money::format($totalInvested) }}</p></x-card>
@@ -31,7 +31,7 @@
                 <div class="flex flex-wrap items-start justify-between gap-2">
                     <div>
                         <p class="font-black text-brand-700">{{ $i->plan->name }} <span class="font-mono text-sm font-normal text-gray-500">{{ $i->reference }}</span></p>
-                        <p class="text-sm text-gray-600">{{ $i->status->label() }} · {{ $i->start_date?->format('d M Y') ?? 'Not started' }} → {{ $i->maturity_date?->format('d M Y') ?? '—' }}</p>
+                        <p class="text-sm text-gray-600">{{ $i->statusLabel() }} · {{ $i->start_date?->format('d M Y') ?? 'Not started' }} → {{ $i->maturity_date?->format('d M Y') ?? '—' }}</p>
                         <p class="text-sm text-gray-600">Profit paid: <strong>{{ $i->profit_frequency->label() }}</strong>@if($nextRuns[$i->id] ?? null) · next by {{ $nextRuns[$i->id]['pay_by']->format('d M Y') }}@endif</p>
                     </div>
                     <a class="rounded border border-brand-700 px-3 py-1 text-sm font-bold text-brand-700" href="{{ route('investor.investments.show', $i) }}">View</a>
@@ -39,7 +39,7 @@
                 <div class="mt-3 grid gap-3 text-sm md:grid-cols-4">
                     <div><span class="text-gray-500">Principal</span><br><strong>{{ Money::format($i->amount) }}</strong></div>
                     <div><span class="text-gray-500">Profit received / payable</span><br><strong>{{ Money::format($pos['paid']) }}</strong> / {{ Money::format($pos['payable']) }}</div>
-                    <div><span class="text-gray-500">Current value</span><br><strong>{{ Money::format($pos['current_value']) }}</strong></div>
+                    <div><span class="text-gray-500">Current value</span><br>@if($i->holdsFunds())<strong>{{ Money::format($pos['current_value']) }}</strong>@else<strong class="text-gray-400">—</strong><span class="block text-xs text-gray-500">{{ $i->status === InvestmentStatus::PendingPayment ? 'Not paid yet' : ($i->status === InvestmentStatus::Cancelled ? ($i->expired_at ? 'Expired' : 'Cancelled') : 'Paid out') }}</span>@endif</div>
                     <div><span class="text-gray-500">Trading cycles</span><br><strong>{{ $pos['cycles'] }}</strong>
                         @if($pos['pending_entries']) <span class="text-xs text-amber-700">({{ $pos['pending_entries'] }} pending allocation)</span>@endif</div>
                 </div>

@@ -13,7 +13,7 @@ class LedgerAccountSeeder extends Seeder
             [LedgerAccount::MAIN_OPS, 'Main Operations Account', 'asset', 'Primary current account; all investor funds enter here first.'],
             [LedgerAccount::RISK_FUND, 'Investors Risk Fund', 'asset', 'Receives 5% of investor funds; risk cushion, Takaful, growth projects.'],
             [LedgerAccount::INVESTOR_PROFIT, 'Investors Profit Account', 'asset', 'Receives buyer proceeds; retains 20% of net profit per completed cycle.'],
-            [LedgerAccount::DOMICILIARY, 'Domiciliary Account (USD/GBP/EUR)', 'asset', 'Export proceeds and foreign-currency payments.'],
+            [LedgerAccount::DOMICILIARY, 'Domiciliary Account (naira value)', 'asset', 'Export proceeds and foreign-currency payments, recorded at their naira value. The ledger keeps naira only; foreign-currency balances and exchange gains are not built (DECISIONS Q15).'],
             [LedgerAccount::INVENTORY, 'Commodity Inventory', 'asset', 'Commodities held at cost.'],
             [LedgerAccount::INVESTOR_FUNDS, 'Investor Funds Held', 'liability', 'Capital owed to investors.'],
             [LedgerAccount::INVESTOR_PROFIT_PAYABLE, 'Investor Profit Payable', 'liability', 'Approved monthly profit shares owed to investors until paid.'],

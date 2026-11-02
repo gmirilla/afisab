@@ -78,7 +78,7 @@ class PerformanceService
             'earned' => $paid + $payable,
             'paid' => $paid,
             'payable' => $payable,
-            'current_value' => $investment->amount + $payable,
+            'current_value' => $investment->holdsFunds() ? $investment->amount + $payable : 0,
             'pending_entries' => $entries->filter(fn ($e) => ! $e->run || $e->run->status === 'calculated')->count(),
             'recorded_net_profit' => (int) $entries->sum('net_profit'),
             'cycles' => $entries->count(),

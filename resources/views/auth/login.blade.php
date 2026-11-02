@@ -1,4 +1,4 @@
-<x-auth-card title="Sign in">
+<x-auth-card title="Investor & staff sign in">
     <form method="POST" action="{{ route('login') }}" class="space-y-4">@csrf
         <x-field name="email" label="Email" type="email" required autofocus />
         <x-field name="password" label="Password" type="password" required />

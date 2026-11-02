@@ -28,18 +28,22 @@
             <h2 class="font-black text-amber-900">Waiting for a Director's approval</h2>
             <p class="mb-3 text-sm text-amber-900">Capital of {{ Money::format($budget) }} is reserved for this cycle, but no purchase, expense or sale can be recorded until it is approved. Approval is by a Director who did not propose it.</p>
             @can('cycles.approve')
+              @if($cycle->opened_by === auth()->id())
+                <p class="text-sm font-bold text-amber-900">You proposed this cycle, so another Director must approve or reject it.</p>
+              @else
                 <div class="flex flex-wrap items-end gap-3">
                     <form method="POST" action="{{ route('admin.trading.cycles.approve', $cycle) }}" data-confirm="Approve this cycle with a budget of {{ Money::format($budget) }}?">@csrf<x-btn>Approve cycle</x-btn></form>
                     <form method="POST" action="{{ route('admin.trading.cycles.reject', $cycle) }}" class="flex items-end gap-2">@csrf
                         <input name="note" placeholder="Reason for rejecting" required class="w-56 rounded border px-3 py-2 text-sm"><x-btn variant="danger">Reject</x-btn></form>
                 </div>
+              @endif
             @endcan
         </x-card>
     @endif
 
     <div class="mb-6 grid gap-4 md:grid-cols-5">
-        <x-card><p class="text-xs text-gray-500">Budget (allocated)</p><p class="font-black">{{ Money::format($budget) }}</p></x-card>
-        <x-card><p class="text-xs text-gray-500">Committed to purchases</p><p class="font-black">{{ Money::format($committed) }}</p><p class="text-xs text-gray-500">Left: {{ Money::format($budget - $committed) }}</p></x-card>
+        <x-card><p class="text-xs text-gray-500">Budget (allocated)</p>@if($cycle->status === \App\Models\TradeCycle::CANCELLED)<p class="font-black text-gray-400">{{ Money::format(0) }}</p><p class="text-xs text-gray-500">Released ({{ Money::format($budget) }} was reserved)</p>@else<p class="font-black">{{ Money::format($budget) }}</p>@endif</x-card>
+        <x-card><p class="text-xs text-gray-500">Committed to purchases</p><p class="font-black">{{ Money::format($committed) }}</p><p class="text-xs text-gray-500">Left: {{ $cycle->status === \App\Models\TradeCycle::CANCELLED ? Money::format(0) : Money::format($budget - $committed) }}</p></x-card>
         <x-card><p class="text-xs text-gray-500">Purchases paid</p><p class="font-black">{{ Money::format($paidPurchases) }}</p></x-card>
         <x-card><p class="text-xs text-gray-500">Expenses paid</p><p class="font-black">{{ Money::format($paidExpenses) }}</p></x-card>
         <x-card><p class="text-xs text-gray-500">Sales received</p><p class="font-black">{{ Money::format($paidSales) }}</p></x-card>

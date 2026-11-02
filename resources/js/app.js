@@ -10,6 +10,34 @@ document.addEventListener('submit', (event) => {
     }
 });
 
+// <ul data-password-rules data-for="password" data-confirm="password_confirmation"> ticks each rule off as the person types.
+// The server still checks everything; this only saves a round trip.
+const passwordRuleChecks = {
+    length: (p) => p.length >= 10,
+    upper: (p) => /[A-Z]/.test(p),
+    lower: (p) => /[a-z]/.test(p),
+    number: (p) => /[0-9]/.test(p),
+};
+const updatePasswordRules = (list) => {
+    const password = document.querySelector(`[name="${list.dataset.for}"]`)?.value ?? '';
+    const confirmation = document.querySelector(`[name="${list.dataset.confirm}"]`)?.value ?? '';
+    list.querySelectorAll('[data-rule]').forEach((item) => {
+        const rule = item.dataset.rule;
+        const ok = rule === 'match' ? password !== '' && password === confirmation : passwordRuleChecks[rule](password);
+        item.classList.toggle('text-emerald-700', ok);
+        item.querySelector('[data-mark]').textContent = ok ? '✓' : '○';
+    });
+};
+document.addEventListener('input', (event) => {
+    if (event.target instanceof HTMLInputElement) {
+        document.querySelectorAll('[data-password-rules]').forEach((list) => {
+            if (event.target.name === list.dataset.for || event.target.name === list.dataset.confirm) {
+                updatePasswordRules(list);
+            }
+        });
+    }
+});
+
 // <select data-autosubmit> submits its form when changed.
 document.addEventListener('change', (event) => {
     if (event.target instanceof HTMLElement && event.target.matches('[data-autosubmit]') && event.target.form) {

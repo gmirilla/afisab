@@ -65,6 +65,12 @@ return [
         'investor_copies_per_day' => 3,
     ],
 
+    // Unpaid subscription requests lapse after this many days (a request with a receipt awaiting confirmation, or a
+    // card payment started in the last day, is never expired).
+    'subscription' => [
+        'expire_unpaid_after_days' => (int) env('AFISAB_EXPIRE_UNPAID_DAYS', 7),
+    ],
+
     // Investment receipts: AFISAB/INV/2026/0001, restarting at 0001 each year.
     'receipt' => [
         'prefix' => env('AFISAB_RECEIPT_PREFIX', 'AFISAB/INV'),

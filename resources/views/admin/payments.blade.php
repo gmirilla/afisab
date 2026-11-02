@@ -12,7 +12,7 @@
                     @if($p->status === PaymentStatus::AwaitingConfirmation)
                         <form method="POST" action="{{ route('admin.payments.confirm', $p) }}" class="space-y-1">@csrf
                             <label class="block text-xs text-gray-500">Money received on
-                                <input type="date" name="received_on" value="{{ now()->toDateString() }}" max="{{ now()->toDateString() }}" class="mt-0.5 block w-36 rounded border px-2 py-1 text-xs"></label>
+                                <input type="date" name="received_on" value="{{ old('received_on', now()->toDateString()) }}" max="{{ now()->toDateString() }}" required class="mt-0.5 block w-36 rounded border px-2 py-1 text-xs"></label>
                             <x-btn>Confirm received</x-btn></form>
                     @endif
                     <form method="POST" action="{{ route('admin.payments.reject', $p) }}" class="flex gap-1">@csrf

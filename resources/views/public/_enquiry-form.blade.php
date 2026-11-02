@@ -32,10 +32,10 @@
 
         @if($type !== 'general')
             <label class="{{ $label }}">{{ $type === 'quote' ? 'Commodity you need' : 'Commodity you can supply' }}
-                <select name="commodity" @required($type === 'supplier') class="{{ $field }}">
-                    <option value="">{{ $type === 'quote' ? 'Select a commodity' : 'Select a commodity' }}</option>
+                <select name="commodity" required class="{{ $field }}">
+                    <option value="">Select a commodity</option>
                     @foreach($commodities as $c)<option value="{{ $c }}" @selected($selected === $c)>{{ $c }}</option>@endforeach
-                    <option value="Other" @selected($selected === 'Other')>Other / not listed</option>
+                    <option value="Other" @selected($selected === 'Other')>Other, or several (tell us below)</option>
                 </select></label>
             <label class="{{ $label }}">{{ $type === 'quote' ? 'Quantity needed (e.g. 50 tonnes)' : 'Quantity available (e.g. 20 tonnes)' }}<input name="quantity" value="{{ old('quantity') }}" maxlength="100" class="{{ $field }}"></label>
             <label class="{{ $label }} md:col-span-2">{{ $type === 'quote' ? 'Delivery location' : 'Where is the produce located? (town and state)' }}<input name="location" value="{{ old('location') }}" @required($type === 'supplier') maxlength="150" class="{{ $field }}"></label>
