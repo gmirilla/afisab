@@ -11,7 +11,7 @@
                 <h2 class="text-lg font-black text-brand-700">{{ $plan->name }}</h2>
                 <p class="text-sm text-gray-600">{{ $plan->duration_months }} months</p>
                 <p class="mt-1 text-sm text-gray-600">{{ $plan->description }}</p>
-                <p class="mt-2 text-sm">Minimum <strong>{{ Money::format($plan->minimum_amount) }}</strong></p>
+                <p class="mt-2 text-sm">Minimum <strong>{{ Money::format($plan->minimum_amount) }}</strong>@if($plan->maximum_amount !== null) · Maximum <strong>{{ Money::format($plan->maximum_amount) }}</strong>@endif</p>
                 <form method="POST" action="{{ route('investor.investments.store') }}" class="mt-4 space-y-3">@csrf
                     <input type="hidden" name="investment_plan_id" value="{{ $plan->id }}">
                     <x-field name="amount" label="Amount (₦)" inputmode="decimal" :value="number_format($plan->minimum_amount / 100, 0, '.', '')" required />

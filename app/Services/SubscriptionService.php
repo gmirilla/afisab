@@ -32,6 +32,9 @@ class SubscriptionService
         if ($amount < $minimum) {
             throw new BusinessRuleException('The minimum investment for this plan is '.Money::format($minimum).'.');
         }
+        if ($plan->maximum_amount !== null && $amount > $plan->maximum_amount) {
+            throw new BusinessRuleException('The maximum investment for this plan is '.Money::format($plan->maximum_amount).'. For a larger amount, please contact us.');
+        }
 
         if (! $frequency->isAvailableFor($plan->duration_months)) {
             $options = implode(', ', array_map(fn ($f) => $f->label(), ProfitFrequency::availableFor($plan->duration_months)));

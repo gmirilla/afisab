@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'slug', 'duration_months', 'minimum_amount', 'description', 'is_active', 'sort_order'])]
+#[Fillable(['name', 'slug', 'duration_months', 'minimum_amount', 'maximum_amount', 'description', 'is_active', 'sort_order'])]
 class InvestmentPlan extends Model
 {
     use HasFactory;
@@ -17,6 +17,7 @@ class InvestmentPlan extends Model
         return [
             'duration_months' => 'integer',
             'minimum_amount' => 'integer',
+            'maximum_amount' => 'integer',
             'is_active' => 'boolean',
         ];
     }

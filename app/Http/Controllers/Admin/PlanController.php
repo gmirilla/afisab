@@ -57,6 +57,7 @@ class PlanController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'duration_months' => ['required', 'integer', 'between:1,60'],
             'minimum_amount' => ['required', 'string', 'max:20'],
+            'maximum_amount' => ['nullable', 'string', 'max:20'],
             'description' => ['nullable', 'string', 'max:500'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
@@ -71,10 +72,23 @@ class PlanController extends Controller
             return back()->withInput()->withErrors(['minimum_amount' => 'Cannot be below the company minimum of ₦500,000.']);
         }
 
+        $maximum = null;
+        if (filled($data['maximum_amount'] ?? null)) {
+            try {
+                $maximum = Money::fromNaira($data['maximum_amount']);
+            } catch (InvalidArgumentException) {
+                return back()->withInput()->withErrors(['maximum_amount' => 'Enter a valid amount in naira, or leave it empty for no maximum.']);
+            }
+            if ($maximum < $minimum) {
+                return back()->withInput()->withErrors(['maximum_amount' => 'The maximum cannot be below the minimum.']);
+            }
+        }
+
         $plan->fill([
             'name' => $data['name'],
             'duration_months' => $data['duration_months'],
             'minimum_amount' => $minimum,
+            'maximum_amount' => $maximum,
             'description' => $data['description'] ?? null,
             'is_active' => $request->boolean('is_active'),
         ]);
@@ -83,7 +97,7 @@ class PlanController extends Controller
             $plan->slug = Str::slug($data['name']).'-'.Str::lower(Str::random(4));
         }
         $plan->save();
-        activity()->performedOn($plan)->causedBy($request->user())->log('Plan saved');
+        activity()->performedOn($plan)->causedBy($request->user())->withProperties(['minimum' => $minimum, 'maximum' => $maximum])->log('Plan saved');
 
         return back()->with('status', 'Plan saved.');
     }
