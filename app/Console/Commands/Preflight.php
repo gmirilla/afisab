@@ -34,6 +34,7 @@ class Preflight extends Command
         $this->check('Database is not SQLite', $driver !== 'sqlite', "driver: {$driver}", $production ? 'fail' : 'warn');
         $this->check('Cache is persistent', ! in_array(config('cache.default'), ['array', 'null'], true), 'driver: '.config('cache.default'), 'fail');
         $this->check('Mail is configured to send', ! in_array(config('mail.default'), ['log', 'array'], true), 'mailer: '.config('mail.default').' (verification, reset and payment emails)', $production ? 'fail' : 'warn');
+        $this->check('Monitoring URL (/health) is switched on', filled(config('afisab.health_token')), 'set AFISAB_HEALTH_TOKEN and point an uptime monitor at /health?token=... so someone is told when emails stop (see DEPLOYMENT.md)', $production ? 'warn' : 'warn');
         $queue = (string) config('queue.default');
         $this->check('Emails are queued (not sent inside the request)', $queue !== 'sync', 'QUEUE_CONNECTION='.$queue.': a mail server problem would then break the action that triggered the email', $production ? 'fail' : 'warn');
         $failedMail = \App\Support\QueueHealth::failedCount();

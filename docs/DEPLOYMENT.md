@@ -90,6 +90,7 @@ Then:
 | `SESSION_SECURE_COOKIE=true`, `SESSION_ENCRYPT=true`, `SESSION_LIFETIME=60` | Cookies only over HTTPS, encrypted, one-hour idle timeout |
 | `CACHE_STORE=database`, `QUEUE_CONNECTION=database` | No Redis on shared hosting; cache must persist (the scheduler heartbeat lives in it) |
 | `APP_PUBLIC_PATH=/home/USER/public_html` | **Required for the split layout** (web root separate from the app folder). Tells Laravel where `build/manifest.json` is. Without it every page fails with "Vite manifest not found". Not needed if you point the domain's document root at `afisab/public` instead |
+| `AFISAB_HEALTH_TOKEN` | Secret for the monitoring URL `/health?token=...` (empty = the URL is switched off). Generate with `php -r "echo bin2hex(random_bytes(24));"`. See "Monitoring" below |
 | `AFISAB_REQUIRE_2FA` | No longer a live switch. Two-factor is required per staff member (super-admin, Users page), on for every new account. This value is only read once, by the 2026-11-09 migration, to set each existing person's starting value (on in production by default) |
 | `AFISAB_INVESTOR_SHARE_BPS=3000`, `AFISAB_PROFIT_RETENTION_BPS=2000`, `AFISAB_RISK_RESERVE_BPS=500`, `AFISAB_DISTRIBUTION_CUTOFF_DAY=27`, `AFISAB_PURCHASE_DIRECTOR_THRESHOLD=500000000` | The owner's business rules (already the defaults). Change only on the owner's written instruction |
 
@@ -130,3 +131,13 @@ Running the real release artifact, instead of only the test suite, found four pr
 4. **An unquoted `AFISAB_BANK_NAME=Test Bank` stops the whole app** ("The environment file is invalid"). The `.env` template now quotes it and warns that any value with a space needs quotes.
 
 The 29 outside-in checks that passed (release served on `php -S` over MySQL, production config): home page and CSS/JS load; CSP, X-Frame-Options, nosniff and referrer headers; login, register, verify, forgot-password and health pages; `/admin` and `/investor` redirect anonymous visitors; `/storage/...`, `/.env`, `/composer.json`, `/artisan`, `/vendor/...` are not served; branded 404 leaks nothing; CSRF token on forms; wrong password refused and the session stays anonymous; correct password signs in; a Director without two-factor is held at the security page and the back office stays closed; the session cookie is HttpOnly.
+
+## Monitoring
+
+Emails, receipts and agreements go out through the queue, and the 27th profit calculation, maturities and reminders run from the scheduler. If either cron job stops, nothing breaks visibly: staff only find out by opening the dashboard. To be told straight away:
+
+1. Set `AFISAB_HEALTH_TOKEN` in `.env` (see the table above), then `php artisan config:clear`.
+2. Create an uptime monitor (UptimeRobot, Better Stack, or any similar service) for `https://your-domain/health?token=YOUR_TOKEN`, checking every 5 minutes, alerting by **SMS or a messaging app as well as email** (email may be the very thing that is down).
+3. `/health` answers **200** when the database, scheduler cron, queue and mail are fine, and **503** with the failing parts named (JSON) when not: the every-minute cron stopped, emails waiting more than 10 minutes, failed queued jobs, the queue paused, mail set to `log` in production, the database unreachable. Any monitor that alerts on a non-200 will tell someone.
+4. Without a token, or with the wrong one, `/health` is a plain 404. `php artisan afisab:health` runs the same checks from the command line (exit code 1 on a problem); `/up` is Laravel's own "the app starts" check.
+

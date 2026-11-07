@@ -105,7 +105,7 @@ class HardeningTest extends TestCase
             'GET privacy', 'GET risk-notice', 'GET robots.txt', 'GET sitemap.xml', 'GET terms', 'GET what-we-trade', 'POST enquiries',
             // sign-in, registration, certificate verification, health and webhooks
             'GET forgot-password', 'GET login', 'GET register', 'GET reset-password/{token}', 'GET two-factor-challenge',
-            'GET up', 'GET verify', 'GET verify/{token}', 'POST forgot-password', 'POST login', 'POST register',
+            'GET health', 'GET up', 'GET verify', 'GET verify/{token}', 'POST forgot-password', 'POST login', 'POST register',
             'POST reset-password', 'POST two-factor-challenge', 'POST verify', 'POST webhooks/paystack',
         ];
         sort($expected);

@@ -82,6 +82,25 @@ class UserController extends Controller
             : "Two-factor authentication is no longer required for {$user->name}.");
     }
 
+    /** One button: require two-factor of every staff member who is not yet required to use it. Needs the super-admin's password; audited. */
+    public function requireTwoFactorForAll(Request $request): RedirectResponse
+    {
+        $request->validate(['password' => ['required', 'current_password']], ['password.current_password' => 'Your password is incorrect.']);
+
+        $changed = User::whereHas('roles', fn ($q) => $q->where('name', '!=', 'investor'))->where('two_factor_required', false)->get();
+        foreach ($changed as $person) {
+            $person->forceFill(['two_factor_required' => true])->save();
+        }
+        $needSetup = $changed->filter(fn (User $u) => $u->two_factor_confirmed_at === null)->count();
+        activity()->causedBy($request->user())->withProperties(['staff' => $changed->pluck('id')->all()])->log('Two-factor requirement turned on for all staff');
+
+        if ($changed->isEmpty()) {
+            return back()->with('status', 'Two-factor authentication was already required of every staff member.');
+        }
+
+        return back()->with('status', "Two-factor authentication is now required of {$changed->count()} more staff member(s). {$needSetup} of them will be asked to set it up the next time they use the back office.");
+    }
+
     public function toggle(Request $request, User $user): RedirectResponse
     {
         if ($user->is($request->user())) {

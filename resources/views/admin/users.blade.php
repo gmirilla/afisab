@@ -15,6 +15,20 @@
         </form>
     </x-card>
 
+    @php($notRequired = $staff->where('two_factor_required', false)->count())
+    @if($notRequired > 0)
+        <x-card class="mb-6 border-amber-300 bg-amber-50">
+            <h2 class="font-black text-amber-900">{{ $notRequired }} staff {{ $notRequired === 1 ? 'member is' : 'members are' }} not required to use two-factor authentication</h2>
+            <p class="mb-3 text-sm text-amber-900">Require it of everyone in one step. Each person is asked to set it up the next time they use the back office (including you, if yours is not set up yet), and cannot turn it off afterwards.</p>
+            <form method="POST" action="{{ route('admin.users.two-factor.all') }}" class="flex flex-wrap items-end gap-2" data-confirm="Require two-factor authentication of every staff member?">@csrf
+                <input type="password" name="password" placeholder="Your password" required autocomplete="current-password" class="w-48 rounded border px-3 py-2 text-sm">
+                <x-btn>Require for all staff</x-btn>
+            </form>
+        </x-card>
+    @else
+        <p class="mb-6 rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">Two-factor authentication is required of every staff member.</p>
+    @endif
+
     <x-card>
         <table class="w-full text-left text-sm"><thead class="border-b text-gray-500"><tr><th class="py-2">Name</th><th>Email</th><th>Role</th><th>Two-factor</th><th>Status</th><th></th></tr></thead><tbody>
         @foreach($staff as $u)

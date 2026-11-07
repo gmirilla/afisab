@@ -27,6 +27,7 @@ Route::get('/sitemap.xml', [SiteController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SiteController::class, 'robots'])->name('robots');
 Route::post('/enquiries', [PublicEnquiryController::class, 'store'])->middleware('throttle:6,10')->name('public.enquiries.store');
 
+Route::get('/health', \App\Http\Controllers\HealthController::class)->middleware('throttle:60,1')->name('health');
 Route::post('/webhooks/paystack', PaystackWebhookController::class)->middleware('throttle:300,1')->name('webhooks.paystack');
 
 // Public certificate verification (rate limited; token is unguessable)
@@ -175,6 +176,7 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::post('/users', [Admin\UserController::class, 'store'])->name('users.store');
                 Route::put('/users/{user}/role', [Admin\UserController::class, 'updateRole'])->name('users.role');
                 Route::post('/users/{user}/toggle', [Admin\UserController::class, 'toggle'])->name('users.toggle');
+                Route::post('/users/two-factor/require-all', [Admin\UserController::class, 'requireTwoFactorForAll'])->name('users.two-factor.all');
                 Route::put('/users/{user}/two-factor', [Admin\UserController::class, 'updateTwoFactor'])->name('users.two-factor');
             });
 

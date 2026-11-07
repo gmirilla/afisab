@@ -92,7 +92,7 @@ class SiteController extends Controller
 
     public function robots(): Response
     {
-        $text = "User-agent: *\nDisallow: /admin\nDisallow: /investor\nDisallow: /account\nDisallow: /dashboard\nDisallow: /webhooks\n\nSitemap: ".route('sitemap')."\n";
+        $text = "User-agent: *\nDisallow: /admin\nDisallow: /investor\nDisallow: /account\nDisallow: /dashboard\nDisallow: /webhooks\nDisallow: /health\n\nSitemap: ".route('sitemap')."\n";
 
         return response($text, 200, ['Content-Type' => 'text/plain']);
     }
