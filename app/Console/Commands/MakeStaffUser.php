@@ -36,10 +36,10 @@ class MakeStaffUser extends Command
         }
 
         $user = User::create(['name' => $this->argument('name'), 'email' => $this->argument('email'), 'password' => $password]);
-        $user->forceFill(['email_verified_at' => now()])->save();
+        $user->forceFill(['email_verified_at' => now(), 'two_factor_required' => true])->save();
         $user->assignRole($role);
 
-        $this->info("Created {$user->email} as {$role->name}. Enable two-factor authentication after first sign-in.");
+        $this->info("Created {$user->email} as {$role->name}. Two-factor authentication is required: they will set it up at first sign-in.");
 
         return self::SUCCESS;
     }

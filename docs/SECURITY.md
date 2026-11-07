@@ -12,7 +12,7 @@ penetration test. Commission one before taking significant investor funds (see "
 | Control | Detail | Test |
 |---|---|---|
 | Strong passwords | 10+ characters, mixed case, a number; checked against known breaches in production | `InvestmentFlowTest` registration |
-| Two-factor authentication | **Required for every staff account** in production (`AFISAB_REQUIRE_2FA`); staff are held at the security page until set up and cannot turn it off. Optional for investors. Recovery codes provided | `HardeningTest` two-factor tests |
+| Two-factor authentication | **Required per staff member**, switched on or off only by the super-admin (password required, audited), **on by default for every new account**; a required staff member is held at the security page until set up and cannot turn it off themselves. Optional for investors. Recovery codes provided | `HardeningTest` two-factor tests |
 | Brute-force throttling | 5 wrong passwords per minute per email+IP, then locked out (even the right password is refused); 30 requests per minute on all sign-in pages | `test_repeated_wrong_passwords_are_throttled` |
 | Disabled accounts | Cannot sign in, and an open session is ended on its next request; the last active super-admin cannot be disabled or demoted | `GovernanceTest` |
 | Sign-in audit | Every sign-in, sign-out and failed attempt is logged with IP and browser, never the password | `test_sign_ins_and_failures_are_recorded_without_the_password` |

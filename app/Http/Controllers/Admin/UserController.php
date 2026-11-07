@@ -31,12 +31,14 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email'],
             'role' => ['required', Rule::exists('roles', 'name')->where(fn ($q) => $q->where('name', '!=', 'investor'))],
+            'require_two_factor' => ['sometimes', 'boolean'],
         ]);
 
         $user = User::create(['name' => $data['name'], 'email' => $data['email'], 'password' => Hash::make(Str::random(40))]);
-        $user->forceFill(['email_verified_at' => now()])->save();
+        // On unless the super-admin unticks it here: the default for every new staff account.
+        $user->forceFill(['email_verified_at' => now(), 'two_factor_required' => $request->boolean('require_two_factor', true)])->save();
         $user->assignRole($data['role']);
-        activity()->performedOn($user)->causedBy($request->user())->withProperties(['role' => $data['role']])->log('Staff account created');
+        activity()->performedOn($user)->causedBy($request->user())->withProperties(['role' => $data['role'], 'two_factor_required' => $user->two_factor_required])->log('Staff account created');
 
         // The new person sets their own password through the normal reset link.
         Password::sendResetLink(['email' => $user->email]);
@@ -59,6 +61,25 @@ class UserController extends Controller
         activity()->performedOn($user)->causedBy($request->user())->withProperties(['role' => $data['role']])->log('Staff role changed');
 
         return back()->with('status', 'Role updated.');
+    }
+
+    /** The super-admin switches the two-factor requirement on or off for one staff member. Needs their password; audited. */
+    public function updateTwoFactor(Request $request, User $user): RedirectResponse
+    {
+        $data = $request->validate(['required' => ['required', 'boolean'], 'password' => ['required', 'current_password']], ['password.current_password' => 'Your password is incorrect.']);
+
+        if ($user->is($request->user())) {
+            return back()->withErrors(['user' => 'You cannot change the two-factor requirement on your own account.']);
+        }
+        abort_unless($user->isStaff(), 404);
+
+        $required = (bool) $data['required'];
+        $user->forceFill(['two_factor_required' => $required])->save();
+        activity()->performedOn($user)->causedBy($request->user())->withProperties(['required' => $required])->log($required ? 'Two-factor requirement turned on' : 'Two-factor requirement turned off');
+
+        return back()->with('status', $required
+            ? "Two-factor authentication is now required for {$user->name}".($user->two_factor_confirmed_at ? '.' : '. They will be asked to set it up the next time they use the back office.')
+            : "Two-factor authentication is no longer required for {$user->name}.");
     }
 
     public function toggle(Request $request, User $user): RedirectResponse

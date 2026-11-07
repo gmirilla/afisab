@@ -90,7 +90,7 @@ Then:
 | `SESSION_SECURE_COOKIE=true`, `SESSION_ENCRYPT=true`, `SESSION_LIFETIME=60` | Cookies only over HTTPS, encrypted, one-hour idle timeout |
 | `CACHE_STORE=database`, `QUEUE_CONNECTION=database` | No Redis on shared hosting; cache must persist (the scheduler heartbeat lives in it) |
 | `APP_PUBLIC_PATH=/home/USER/public_html` | **Required for the split layout** (web root separate from the app folder). Tells Laravel where `build/manifest.json` is. Without it every page fails with "Vite manifest not found". Not needed if you point the domain's document root at `afisab/public` instead |
-| `AFISAB_REQUIRE_2FA=true` | Staff must use two-factor authentication (on by default in production) |
+| `AFISAB_REQUIRE_2FA` | No longer a live switch. Two-factor is required per staff member (super-admin, Users page), on for every new account. This value is only read once, by the 2026-11-09 migration, to set each existing person's starting value (on in production by default) |
 | `AFISAB_INVESTOR_SHARE_BPS=3000`, `AFISAB_PROFIT_RETENTION_BPS=2000`, `AFISAB_RISK_RESERVE_BPS=500`, `AFISAB_DISTRIBUTION_CUTOFF_DAY=27`, `AFISAB_PURCHASE_DIRECTOR_THRESHOLD=500000000` | The owner's business rules (already the defaults). Change only on the owner's written instruction |
 
 ## 7. Updating

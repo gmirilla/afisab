@@ -175,6 +175,7 @@ Route::middleware(['auth', 'verified', 'active', 'throttle:240,1'])->group(funct
                 Route::post('/users', [Admin\UserController::class, 'store'])->name('users.store');
                 Route::put('/users/{user}/role', [Admin\UserController::class, 'updateRole'])->name('users.role');
                 Route::post('/users/{user}/toggle', [Admin\UserController::class, 'toggle'])->name('users.toggle');
+                Route::put('/users/{user}/two-factor', [Admin\UserController::class, 'updateTwoFactor'])->name('users.two-factor');
             });
 
             // Trading: cycles, purchases, expenses, stock, sales, suppliers and buyers

@@ -279,7 +279,7 @@ class HardeningTest extends TestCase
 
     public function test_staff_without_two_factor_are_held_at_the_security_page_when_enforced(): void
     {
-        config(['afisab.require_2fa_for_staff' => true]);
+        $this->accounts->forceFill(['two_factor_required' => true])->save();
 
         $this->actingAs($this->accounts)->get(route('admin.funds'))->assertRedirect(route('account.security'));
         $this->actingAs($this->accounts)->get(route('admin.dashboard'))->assertRedirect(route('account.security'));
@@ -289,16 +289,15 @@ class HardeningTest extends TestCase
         $this->actingAs($investor)->get(route('investor.dashboard'))->assertOk(); // investors are not forced
     }
 
-    public function test_enforcement_can_be_off_for_development(): void
+    public function test_staff_the_super_admin_has_not_required_it_of_are_let_in_without_two_factor(): void
     {
-        config(['afisab.require_2fa_for_staff' => false]);
 
         $this->actingAs($this->accounts)->get(route('admin.funds'))->assertOk();
     }
 
     public function test_staff_can_set_up_two_factor_and_are_then_let_in(): void
     {
-        config(['afisab.require_2fa_for_staff' => true]);
+        $this->accounts->forceFill(['two_factor_required' => true])->save();
         $staff = $this->accounts;
 
         $this->actingAs($staff)->post(route('account.security.enable'), ['password' => 'wrong'])->assertSessionHasErrors('password');
@@ -321,7 +320,7 @@ class HardeningTest extends TestCase
 
     public function test_required_two_factor_cannot_be_turned_off_by_staff_but_investors_may(): void
     {
-        config(['afisab.require_2fa_for_staff' => true]);
+        $this->accounts->forceFill(['two_factor_required' => true])->save();
         $staff = $this->accounts;
         $staff->forceFill(['two_factor_secret' => encrypt('SECRET'), 'two_factor_recovery_codes' => encrypt('[]'), 'two_factor_confirmed_at' => now()])->save();
 

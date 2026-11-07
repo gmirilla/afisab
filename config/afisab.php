@@ -33,8 +33,8 @@ return [
     // build/. Laravel needs it to find the compiled CSS/JS manifest from the command line too. Leave unset otherwise.
     'public_path' => env('APP_PUBLIC_PATH'),
 
-    // Staff must confirm two-factor authentication before using the back office. On by default in production.
-    'require_2fa_for_staff' => filter_var(env('AFISAB_REQUIRE_2FA', env('APP_ENV') === 'production'), FILTER_VALIDATE_BOOLEAN),
+    // Two-factor authentication for staff is switched per person by the super-admin (Users page); it is ON for every new
+    // staff account. AFISAB_REQUIRE_2FA is only read once, by the migration that set each existing person's starting value.
 
     // How the company is named in emails and documents.
     'company_name' => env('AFISAB_COMPANY_NAME', 'AFISAB NIG. LTD'),

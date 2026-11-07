@@ -26,7 +26,7 @@ class SecurityController extends Controller
             'qr' => $state === 'pending' ? $user->twoFactorQrCodeSvg() : null,
             'secret' => $state === 'pending' ? decrypt($user->two_factor_secret) : null,
             'recoveryCodes' => $state === 'enabled' ? $user->recoveryCodes() : [],
-            'required' => (bool) config('afisab.require_2fa_for_staff') && $user->isStaff(),
+            'required' => $user->requiresTwoFactor(),
         ]);
     }
 
@@ -67,8 +67,8 @@ class SecurityController extends Controller
     {
         $this->assertPassword($request);
 
-        if ((bool) config('afisab.require_2fa_for_staff') && $request->user()->isStaff()) {
-            return back()->withErrors(['password' => 'Two-factor authentication is required for staff accounts and cannot be turned off.']);
+        if ($request->user()->requiresTwoFactor()) {
+            return back()->withErrors(['password' => 'Two-factor authentication is required for your account and cannot be turned off. Ask the super-admin if this should change.']);
         }
 
         $disable($request->user());

@@ -64,9 +64,10 @@ class Preflight extends Command
             $this->check('At least one active super-admin', $admins->isNotEmpty(), 'afisab:make-staff creates one', 'fail');
 
             $staff = User::whereHas('roles', fn ($q) => $q->where('name', '!=', 'investor'))->whereNull('disabled_at')->get();
-            $without = $staff->filter(fn (User $u) => $u->two_factor_confirmed_at === null)->count();
-            $this->check('Staff have two-factor authentication', $without === 0, $without.' of '.$staff->count().' active staff still without it', config('afisab.require_2fa_for_staff') ? 'fail' : 'warn');
-            $this->check('Staff two-factor is enforced', (bool) config('afisab.require_2fa_for_staff'), 'AFISAB_REQUIRE_2FA', $production ? 'fail' : 'warn');
+            $notRequired = $staff->filter(fn (User $u) => ! $u->two_factor_required)->count();
+            $this->check('Two-factor is required for staff', $notRequired === 0, $notRequired.' of '.$staff->count().' active staff are not required to use it (the super-admin can change this on the Users page)', $production ? 'warn' : 'warn');
+            $without = $staff->filter(fn (User $u) => $u->two_factor_required && $u->two_factor_confirmed_at === null)->count();
+            $this->check('Required staff have set it up', $without === 0, $without.' staff are required to use it but have not set it up yet (they are held at the security page until they do)', 'warn');
 
             $active = RiskLimit::where('is_active', true)->count();
             $this->check('Risk limits are switched on', $active > 0, $active.' of '.RiskLimit::count().' limits enforced (a Director decides; see Risk page)', 'warn');

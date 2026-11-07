@@ -37,6 +37,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $query->whereNull('disabled_at');
     }
 
+    /** Must this person set up two-factor authentication (and may not turn it off)? Only staff are ever forced; the super-admin decides per person. */
+    public function requiresTwoFactor(): bool
+    {
+        return $this->two_factor_required && $this->isStaff();
+    }
+
     public function isStaff(): bool
     {
         return $this->roles()->where('name', '!=', 'investor')->exists();
@@ -52,6 +58,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'disabled_at' => 'datetime',
+            'two_factor_required' => 'boolean',
             'password' => 'hashed',
         ];
     }

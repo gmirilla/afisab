@@ -50,7 +50,7 @@ class ReviewFixesPhaseDTest extends TestCase
         }
         $this->assertSame(0, Enquiry::count());
 
-        $this->post(route('public.enquiries.store'), $this->enquiry('quote', ['commodity' => 'Other', 'message' => 'Maize and sorghum']))->assertSessionHasNoErrors();
+        $this->post(route('public.enquiries.store'), $this->enquiry('quote', ['commodity' => 'Teff', 'message' => 'Maize and sorghum']))->assertSessionHasNoErrors();
         $this->assertSame(1, Enquiry::count());
     }
 
