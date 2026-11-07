@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 /**
@@ -32,15 +33,34 @@ class EnquiryController extends Controller
 
         $this->guardAgainstBots($request);
 
+        if (in_array($type, [Enquiry::QUOTE, Enquiry::SUPPLIER], true)) {
+            $request->merge(['items' => $this->items($request)]);
+        }
+
         $data = $request->validate($this->rules($type), [
             'consent.accepted' => 'Please confirm that we may contact you about this enquiry.',
             'consent.required' => 'Please confirm that we may contact you about this enquiry.',
             'email.required' => 'Please give an email address so we can reply.',
             'phone.required' => 'Please give a phone number so we can reach you.',
-            'commodity.required' => 'Please choose a commodity (choose "Other, or several" and tell us in the message if yours is not listed).',
+            'items.required' => 'Please choose at least one commodity.',
+            'items.min' => 'Please choose at least one commodity.',
+            'items.max' => 'You can list up to '.Enquiry::MAX_ITEMS.' commodities. Put the rest in your message.',
+            'items.*.commodity.required' => 'Please choose a commodity for each row (for "Other", type its name).',
+            'items.*.commodity.max' => 'A commodity name is too long.',
+            'items.*.quantity.max' => 'A quantity is too long.',
         ]);
 
-        $enquiry = Enquiry::create(collect($data)->except(['consent', 'started', 'website'])->all() + ['type' => $type, 'consented_at' => now(), 'status' => Enquiry::NEW]);
+        $enquiry = DB::transaction(function () use ($data, $type) {
+            $items = $data['items'] ?? [];
+            // The first item is also kept in the single commodity/quantity columns, as the summary older records use.
+            $enquiry = Enquiry::create(collect($data)->except(['consent', 'started', 'website', 'items'])->all()
+                + ['commodity' => $items[0]['commodity'] ?? null, 'quantity' => $items[0]['quantity'] ?? null, 'type' => $type, 'consented_at' => now(), 'status' => Enquiry::NEW]);
+            foreach (array_values($items) as $i => $item) {
+                $enquiry->items()->create(['commodity' => $item['commodity'], 'quantity' => $item['quantity'] ?? null, 'position' => $i + 1]);
+            }
+
+            return $enquiry;
+        });
         activity()->performedOn($enquiry)->log('Website enquiry received');
 
         Notification::route('mail', config('afisab.contact.enquiry_email'))->notify(new EnquiryReceived($enquiry));
@@ -52,6 +72,44 @@ class EnquiryController extends Controller
         $page = [Enquiry::QUOTE => 'public.buyers', Enquiry::SUPPLIER => 'public.suppliers'][$type] ?? 'public.contact';
 
         return redirect()->to(route($page).'#enquiry')->with('enquiry_sent', 'Thank you. Your message has reached AFISAB NIG. LTD and we will respond using the details you gave.');
+    }
+
+    /**
+     * The commodity rows from the form, cleaned up: blank rows dropped, "Other" replaced by the name typed, repeats
+     * removed. (A single `commodity`/`quantity` pair, as older forms and links send it, is treated as one row.)
+     *
+     * @return list<array{commodity: string, quantity: ?string}>
+     */
+    private function items(Request $request): array
+    {
+        $rows = $request->input('items');
+        if (! is_array($rows)) {
+            $rows = [['commodity' => $request->input('commodity'), 'quantity' => $request->input('quantity')]];
+        }
+
+        $items = [];
+        $seen = [];
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+            $commodity = trim((string) ($row['commodity'] ?? ''));
+            $quantity = trim((string) ($row['quantity'] ?? ''));
+            if ($commodity === 'Other') {
+                $commodity = trim((string) ($row['other'] ?? '')); // empty if they did not say what: refused with a clear message
+            }
+            if ($commodity === '' && $quantity === '' && trim((string) ($row['other'] ?? '')) === '') {
+                continue; // an untouched spare row
+            }
+            $key = mb_strtolower($commodity);
+            if ($commodity !== '' && isset($seen[$key])) {
+                continue; // the same commodity twice: keep the first
+            }
+            $seen[$key] = true;
+            $items[] = ['commodity' => $commodity, 'quantity' => $quantity === '' ? null : $quantity];
+        }
+
+        return $items;
     }
 
     /** @return array<string, array<int, mixed>> */
@@ -69,11 +127,11 @@ class EnquiryController extends Controller
         return array_merge($common, match ($type) {
             Enquiry::QUOTE => [
                 'email' => ['required', 'email:rfc', 'max:150'], 'phone' => ['required', 'string', 'max:32', 'regex:/^[0-9+()\-\s]{7,32}$/'],
-                'commodity' => ['required', 'string', 'max:100'], 'quantity' => ['nullable', 'string', 'max:100'], 'location' => ['nullable', 'string', 'max:150'],
+                'location' => ['nullable', 'string', 'max:150'], 'items' => ['required', 'array', 'min:1', 'max:'.Enquiry::MAX_ITEMS], 'items.*.commodity' => ['required', 'string', 'max:100'], 'items.*.quantity' => ['nullable', 'string', 'max:100'],
             ],
             Enquiry::SUPPLIER => [
                 'email' => ['nullable', 'email:rfc', 'max:150'], 'phone' => ['required', 'string', 'max:32', 'regex:/^[0-9+()\-\s]{7,32}$/'],
-                'commodity' => ['required', 'string', 'max:100'], 'quantity' => ['nullable', 'string', 'max:100'], 'location' => ['required', 'string', 'max:150'],
+                'location' => ['required', 'string', 'max:150'], 'items' => ['required', 'array', 'min:1', 'max:'.Enquiry::MAX_ITEMS], 'items.*.commodity' => ['required', 'string', 'max:100'], 'items.*.quantity' => ['nullable', 'string', 'max:100'],
             ],
             default => [
                 'email' => ['required', 'email:rfc', 'max:150'], 'phone' => ['nullable', 'string', 'max:32', 'regex:/^[0-9+()\-\s]{7,32}$/'],

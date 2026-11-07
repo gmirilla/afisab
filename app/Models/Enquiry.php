@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'type', 'name', 'company', 'email', 'phone', 'commodity', 'quantity', 'location', 'message', 'consented_at',
@@ -36,6 +37,27 @@ class Enquiry extends Model
     public function label(): string
     {
         return self::TYPES[$this->type] ?? ucfirst($this->type);
+    }
+
+    public const MAX_ITEMS = 5;
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(EnquiryItem::class)->orderBy('position');
+    }
+
+    /**
+     * The commodities as one short phrase for lists and subjects: "Maize", "Maize, Sorghum", "Maize, Sorghum +1".
+     * Falls back to the single legacy column for an enquiry that has no items.
+     */
+    public function commoditySummary(int $show = 2): string
+    {
+        $names = $this->items->pluck('commodity')->all() ?: array_filter([$this->commodity]);
+        if ($names === []) {
+            return '';
+        }
+
+        return implode(', ', array_slice($names, 0, $show)).(count($names) > $show ? ' +'.(count($names) - $show) : '');
     }
 
     public function handler(): BelongsTo

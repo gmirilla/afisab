@@ -24,10 +24,10 @@ class EnquiryController extends Controller
         $like = ! empty($f['q']) ? '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], trim($f['q'])).'%' : null;
 
         return view('admin.enquiries.index', [
-            'enquiries' => Enquiry::with('handler')
+            'enquiries' => Enquiry::with(['handler', 'items'])
                 ->when($f['type'] ?? null, fn ($q, $t) => $q->where('type', $t))
                 ->when($f['status'] ?? null, fn ($q, $s) => $q->where('status', $s))
-                ->when($like, fn ($q) => $q->where(fn ($w) => $w->where('name', 'like', $like)->orWhere('company', 'like', $like)->orWhere('email', 'like', $like)->orWhere('phone', 'like', $like)->orWhere('commodity', 'like', $like)))
+                ->when($like, fn ($q) => $q->where(fn ($w) => $w->where('name', 'like', $like)->orWhere('company', 'like', $like)->orWhere('email', 'like', $like)->orWhere('phone', 'like', $like)->orWhere('commodity', 'like', $like)->orWhereHas('items', fn ($i) => $i->where('commodity', 'like', $like))))
                 ->orderByRaw("case status when 'new' then 0 when 'contacted' then 1 else 2 end")->orderByDesc('id')
                 ->paginate(25)->withQueryString(),
             'filters' => $f + ['type' => null, 'status' => null, 'q' => null],
@@ -37,7 +37,7 @@ class EnquiryController extends Controller
 
     public function show(Enquiry $enquiry): View
     {
-        return view('admin.enquiries.show', ['enquiry' => $enquiry->load(['handler', 'supplier'])]);
+        return view('admin.enquiries.show', ['enquiry' => $enquiry->load(['handler', 'supplier', 'items'])]);
     }
 
     public function update(Request $request, Enquiry $enquiry): RedirectResponse
@@ -51,6 +51,16 @@ class EnquiryController extends Controller
         activity()->performedOn($enquiry)->causedBy($request->user())->withProperties(['status' => $data['status']])->log('Website enquiry updated');
 
         return back()->with('status', 'Enquiry updated.');
+    }
+
+    private function offers(Enquiry $enquiry): string
+    {
+        $enquiry->loadMissing('items');
+        if ($enquiry->items->isEmpty()) {
+            return $enquiry->commodity.($enquiry->quantity ? " ({$enquiry->quantity})" : '');
+        }
+
+        return $enquiry->items->map(fn ($i) => $i->commodity.($i->quantity ? " ({$i->quantity})" : ''))->implode('; ');
     }
 
     /** A supplier who wrote in becomes a supplier record Procurement can buy from. */
@@ -67,7 +77,7 @@ class EnquiryController extends Controller
                 'phone' => $enquiry->phone,
                 'location' => $enquiry->location,
                 'is_active' => true,
-                'notes' => "From website enquiry #{$enquiry->id}. Contact: {$enquiry->name}. Offers: {$enquiry->commodity}".($enquiry->quantity ? " ({$enquiry->quantity})" : '').'.',
+                'notes' => "From website enquiry #{$enquiry->id}. Contact: {$enquiry->name}. Offers: ".$this->offers($enquiry).'.',
             ]);
             $enquiry->update(['supplier_id' => $supplier->id, 'status' => Enquiry::CONTACTED, 'handled_by' => $request->user()->id, 'handled_at' => now()]);
             activity()->performedOn($supplier)->causedBy($request->user())->withProperties(['enquiry' => $enquiry->id])->log('Supplier created from website enquiry');

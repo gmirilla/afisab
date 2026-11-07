@@ -14,8 +14,12 @@
                 <dt class="text-gray-500">Company</dt><dd class="col-span-2">{{ $enquiry->company ?: '—' }}</dd>
                 <dt class="text-gray-500">Phone</dt><dd class="col-span-2">@if($enquiry->phone)<a class="text-brand-700 underline" href="tel:{{ $enquiry->phone }}">{{ $enquiry->phone }}</a>@else — @endif</dd>
                 <dt class="text-gray-500">Email</dt><dd class="col-span-2">@if($enquiry->email)<a class="text-brand-700 underline" href="mailto:{{ $enquiry->email }}">{{ $enquiry->email }}</a>@else — @endif</dd>
-                @if($enquiry->commodity)<dt class="text-gray-500">Commodity</dt><dd class="col-span-2">{{ $enquiry->commodity }}</dd>@endif
-                @if($enquiry->quantity)<dt class="text-gray-500">Quantity</dt><dd class="col-span-2">{{ $enquiry->quantity }}</dd>@endif
+                @if($enquiry->items->isNotEmpty())
+                    <dt class="text-gray-500">{{ $enquiry->items->count() === 1 ? 'Commodity' : 'Commodities' }}</dt>
+                    <dd class="col-span-2"><ul class="space-y-0.5">@foreach($enquiry->items as $item)<li><strong>{{ $item->commodity }}</strong>@if($item->quantity) <span class="text-gray-600">· {{ $item->quantity }}</span>@endif</li>@endforeach</ul></dd>
+                @elseif($enquiry->commodity)
+                    <dt class="text-gray-500">Commodity</dt><dd class="col-span-2">{{ $enquiry->commodity }}@if($enquiry->quantity) <span class="text-gray-600">· {{ $enquiry->quantity }}</span>@endif</dd>
+                @endif
                 @if($enquiry->location)<dt class="text-gray-500">Location</dt><dd class="col-span-2">{{ $enquiry->location }}</dd>@endif
                 <dt class="text-gray-500">Consent to contact</dt><dd class="col-span-2">Given {{ $enquiry->consented_at->format('d M Y H:i') }}</dd>
             </dl>

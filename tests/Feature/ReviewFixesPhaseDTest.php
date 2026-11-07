@@ -41,12 +41,12 @@ class ReviewFixesPhaseDTest extends TestCase
     {
         foreach (['public.buyers', 'public.suppliers'] as $page) {
             $html = $this->get(route($page))->assertOk()->getContent();
-            $this->assertMatchesRegularExpression('#<select name="commodity" required#', $html, $page);
-            $this->assertStringContainsString('Other, or several (tell us below)', $html);
+            $this->assertMatchesRegularExpression('#<select name="items\[0\]\[commodity\]" required#', $html, $page);
+            $this->assertStringContainsString('Other (type its name)', $html);
         }
 
         foreach (['quote', 'supplier'] as $type) {
-            $this->post(route('public.enquiries.store'), $this->enquiry($type, ['commodity' => '']))->assertSessionHasErrors('commodity');
+            $this->post(route('public.enquiries.store'), $this->enquiry($type, ['commodity' => '']))->assertSessionHasErrors('items.0.commodity');
         }
         $this->assertSame(0, Enquiry::count());
 

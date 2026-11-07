@@ -31,13 +31,32 @@
         <label class="{{ $label }}">Email{{ $type === 'supplier' ? ' (optional)' : '' }}<input type="email" name="email" value="{{ old('email') }}" @required($type !== 'supplier') maxlength="150" autocomplete="email" class="{{ $field }}"></label>
 
         @if($type !== 'general')
-            <label class="{{ $label }}">{{ $type === 'quote' ? 'Commodity you need' : 'Commodity you can supply' }}
-                <select name="commodity" required class="{{ $field }}">
-                    <option value="">Select a commodity</option>
-                    @foreach($commodities as $c)<option value="{{ $c }}" @selected($selected === $c)>{{ $c }}</option>@endforeach
-                    <option value="Other" @selected($selected === 'Other')>Other, or several (tell us below)</option>
-                </select></label>
-            <label class="{{ $label }}">{{ $type === 'quote' ? 'Quantity needed (e.g. 50 tonnes)' : 'Quantity available (e.g. 20 tonnes)' }}<input name="quantity" value="{{ old('quantity') }}" maxlength="100" class="{{ $field }}"></label>
+            <fieldset class="md:col-span-2">
+                <legend class="{{ $label }}">{{ $type === 'quote' ? 'Commodities you need' : 'Commodities you can supply' }}</legend>
+                <p class="mt-0.5 text-xs text-gray-500">Add each commodity with the quantity (for example "50 tonnes"). You can list up to {{ \App\Models\Enquiry::MAX_ITEMS }}.</p>
+                <div class="mt-2 space-y-3">
+                    @for($n = 0; $n < \App\Models\Enquiry::MAX_ITEMS; $n++)
+                        @php
+                            $name = (string) old("items.$n.commodity", $n === 0 ? $selected : '');
+                            $isOther = $name !== '' && ! in_array($name, $commodities, true);
+                            $extra = $n >= 3 && ! $name && ! old("items.$n.quantity");
+                        @endphp
+                        <div class="grid gap-2 rounded-lg border border-stone-200 p-3 sm:grid-cols-[1fr_12rem]" @if($extra) data-extra-row hidden @endif>
+                            <div>
+                                <label class="text-xs font-bold text-gray-600">Commodity {{ $n + 1 }}{{ $n === 0 ? '' : ' (optional)' }}
+                                    <select name="items[{{ $n }}][commodity]" @required($n === 0) data-commodity-select class="{{ $field }}">
+                                        <option value="">Select a commodity</option>
+                                        @foreach($commodities as $c)<option value="{{ $c }}" @selected($name === $c)>{{ $c }}</option>@endforeach
+                                        <option value="Other" @selected($isOther)>Other (type its name)</option>
+                                    </select></label>
+                                <input name="items[{{ $n }}][other]" value="{{ $isOther ? $name : old("items.$n.other") }}" maxlength="100" placeholder="If you chose Other, type the commodity" data-other-input class="{{ $field }}" aria-label="Name of the other commodity {{ $n + 1 }}">
+                            </div>
+                            <label class="text-xs font-bold text-gray-600">Quantity<input name="items[{{ $n }}][quantity]" value="{{ old("items.$n.quantity", $n === 0 ? request('quantity') : '') }}" maxlength="100" placeholder="e.g. 50 tonnes" class="{{ $field }}"></label>
+                        </div>
+                    @endfor
+                </div>
+                <button type="button" hidden data-add-row class="mt-3 rounded-md border border-brand-700 px-3 py-1.5 text-sm font-bold text-brand-700">+ Add another commodity</button>
+            </fieldset>
             <label class="{{ $label }} md:col-span-2">{{ $type === 'quote' ? 'Delivery location' : 'Where is the produce located? (town and state)' }}<input name="location" value="{{ old('location') }}" @required($type === 'supplier') maxlength="150" class="{{ $field }}"></label>
         @endif
 

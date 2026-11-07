@@ -193,7 +193,7 @@ class PublicSiteTest extends TestCase
         $post('quote', ['phone' => 'abc'])->assertSessionHasErrors('phone');
         $post('quote', ['email' => 'not-an-email'])->assertSessionHasErrors('email');
         $post('quote', ['name' => ''])->assertSessionHasErrors('name');
-        $post('supplier', ['commodity' => ''])->assertSessionHasErrors('commodity');
+        $post('supplier', ['commodity' => ''])->assertSessionHasErrors('items.0.commodity');
         $post('supplier', ['location' => ''])->assertSessionHasErrors('location');
         $post('general', ['message' => ''])->assertSessionHasErrors('message');
         $post('general', ['message' => str_repeat('x', 2001)])->assertSessionHasErrors('message');

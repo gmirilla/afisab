@@ -38,6 +38,37 @@ document.addEventListener('input', (event) => {
     }
 });
 
+// Enquiry form: [data-add-row] reveals the next spare commodity row; the "Other" name box shows only when Other is chosen.
+// Without JavaScript the form still works: three rows are visible and the name box is always shown.
+const updateOtherInput = (select) => {
+    const input = select.closest('div')?.querySelector('[data-other-input]');
+    if (input) {
+        input.hidden = select.value !== 'Other';
+    }
+};
+const updateAddRow = () => {
+    const button = document.querySelector('[data-add-row]');
+    if (button) {
+        button.hidden = document.querySelector('[data-extra-row][hidden]') === null;
+    }
+};
+document.querySelectorAll('[data-commodity-select]').forEach(updateOtherInput);
+updateAddRow();
+document.addEventListener('change', (event) => {
+    if (event.target instanceof HTMLSelectElement && event.target.matches('[data-commodity-select]')) {
+        updateOtherInput(event.target);
+    }
+});
+document.addEventListener('click', (event) => {
+    if (event.target instanceof Element && event.target.closest('[data-add-row]')) {
+        const next = document.querySelector('[data-extra-row][hidden]');
+        if (next) {
+            next.hidden = false;
+        }
+        updateAddRow();
+    }
+});
+
 // <select data-autosubmit> submits its form when changed.
 document.addEventListener('change', (event) => {
     if (event.target instanceof HTMLElement && event.target.matches('[data-autosubmit]') && event.target.form) {

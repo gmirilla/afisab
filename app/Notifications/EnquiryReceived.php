@@ -16,7 +16,9 @@ class EnquiryReceived extends AfisabNotification
     public function toMail(object $notifiable): MailMessage
     {
         $e = $this->enquiry;
-        $subject = $e->label().($e->commodity ? ": {$e->commodity}" : '').' from '.($e->company ?: $e->name);
+        $e->loadMissing('items');
+        $summary = $e->commoditySummary(3);
+        $subject = $e->label().($summary !== '' ? ": {$summary}" : '').' from '.($e->company ?: $e->name);
 
         $mail = (new MailMessage)
             ->subject($subject)
@@ -25,10 +27,18 @@ class EnquiryReceived extends AfisabNotification
             ->line("From: {$e->name}".($e->company ? " ({$e->company})" : ''))
             ->line('Phone: '.($e->phone ?: 'not given').' · Email: '.($e->email ?: 'not given'));
 
-        foreach (['commodity' => 'Commodity', 'quantity' => 'Quantity', 'location' => 'Location'] as $field => $label) {
-            if ($e->{$field}) {
-                $mail->line("{$label}: {$e->{$field}}");
+        foreach ($e->items as $item) {
+            $mail->line('Commodity: '.$item->commodity.($item->quantity ? " ({$item->quantity})" : ''));
+        }
+        if ($e->items->isEmpty()) {
+            foreach (['commodity' => 'Commodity', 'quantity' => 'Quantity'] as $field => $label) {
+                if ($e->{$field}) {
+                    $mail->line("{$label}: {$e->{$field}}");
+                }
             }
+        }
+        if ($e->location) {
+            $mail->line("Location: {$e->location}");
         }
         if ($e->message) {
             $mail->line('Message: '.Str::limit(strip_tags($e->message), 1500));
