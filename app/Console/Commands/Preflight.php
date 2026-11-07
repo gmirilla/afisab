@@ -35,6 +35,7 @@ class Preflight extends Command
         $this->check('Cache is persistent', ! in_array(config('cache.default'), ['array', 'null'], true), 'driver: '.config('cache.default'), 'fail');
         $this->check('Mail is configured to send', ! in_array(config('mail.default'), ['log', 'array'], true), 'mailer: '.config('mail.default').' (verification, reset and payment emails)', $production ? 'fail' : 'warn');
         $this->check('Monitoring URL (/health) is switched on', filled(config('afisab.health_token')), 'set AFISAB_HEALTH_TOKEN and point an uptime monitor at /health?token=... so someone is told when emails stop (see DEPLOYMENT.md)', $production ? 'warn' : 'warn');
+        $this->check('Dead-man\'s-switch ping (Healthchecks.io) is set up', \App\Support\HealthPinger::enabled(), 'set AFISAB_HEALTHCHECK_PING_URL so you are told when the server or its cron jobs stop (see DEPLOYMENT.md)', 'warn');
         $queue = (string) config('queue.default');
         $this->check('Emails are queued (not sent inside the request)', $queue !== 'sync', 'QUEUE_CONNECTION='.$queue.': a mail server problem would then break the action that triggered the email', $production ? 'fail' : 'warn');
         $failedMail = \App\Support\QueueHealth::failedCount();

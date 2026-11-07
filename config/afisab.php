@@ -68,6 +68,11 @@ return [
     // Secret for the /health monitoring URL (an uptime monitor calls /health?token=...). Empty switches the URL off (404).
     'health_token' => env('AFISAB_HEALTH_TOKEN'),
 
+    // Healthchecks.io (or similar "dead man's switch") ping URL. Every 5 minutes the app runs its health checks and pings
+    // this address when all is well, or its /fail address when not; if the pings stop (server or cron dead) the service
+    // alerts. Treat the URL as a secret. Empty switches it off.
+    'healthcheck_ping_url' => env('AFISAB_HEALTHCHECK_PING_URL'),
+
     // Unpaid subscription requests lapse after this many days (a request with a receipt awaiting confirmation, or a
     // card payment started in the last day, is never expired).
     'subscription' => [

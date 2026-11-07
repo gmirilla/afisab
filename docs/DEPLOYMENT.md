@@ -91,6 +91,7 @@ Then:
 | `CACHE_STORE=database`, `QUEUE_CONNECTION=database` | No Redis on shared hosting; cache must persist (the scheduler heartbeat lives in it) |
 | `APP_PUBLIC_PATH=/home/USER/public_html` | **Required for the split layout** (web root separate from the app folder). Tells Laravel where `build/manifest.json` is. Without it every page fails with "Vite manifest not found". Not needed if you point the domain's document root at `afisab/public` instead |
 | `AFISAB_HEALTH_TOKEN` | Secret for the monitoring URL `/health?token=...` (empty = the URL is switched off). Generate with `php -r "echo bin2hex(random_bytes(24));"`. See "Monitoring" below |
+| `AFISAB_HEALTHCHECK_PING_URL` | Healthchecks.io (or similar) ping URL; empty = off. See "Monitoring" below |
 | `AFISAB_REQUIRE_2FA` | No longer a live switch. Two-factor is required per staff member (super-admin, Users page), on for every new account. This value is only read once, by the 2026-11-09 migration, to set each existing person's starting value (on in production by default) |
 | `AFISAB_INVESTOR_SHARE_BPS=3000`, `AFISAB_PROFIT_RETENTION_BPS=2000`, `AFISAB_RISK_RESERVE_BPS=500`, `AFISAB_DISTRIBUTION_CUTOFF_DAY=27`, `AFISAB_PURCHASE_DIRECTOR_THRESHOLD=500000000` | The owner's business rules (already the defaults). Change only on the owner's written instruction |
 
@@ -140,4 +141,13 @@ Emails, receipts and agreements go out through the queue, and the 27th profit ca
 2. Create an uptime monitor (UptimeRobot, Better Stack, or any similar service) for `https://your-domain/health?token=YOUR_TOKEN`, checking every 5 minutes, alerting by **SMS or a messaging app as well as email** (email may be the very thing that is down).
 3. `/health` answers **200** when the database, scheduler cron, queue and mail are fine, and **503** with the failing parts named (JSON) when not: the every-minute cron stopped, emails waiting more than 10 minutes, failed queued jobs, the queue paused, mail set to `log` in production, the database unreachable. Any monitor that alerts on a non-200 will tell someone.
 4. Without a token, or with the wrong one, `/health` is a plain 404. `php artisan afisab:health` runs the same checks from the command line (exit code 1 on a problem); `/up` is Laravel's own "the app starts" check.
+
+### Healthchecks.io (dead-man's switch)
+
+`/health` lets a monitor ask the site. Healthchecks.io works the other way: the site reports in, and you are alerted when the reports **stop**. That catches what a poller cannot: the whole server down, or the cron job that drives the scheduler and queue dead.
+
+1. In Healthchecks.io create a check with a **5-minute period** and a **10-15 minute grace time**, and add an SMS or chat-app alert as well as email.
+2. Put its ping URL in `.env` as `AFISAB_HEALTHCHECK_PING_URL`, then `php artisan config:clear`. Treat the URL as a secret.
+3. Every 5 minutes (`afisab:health-ping`, run by the scheduler) the app runs the same checks as `/health`: if all is fine it pings the URL; if not it pings the `/fail` address with the failing parts in the message (for example "queue: emails or documents have been waiting 30 minutes..."). If the scheduler itself stops, no ping arrives and Healthchecks.io alerts after the grace time.
+4. Use both: Healthchecks.io for "the server or its cron jobs have died", and an uptime monitor on `/health` for "the site cannot be reached from outside". `php artisan afisab:health-ping` sends one ping by hand to test.
 
