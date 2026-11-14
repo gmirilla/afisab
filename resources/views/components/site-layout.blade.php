@@ -93,7 +93,8 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <a class="brand" href="{{ route('home') }}" aria-label="AFISAB NIG. LTD home">
-  <img class="brand-mark" src="{{ asset('image/logo-mark.png') }}" width="176" height="176" alt="">
+            <div style="background-color: white;">
+  <img class="brand-mark" src="{{ asset('image/logo-mark.png') }}" width="176" height="176" alt=""></div>
   <span class="brand-type">AFISAB <span>NIG. LTD</span></span>
 </a>
           <p>Connecting Nigerian agricultural producers with commercial markets.</p>
