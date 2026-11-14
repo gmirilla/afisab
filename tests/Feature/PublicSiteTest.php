@@ -94,7 +94,7 @@ class PublicSiteTest extends TestCase
     {
         foreach (['home', 'public.risk'] as $route) {
             $page = $this->get(route($route))->assertDontSee('Become an investor')->assertDontSee('₦500,000')->assertDontSee('investor programme');
-            $page->assertSee('Investor Portal'); // a plain sign-in link only
+            $page->assertSee('Staff Sign In'); // a plain sign-in link only
         }
         $this->get(route('public.investors'))->assertNotFound();
         $this->get(route('sitemap'))->assertDontSee('/for-investors');

@@ -75,7 +75,7 @@
         </details>
         <a href="{{ route('public.contact') }}" @if(request()->routeIs('public.contact')) aria-current="page" @endif>Contact</a>
         @if(config('afisab.public_investor_page'))<a href="{{ route('public.investors') }}">Investors</a>@endif
-        <a class="nav-investor" href="{{ route('login') }}"><svg class="icon icon--lock" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></svg>Investor Portal</a>
+        <a class="nav-investor" href="{{ route('login') }}"><svg class="icon icon--lock" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></svg>Investor &amp; Staff Sign In</a>
         <a class="button button--primary nav-mobile-quote" href="{{ route('public.buyers') }}#enquiry">Request a Quote<svg class="icon icon--diagonal" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M8 6h10v10"/></svg></a>
       </nav>
       <a class="button button--primary header-quote" href="{{ route('public.buyers') }}#enquiry">Request a Quote<svg class="icon icon--diagonal" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M8 6h10v10"/></svg></a>
@@ -105,7 +105,7 @@
           <li><a href="{{ $home }}#capabilities">Our Capabilities</a></li>
           <li><a href="{{ $home }}#quality">Quality Assurance</a></li>
           <li><a href="{{ $home }}#vision">Our Vision</a></li>
-          <li><a href="{{ route('login') }}">Investor Portal</a></li>
+          <li><a href="{{ route('login') }}">Investor &amp; Staff Sign In</a></li>
         </ul></div>
         <div><h3>Commodities</h3><ul>@foreach($footerCommodities as $slug => $name)<li><a href="{{ route('public.commodity', $slug) }}">{{ $name }}</a></li>@endforeach<li><a href="{{ route('public.trade') }}">All commodities</a></li></ul></div>
         <div><h3>Business Enquiries</h3><ul class="footer-contacts">

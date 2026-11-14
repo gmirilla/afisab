@@ -19,7 +19,7 @@ The public site follows the web designer's design (handoff received 2026-11-14):
 | `/about`, `/how-we-work`, `/what-we-trade` | Permanent redirects to the home page sections and the catalogue (the old addresses keep working) |
 | `/sitemap.xml`, `/robots.txt` | For search engines (robots keeps `/admin`, `/investor`, `/account`, `/dashboard` and `/health` out) |
 
-The "Investor Portal" link goes to our real sign-in page (`/login`). The designer's investor sign-in preview page is not used.
+The "Investor & Staff Sign In" link goes to our real sign-in page (`/login`), which uses the designer's investor-portal layout but is headed for both investors and staff. The designer's disabled preview form is not used.
 
 ### Where things are
 

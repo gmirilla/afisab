@@ -21,3 +21,27 @@ button.text-link { background: none; border: 0; padding: 0; font: inherit; font-
 .enquiry-hint { margin-top: -4px; }
 .enquiry-add { margin-top: 12px; }
 .enquiry-fields--after-items { margin-top: 18px; }
+
+/* Sign-in page (designer's investor-portal layout; the same form serves investors and staff) */
+.investor-main { padding-block: clamp(35px, 7vw, 100px); background: linear-gradient(90deg, #082e21ed, #082e21bc), url("../assets/images/hero-1536.webp") center 57% / cover, var(--dark); }
+.investor-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, 465px); align-items: center; gap: clamp(28px, 7vw, 100px); }
+.investor-intro { color: #eff5ed; }
+.investor-intro .breadcrumb { color: #eff5ed; margin-bottom: clamp(26px, 4vw, 54px); }
+.investor-intro .breadcrumb a, .investor-intro .eyebrow { color: var(--gold-light); }
+.investor-intro .eyebrow::before { background: var(--gold); }
+.investor-intro .display { color: var(--white); font-size: clamp(3rem, 6vw, 6rem); }
+.investor-intro .display em { color: var(--gold-light); }
+.investor-intro > p:not(.eyebrow) { margin-top: 18px; max-width: 46ch; }
+.investor-who { display: grid; gap: 10px; margin-top: 24px; padding: 0; list-style: none; max-width: 46ch; }
+.investor-who li { padding-left: 14px; border-left: 2px solid var(--gold); }
+.investor-who strong { color: var(--gold-light); }
+.investor-card { padding: clamp(20px, 4vw, 42px); border: 1px solid var(--line); border-top: 4px solid var(--gold); border-radius: var(--card-radius); background: var(--paper); box-shadow: 0 20px 65px #061f1980; }
+.investor-lock { display: grid; place-items: center; width: 45px; height: 45px; margin-bottom: 15px; border: 1px solid #e0c88d; border-radius: 50%; background: var(--wheat); color: var(--forest); }
+.investor-card h2 { color: var(--deep); font-size: clamp(1.55rem, 3vw, 2.05rem); letter-spacing: -.045em; }
+.investor-status { margin-block: 14px 19px; padding: 10px 13px; border-radius: var(--radius); background: var(--sage); color: var(--deep); font-size: .875rem; }
+.investor-fields { display: grid; min-width: 0; gap: 13px; }
+.investor-fields .button { justify-content: center; }
+.investor-remember { display: flex; align-items: center; gap: 8px; font-size: .875rem; color: var(--deep); }
+.investor-links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 18px; }
+.investor-errors { margin-bottom: 14px; padding: 10px 13px; border-left: 3px solid #942b28; border-radius: var(--radius); background: #fbeceb; color: #942b28; font-size: .875rem; font-weight: 700; }
+@media (max-width: 760px) { .investor-grid { grid-template-columns: minmax(0, 1fr); } .investor-card { width: min(100%, 480px); } }
