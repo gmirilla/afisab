@@ -1,73 +1,108 @@
-{{-- Props: $type (quote|supplier|general), $commodities (list of names), $heading, $intro, $button --}}
+{{-- Props: $type (quote|supplier|general), $commodities (list of commodity names) --}}
 @php
-    $field = 'mt-1 block w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/20';
-    $label = 'block text-sm font-bold text-gray-700';
-    $commodities = $commodities ?? [];
-    $selected = old('commodity', request('commodity'));
+    $isQuote = $type === 'quote';
+    $isSupplier = $type === 'supplier';
+    $selected = (string) old('items.0.commodity', request('commodity', ''));
+    $units = \App\Models\Enquiry::UNITS;
 @endphp
-<div id="enquiry" class="scroll-mt-24 rounded-2xl border border-stone-200 bg-white p-6 shadow-[0_8px_30px_-12px_rgba(8,83,42,0.25)] lg:p-8">
-    <h2 class="font-display text-2xl font-bold text-brand-700">{{ $heading }}</h2>
-    <p class="mt-1 text-sm text-gray-600">{{ $intro }}</p>
+<form class="enquiry-panel enquiry-form" method="POST" action="{{ route('public.enquiries.store') }}" novalidate>
+    @csrf
+    <input type="hidden" name="type" value="{{ $type }}">
+    <input type="hidden" name="started" value="{{ \Illuminate\Support\Facades\Crypt::encryptString((string) now()->timestamp) }}">
+    <p class="required-note">Fields marked with * are required.</p>
 
     @if(session('enquiry_sent'))
-        <div class="mt-5 flex gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900"><x-icon name="check" class="h-5 w-5 shrink-0 text-emerald-600" /><span>{{ session('enquiry_sent') }}</span></div>
+        <p class="enquiry-status" role="status" tabindex="-1" id="enquiry-sent">{{ session('enquiry_sent') }}</p>
     @endif
     @if($errors->any())
-        <div class="mt-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"><ul class="list-disc space-y-0.5 pl-5">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
+        <div class="enquiry-errors" role="alert" tabindex="-1" id="enquiry-errors"><strong>Please check the following</strong><ul>@foreach($errors->all() as $message)<li>{{ $message }}</li>@endforeach</ul></div>
     @endif
 
-    <form method="POST" action="{{ route('public.enquiries.store') }}" class="mt-6 grid gap-4 md:grid-cols-2">
-        @csrf
-        <input type="hidden" name="type" value="{{ $type }}">
-        <input type="hidden" name="started" value="{{ \Illuminate\Support\Facades\Crypt::encryptString((string) now()->timestamp) }}">
-        {{-- Honeypot: invisible to people, tempting to scripts. --}}
-        <div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden" aria-hidden="true">
-            <label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+    <fieldset>
+        <legend><span aria-hidden="true">01</span> {{ $isQuote ? 'Buyer information' : ($isSupplier ? 'Supplier information' : 'Your details') }}</legend>
+        <div class="enquiry-fields">
+            <x-site-field name="full_name" label="Full name" :required="true" autocomplete="name" maxlength="150" errorKey="name" />
+            <x-site-field name="company" :label="$isQuote ? 'Company name' : ($isSupplier ? 'Farm, cooperative or business' : 'Company (optional)')" :required="$isQuote" autocomplete="organization" maxlength="150" />
+            <x-site-field name="email" :label="$isQuote ? 'Business email' : ($isSupplier ? 'Email (optional)' : 'Email')" type="email" :required="! $isSupplier" autocomplete="email" maxlength="150" />
+            <x-site-field name="phone" :label="$type === 'general' ? 'Phone number (optional)' : 'Phone number'" type="tel" :required="$type !== 'general'" autocomplete="tel" maxlength="32" placeholder="+234 …" />
+            @if($isQuote)
+                <x-site-field name="country" label="Country" :required="true" autocomplete="country-name" maxlength="80" />
+                <x-site-field name="buyer_type" label="Buyer type" type="select" :required="true" :options="\App\Models\Enquiry::BUYER_TYPES" placeholderOption="Select buyer type" />
+            @endif
         </div>
+    </fieldset>
 
-        <label class="{{ $label }}">{{ $type === 'supplier' ? 'Your name' : 'Full name' }}<input name="name" value="{{ old('name') }}" required maxlength="150" autocomplete="name" class="{{ $field }}"></label>
-        <label class="{{ $label }}">{{ $type === 'supplier' ? 'Farm, cooperative or business (optional)' : 'Company' . ($type === 'general' ? ' (optional)' : '') }}<input name="company" value="{{ old('company') }}" maxlength="150" autocomplete="organization" class="{{ $field }}"></label>
-        <label class="{{ $label }}">Phone{{ $type === 'general' ? ' (optional)' : '' }}<input name="phone" value="{{ old('phone') }}" @required($type !== 'general') maxlength="32" inputmode="tel" autocomplete="tel" class="{{ $field }}"></label>
-        <label class="{{ $label }}">Email{{ $type === 'supplier' ? ' (optional)' : '' }}<input type="email" name="email" value="{{ old('email') }}" @required($type !== 'supplier') maxlength="150" autocomplete="email" class="{{ $field }}"></label>
-
-        @if($type !== 'general')
-            <fieldset class="md:col-span-2">
-                <legend class="{{ $label }}">{{ $type === 'quote' ? 'Commodities you need' : 'Commodities you can supply' }}</legend>
-                <p class="mt-0.5 text-xs text-gray-500">Add each commodity with the quantity (for example "50 tonnes"). You can list up to {{ \App\Models\Enquiry::MAX_ITEMS }}.</p>
-                <div class="mt-2 space-y-3">
-                    @for($n = 0; $n < \App\Models\Enquiry::MAX_ITEMS; $n++)
-                        @php
-                            $name = (string) old("items.$n.commodity", $n === 0 ? $selected : '');
-                            $isOther = $name !== '' && ! in_array($name, $commodities, true);
-                            $extra = $n >= 3 && ! $name && ! old("items.$n.quantity");
-                        @endphp
-                        <div class="grid gap-2 rounded-lg border border-stone-200 p-3 sm:grid-cols-[1fr_12rem]" @if($extra) data-extra-row hidden @endif>
-                            <div>
-                                <label class="text-xs font-bold text-gray-600">Commodity {{ $n + 1 }}{{ $n === 0 ? '' : ' (optional)' }}
-                                    <select name="items[{{ $n }}][commodity]" @required($n === 0) data-commodity-select class="{{ $field }}">
-                                        <option value="">Select a commodity</option>
-                                        @foreach($commodities as $c)<option value="{{ $c }}" @selected($name === $c)>{{ $c }}</option>@endforeach
-                                        <option value="Other" @selected($isOther)>Other (type its name)</option>
-                                    </select></label>
-                                <input name="items[{{ $n }}][other]" value="{{ $isOther ? $name : old("items.$n.other") }}" maxlength="100" placeholder="If you chose Other, type the commodity" data-other-input class="{{ $field }}" aria-label="Name of the other commodity {{ $n + 1 }}">
-                            </div>
-                            <label class="text-xs font-bold text-gray-600">Quantity<input name="items[{{ $n }}][quantity]" value="{{ old("items.$n.quantity", $n === 0 ? request('quantity') : '') }}" maxlength="100" placeholder="e.g. 50 tonnes" class="{{ $field }}"></label>
-                        </div>
-                    @endfor
+    @if($isQuote || $isSupplier)
+    <fieldset>
+        <legend><span aria-hidden="true">02</span> {{ $isQuote ? 'Commodities and delivery' : 'What you can supply' }}</legend>
+        <p class="required-note enquiry-hint">{{ $isQuote ? 'List each commodity you need with the quantity.' : 'List each commodity you can supply with the estimated quantity.' }} You can add up to {{ \App\Models\Enquiry::MAX_ITEMS }}.</p>
+        <div class="enquiry-items">
+            @for($n = 0; $n < \App\Models\Enquiry::MAX_ITEMS; $n++)
+                @php
+                    $name = (string) old("items.$n.commodity", $n === 0 ? $selected : '');
+                    $isOther = $name !== '' && ! in_array($name, $commodities, true);
+                    $extra = $n >= 3 && $name === '' && ! old("items.$n.quantity");
+                @endphp
+                <div class="enquiry-item" @if($extra) data-extra-row hidden @endif>
+                    <div class="trade-field">
+                        <label for="items_{{ $n }}_commodity">Commodity {{ $n + 1 }} @if($n === 0)<span aria-hidden="true">*</span>@else<span class="optional">(optional)</span>@endif</label>
+                        <select id="items_{{ $n }}_commodity" name="items[{{ $n }}][commodity]" @required($n === 0) data-commodity-select>
+                            <option value="">Select commodity</option>
+                            @foreach($commodities as $c)<option value="{{ $c }}" @selected($name === $c)>{{ $c }}</option>@endforeach
+                            <option value="Other" @selected($isOther)>Other (type its name)</option>
+                        </select>
+                        <input type="text" name="items[{{ $n }}][other]" value="{{ $isOther ? $name : old("items.$n.other") }}" maxlength="100" placeholder="If you chose Other, type the commodity" aria-label="Name of the other commodity {{ $n + 1 }}" data-other-input>
+                    </div>
+                    <div class="trade-field">
+                        <label for="items_{{ $n }}_quantity">{{ $isQuote ? 'Required quantity' : 'Estimated quantity' }} @if($n === 0)<span aria-hidden="true">*</span>@endif</label>
+                        <input type="text" id="items_{{ $n }}_quantity" name="items[{{ $n }}][quantity]" value="{{ old("items.$n.quantity") }}" inputmode="decimal" maxlength="40" placeholder="e.g. 50" @required($n === 0)>
+                    </div>
+                    <div class="trade-field">
+                        <label for="items_{{ $n }}_unit">Unit @if($n === 0)<span aria-hidden="true">*</span>@endif</label>
+                        <select id="items_{{ $n }}_unit" name="items[{{ $n }}][unit]" @required($n === 0)>
+                            <option value="">Select unit</option>
+                            @foreach($units as $k => $label)<option value="{{ $k }}" @selected(old("items.$n.unit") === $k)>{{ $label }}</option>@endforeach
+                        </select>
+                    </div>
                 </div>
-                <button type="button" hidden data-add-row class="mt-3 rounded-md border border-brand-700 px-3 py-1.5 text-sm font-bold text-brand-700">+ Add another commodity</button>
-            </fieldset>
-            <label class="{{ $label }} md:col-span-2">{{ $type === 'quote' ? 'Delivery location' : 'Where is the produce located? (town and state)' }}<input name="location" value="{{ old('location') }}" @required($type === 'supplier') maxlength="150" class="{{ $field }}"></label>
-        @endif
+            @endfor
+        </div>
+        <button type="button" hidden data-add-row class="text-link enquiry-add">+ Add another commodity</button>
 
-        <label class="{{ $label }} md:col-span-2">{{ $type === 'general' ? 'Message' : 'Anything else we should know' . ($type === 'quote' ? ' (grade, packaging, timing)' : ' (grade, packaging, availability)') }}
-            <textarea name="message" rows="4" maxlength="2000" @required($type === 'general') class="{{ $field }}">{{ old('message') }}</textarea></label>
+        <div class="enquiry-fields enquiry-fields--after-items">
+            @if($isQuote)
+                <x-site-field name="destination" label="Delivery destination" :required="true" maxlength="120" placeholder="City, country or port" />
+                <x-site-field name="delivery_date" label="Expected delivery date" type="date" />
+                <x-site-field name="preferred_grade" label="Preferred grade" maxlength="100" />
+                <x-site-field name="packaging" label="Packaging preference" maxlength="120" />
+                <x-site-field name="quality_requirements" label="Quality requirements" type="textarea" :wide="true" maxlength="550" hint="Include any target specifications, tolerances or testing needs." />
+                <x-site-field name="notes" label="Additional requirements" type="textarea" :wide="true" maxlength="500" errorKey="message" />
+            @else
+                <x-site-field name="location" label="State or location" :required="true" maxlength="150" placeholder="State and local government area" />
+                <x-site-field name="readiness" label="Harvest or readiness status" type="select" :required="true" :options="\App\Models\Enquiry::READINESS" placeholderOption="Select harvest or readiness status" />
+                <x-site-field name="available_from" label="Available from" type="date" />
+                <x-site-field name="notes" label="Additional information" type="textarea" :wide="true" maxlength="550" errorKey="message" hint="Grade, packaging, availability or anything else we should know." />
+            @endif
+        </div>
+    </fieldset>
+    @else
+    <fieldset>
+        <legend><span aria-hidden="true">02</span> Your message</legend>
+        <div class="enquiry-fields">
+            <x-site-field name="message" label="Message" type="textarea" :required="true" :wide="true" maxlength="2000" rows="6" />
+        </div>
+    </fieldset>
+    @endif
 
-        <label class="flex items-start gap-2 text-sm text-gray-700 md:col-span-2">
-            <input type="checkbox" name="consent" value="1" required class="mt-1 rounded border-gray-300 text-brand-700 focus:ring-brand-600">
-            <span>I agree that AFISAB NIG. LTD may contact me about this enquiry. We use your details only to respond to you, as described in our <a class="underline" href="{{ route('public.privacy') }}">privacy notice</a>.</span>
-        </label>
+    <div class="enquiry-trap" aria-hidden="true"><label for="enquiry-website">Leave blank</label><input id="enquiry-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
 
-        <div class="md:col-span-2"><x-btn class="px-6 py-3 text-base">{{ $button }}</x-btn></div>
-    </form>
-</div>
+    <label class="enquiry-consent">
+        <input type="checkbox" name="consent" value="1" required @checked(old('consent'))>
+        <span>I agree that AFISAB NIG. LTD may contact me about this enquiry. We use your details only to respond to you, as described in our <a class="text-link" href="{{ route('public.privacy') }}">privacy notice</a>.</span>
+    </label>
+
+    <div class="button-row">
+        <button type="submit" class="button button--forest">{{ $isQuote ? 'Send quote request' : ($isSupplier ? 'Send supplier enquiry' : 'Send message') }}
+            <svg class="icon icon--arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+    </div>
+</form>

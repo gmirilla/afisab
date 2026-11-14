@@ -4,18 +4,33 @@ The marketing site is part of the same application. Visitors see it at `/`; inve
 
 ## Pages
 
+The public site follows the web designer's design (handoff received 2026-11-14): their stylesheets, scripts, fonts and photographs live in `public/site/`, and their HTML was rebuilt as Blade (`resources/views/components/site-layout.blade.php` is the header and footer; `resources/views/public/` the pages). Our logo is used in place of theirs.
+
 | URL | Purpose |
 |---|---|
-| `/` | Home: slogan, what we do, commodities, why AFISAB, buyers and suppliers, markets |
-| `/what-we-trade` | The active commodities, grouped (live from the database, so it follows operations) |
-| `/for-buyers` | What buyers can expect; **quote request form** |
-| `/for-suppliers` | Who we buy from; **supplier interest form** |
-| `/how-we-work` | Source, aggregate, quality-check, store, supply; the controls we work under |
-| `/about` | Company details, commitments, markets |
-| `/contact` | Phone, email, WhatsApp; **general message form** |
+| `/` | Home: hero carousel, who we are, six featured commodities, capabilities, why AFISAB, process, buyers, suppliers, vision, contact |
+| `/commodities` | The catalogue: search, filter by category, sort (the designer's script); the active commodities, live from the Commodities list staff manage |
+| `/commodities/{slug}` | One page per commodity (20): photo, summary, availability on request, quality, applications, packaging, sourcing, related, quote and WhatsApp links |
+| `/for-buyers` | **Quote request form**: buyer details, up to 5 commodities with quantity and unit, delivery destination and date, grade, packaging, quality requirements |
+| `/for-suppliers` | **Supplier interest form**: supplier details, up to 5 commodities with quantity, location, harvest or readiness status, available-from date |
+| `/contact` | **General message form**, with the contact details |
 | `/privacy`, `/terms`, `/risk-notice` | Legal pages (general templates: **have counsel review them**) |
 | `/for-investors` | **Off by default.** See below |
-| `/sitemap.xml`, `/robots.txt` | For search engines (robots keeps `/admin`, `/investor`, `/account`, `/dashboard` out) |
+| `/about`, `/how-we-work`, `/what-we-trade` | Permanent redirects to the home page sections and the catalogue (the old addresses keep working) |
+| `/sitemap.xml`, `/robots.txt` | For search engines (robots keeps `/admin`, `/investor`, `/account`, `/dashboard` and `/health` out) |
+
+The "Investor Portal" link goes to our real sign-in page (`/login`). The designer's investor sign-in preview page is not used.
+
+### Where things are
+
+- **Copy and photographs per commodity:** `config/site_commodities.php` (the designer's text, keyed by slug, in catalogue order; `featured` lists the six on the home page). A commodity appears only while it is **active** in the staff Commodities list (matched on `db_name`); switching it off removes its catalogue card, page, footer link and sitemap entry. The text makes no claim about stock, grades or origin.
+- **Look:** `public/site/css/` (the designer's `system.css`, `pages.css`, `trade.css`; our small `additions.css` for the multi-commodity form and notice pages), `public/site/js/` (their `navigation.js`, `hero-carousel.js`, `catalogue.js`; our `enquiry-form.js`), `public/site/assets/` (fonts, photographs, field-lines artwork). All scripts are external files, so the no-inline-script rule holds.
+- **Contact details:** `App\Support\SiteContact`: email and first phone from settings; a second phone and the office address appear only once the super-admin has entered them (Signatory, stamp and address page); until then the location reads "Nigeria".
+- **Photographs** are AI-generated illustrations, captioned "Illustrative" on the site (the designer's `ASSETS.md` says no third-party licence applies). Confirm that with the designer in writing.
+
+### Wording changed from the designer's copy
+
+Their text claimed things the company has not confirmed, so these were softened: "Nigerian-owned" became "a Nigerian agricultural commodity trading and supply company"; "buyers at home and abroad" and "buyers in Nigeria and international markets" became buyers in Nigeria with international markets "as a future opportunity"; the "Export facilitation" capability became "Buyer support"; "Africa's most trusted agricultural commodity trading and investment company" became "a trusted partner in Nigerian agricultural commodity trade". `SiteRedesignTest` fails if the old wording returns.
 
 ## Rules this site follows
 
@@ -64,36 +79,3 @@ To change the logo, replace `logo.png` and regenerate the three copies (crop the
 ## Changing the text
 
 The pages are plain Blade templates in `resources/views/public/` (`home`, `trade`, `buyers`, `suppliers`, `how`, `about`, `contact`, `privacy`, `terms`, `risk`, `investors`). The commodity list is the only database-driven part.
-
-## Proposed: redesign to match the designer's site (not started)
-
-**Status: proposed, waiting for the client's web designer.** Recorded 2026-11-07. Nothing has been built.
-
-**Request.** The client's web designer asked that the marketing site replicate https://afisab.netlify.app/, without that site's logo (ours stays).
-
-**What that site has** (read as text and links only, so colours, fonts, spacing and the look of the images are not known):
-
-- One long page: top bar (email and phone); header with dropdown menus (About, Commodities, What We Do, Work With Us, Contact, a Request a Quote button); hero "From Nigerian soil to global markets"; Who we are; six commodity cards (Soybeans, Sesame Seeds, Cashew Nuts, Maize, Ginger, Hibiscus Flower); six capabilities (sourcing, aggregation and procurement, quality assurance, warehousing and storage, logistics coordination, export facilitation); Why AFISAB; a six-step process (sourcing, aggregation, inspection and grading, storage and packaging, logistics coordination, buyer delivery); blocks for commercial buyers, farmers and aggregators, and the company's vision; contact; footer.
-- Other pages: `/commodities` with a page per commodity, `/quote`, `/suppliers`, `/site-notices`. Nine photos (hero, inspection, warehouse, six commodities); two are captioned "Illustrative".
-
-**Plan** (about four days of work once the inputs arrive):
-
-1. Design tokens and layout: match their colours, fonts and spacing; top bar, header with dropdowns, skip link, footer, back to top. Our logo stays.
-2. Home page rebuilt as their single page, each section a reusable component. The six commodity cards come from our commodity list (six marked as featured).
-3. Their links map onto ours: Request a Quote to `/for-buyers` (multi-commodity form, `?commodity=` pre-fill), Become a Supply Partner to `/for-suppliers`, contact to `/contact`, Privacy and Terms to our existing pages. Kept: our server-side enquiry forms (not their email links), the "Investor portal" sign-in link, "Verify a certificate", sitemap, robots.
-4. Commodity catalogue and a short page per commodity (their description and an Enquire button; no invented specifications).
-5. Copy review against the rules above, then tests (pages, links, responsive, SEO, the no-inline-script rule, `PublicSiteTest`'s banned words).
-
-**Claims to confirm before launch** (their copy; this site only states confirmed facts): "Nigerian-owned"; "Africa's most trusted agricultural commodity trading and investment company" (an ambition, not a fact); warehousing and storage; export facilitation and international markets; inspection and grading; images captioned "Illustrative". Until confirmed, soften or leave them out.
-
-**Needed from the designer:** the site's source files (HTML, CSS, fonts, images) and the licence or ownership of the images.
-
-**Open decisions, with defaults:**
-
-| # | Decision | Default |
-|---|---|---|
-| 1 | Designer's source files available? | Yes; wait for them before final styling |
-| 2 | Which claims above are confirmed? | Soften the unconfirmed ones |
-| 3 | Per-commodity detail pages | Build the catalogue and short pages, no invented specifications |
-| 4 | WhatsApp number +234 805 752 0669 confirmed? | Yes (it is the number already shown) |
-| 5 | Single long home page, or keep separate About, How we work and Investors pages? | Follow their long page; keep the old pages reachable |

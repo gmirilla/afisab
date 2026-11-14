@@ -101,7 +101,7 @@ class HardeningTest extends TestCase
 
         $expected = [
             // the public marketing site
-            'GET /', 'GET about', 'GET contact', 'GET for-buyers', 'GET for-investors', 'GET for-suppliers', 'GET how-we-work',
+            'GET /', 'GET about', 'GET commodities', 'GET commodities/{slug}', 'GET contact', 'GET for-buyers', 'GET for-investors', 'GET for-suppliers', 'GET how-we-work',
             'GET privacy', 'GET risk-notice', 'GET robots.txt', 'GET sitemap.xml', 'GET terms', 'GET what-we-trade', 'POST enquiries',
             // sign-in, registration, certificate verification, health and webhooks
             'GET forgot-password', 'GET login', 'GET register', 'GET reset-password/{token}', 'GET two-factor-challenge',

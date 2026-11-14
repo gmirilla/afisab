@@ -1,25 +1,27 @@
-<x-public-layout title="Contact" description="Contact AFISAB NIG. LTD by phone, email or WhatsApp, or send a message through our website.">
-    @php($phone = config('afisab.contact.phone'))
-    <x-page-banner eyebrow="Contact" title="Get in touch" lead="Buyers, suppliers and anyone with a question: we would like to hear from you." />
-
-    <section class="mx-auto grid max-w-7xl gap-12 px-4 py-14 lg:grid-cols-5">
-        <div class="space-y-6 lg:col-span-2">
-            <a href="tel:{{ $phone }}" class="flex items-center gap-4 rounded-xl border border-stone-200 p-5 transition hover:border-brand-600 hover:bg-brand-50">
-                <span class="grid h-12 w-12 place-items-center rounded-lg bg-brand-700 text-white"><x-icon name="phone" /></span>
-                <span><span class="block text-xs font-bold uppercase tracking-wider text-gray-500">Phone</span><span class="font-bold text-brand-700">{{ preg_replace('/^\+234(\d{3})(\d{3})(\d{4})$/', '+234 $1 $2 $3', $phone) }}</span></span>
-            </a>
-            <a href="mailto:{{ config('afisab.contact.email') }}" class="flex items-center gap-4 rounded-xl border border-stone-200 p-5 transition hover:border-brand-600 hover:bg-brand-50">
-                <span class="grid h-12 w-12 place-items-center rounded-lg bg-brand-700 text-white"><x-icon name="mail" /></span>
-                <span><span class="block text-xs font-bold uppercase tracking-wider text-gray-500">Email</span><span class="font-bold text-brand-700">{{ config('afisab.contact.email') }}</span></span>
-            </a>
-            <a href="https://wa.me/{{ ltrim($phone, '+') }}" rel="noopener" class="flex items-center gap-4 rounded-xl border border-stone-200 p-5 transition hover:border-brand-600 hover:bg-brand-50">
-                <span class="grid h-12 w-12 place-items-center rounded-lg bg-brand-700 text-white"><x-icon name="chat" /></span>
-                <span><span class="block text-xs font-bold uppercase tracking-wider text-gray-500">WhatsApp</span><span class="font-bold text-brand-700">Message us</span></span>
-            </a>
-            <p class="text-sm text-gray-600">Looking to buy? <a class="font-bold text-brand-700 underline" href="{{ route('public.buyers') }}#enquiry">Request a quote</a>. Have produce to sell? <a class="font-bold text-brand-700 underline" href="{{ route('public.suppliers') }}#enquiry">Register your interest</a>.</p>
+@php $site = \App\Support\SiteContact::get(); @endphp
+@push('scripts')<script defer src="{{ asset('site/js/enquiry-form.js') }}"></script>@endpush
+<x-site-layout title="Contact" description="Contact AFISAB NIG. LTD about commodity supply, becoming a supplier, or any other question.">
+    <section class="trade-banner trade-banner--form">
+      <div class="wrap trade-banner-grid">
+        <div>
+          <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ route('home') }}">Home</a><span aria-hidden="true">/</span><span aria-current="page">Contact</span></nav>
+          <p class="eyebrow">BUSINESS ENQUIRIES</p>
+          <h1 class="display">Talk to<br><em>AFISAB.</em></h1>
+          <p>Buying commodities in volume or looking for a market for your produce? Tell us what you need.</p>
         </div>
-        <div class="lg:col-span-3">
-            @include('public._enquiry-form', ['type' => 'general', 'heading' => 'Send us a message', 'intro' => 'We will reply using the details you give.', 'button' => 'Send message'])
-        </div>
+        <div class="trade-banner-aside"><strong>GENERAL ENQUIRIES</strong><p>For buyers and suppliers there are dedicated forms; use this one for anything else.</p></div>
+      </div>
     </section>
-</x-public-layout>
+    <section class="trade-enquiry" id="enquiry" aria-label="Contact">
+      <div class="wrap enquiry-grid">
+        <div class="enquiry-main">
+          @include('public._enquiry-form', ['type' => 'general', 'commodities' => $commodities ?? []])
+        </div>
+        <aside class="enquiry-aside">
+          <h2>How it works</h2>
+          <ol><li>Send us your question or message.</li><li>A member of our team replies using the details you give.</li></ol>
+          <a class="text-link" href="https://wa.me/{{ $site['whatsapp'] }}?text=Hello%20AFISAB%2C%20I%20have%20a%20question." target="_blank" rel="noopener noreferrer">Start a WhatsApp chat</a><br><a class="text-link" href="mailto:{{ $site['email'] }}">Email {{ $site['email'] }}</a><br><a class="text-link" href="{{ route('public.buyers') }}#enquiry">Request a quote</a><br><a class="text-link" href="{{ route('public.suppliers') }}#enquiry">Supply with AFISAB</a>
+        </aside>
+      </div>
+    </section>
+</x-site-layout>

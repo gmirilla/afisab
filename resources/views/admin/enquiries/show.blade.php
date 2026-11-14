@@ -21,6 +21,13 @@
                     <dt class="text-gray-500">Commodity</dt><dd class="col-span-2">{{ $enquiry->commodity }}@if($enquiry->quantity) <span class="text-gray-600">· {{ $enquiry->quantity }}</span>@endif</dd>
                 @endif
                 @if($enquiry->location)<dt class="text-gray-500">Location</dt><dd class="col-span-2">{{ $enquiry->location }}</dd>@endif
+                @foreach([
+                    'Country' => $enquiry->country, 'Buyer type' => $enquiry->buyer_type ? (Enquiry::BUYER_TYPES[$enquiry->buyer_type] ?? $enquiry->buyer_type) : null, 'Delivery destination' => $enquiry->destination,
+                    'Expected delivery' => $enquiry->delivery_date?->format('d M Y'), 'Preferred grade' => $enquiry->preferred_grade, 'Packaging' => $enquiry->packaging,
+                    'Quality requirements' => $enquiry->quality_requirements, 'Readiness' => $enquiry->readiness ? (Enquiry::READINESS[$enquiry->readiness] ?? $enquiry->readiness) : null, 'Available from' => $enquiry->available_from?->format('d M Y'),
+                ] as $label => $value)
+                    @if($value)<dt class="text-gray-500">{{ $label }}</dt><dd class="col-span-2 whitespace-pre-line">{{ $value }}</dd>@endif
+                @endforeach
                 <dt class="text-gray-500">Consent to contact</dt><dd class="col-span-2">Given {{ $enquiry->consented_at->format('d M Y H:i') }}</dd>
             </dl>
             @if($enquiry->message)<div class="mt-5 border-t pt-4"><p class="text-xs font-bold uppercase tracking-wider text-gray-500">Message</p><p class="mt-1 whitespace-pre-line text-sm">{{ $enquiry->message }}</p></div>@endif

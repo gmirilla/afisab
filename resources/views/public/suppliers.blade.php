@@ -1,26 +1,27 @@
-<x-public-layout title="For suppliers" description="Farmers, agricultural cooperatives and commodity aggregators: register your interest in selling produce to AFISAB NIG. LTD.">
-    <x-page-banner eyebrow="For suppliers" title="Sell your produce to AFISAB" lead="We buy agricultural commodities from farmers, agricultural cooperatives, commodity aggregators and other suppliers." />
-
-    <section class="mx-auto grid max-w-7xl gap-12 px-4 py-14 lg:grid-cols-5">
-        <div class="lg:col-span-2">
-            <h2 class="font-display text-2xl font-bold text-brand-700">Who we buy from</h2>
-            <ul class="mt-5 space-y-3 text-sm text-gray-700">
-                <li class="flex gap-3"><x-icon name="check" class="h-5 w-5 shrink-0 text-brand-600" />Farmers</li>
-                <li class="flex gap-3"><x-icon name="check" class="h-5 w-5 shrink-0 text-brand-600" />Agricultural cooperatives</li>
-                <li class="flex gap-3"><x-icon name="check" class="h-5 w-5 shrink-0 text-brand-600" />Commodity aggregators</li>
-                <li class="flex gap-3"><x-icon name="check" class="h-5 w-5 shrink-0 text-brand-600" />Other suppliers of agricultural commodities</li>
-            </ul>
-
-            <h2 class="mt-12 font-display text-2xl font-bold text-brand-700">How it works</h2>
-            <ol class="mt-5 space-y-3 text-sm text-gray-700">
-                <li><strong class="text-brand-700">1. Register your interest.</strong> Tell us what you have, how much, and where it is.</li>
-                <li><strong class="text-brand-700">2. We contact you.</strong> Our procurement team follows up using the details you give.</li>
-                <li><strong class="text-brand-700">3. Quality check on receipt.</strong> Moisture and grade are checked and recorded when goods arrive.</li>
-                <li><strong class="text-brand-700">4. Payment on agreed terms.</strong> Terms are agreed with you before you deliver.</li>
-            </ol>
+@php $site = \App\Support\SiteContact::get(); @endphp
+@push('scripts')<script defer src="{{ asset('site/js/enquiry-form.js') }}"></script>@endpush
+<x-site-layout title="For Suppliers" description="Tell AFISAB what you grow or aggregate, where it is located and when it will be ready.">
+    <section class="trade-banner trade-banner--form">
+      <div class="wrap trade-banner-grid">
+        <div>
+          <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ route('home') }}">Home</a><span aria-hidden="true">/</span><span aria-current="page">For Suppliers</span></nav>
+          <p class="eyebrow">FOR FARMERS, COOPERATIVES &amp; AGGREGATORS</p>
+          <h1 class="display">Supply with<br><em>AFISAB.</em></h1>
+          <p>Tell us what you grow or aggregate, where it’s located and when it will be ready. We welcome enquiries from farmers, cooperatives and commodity suppliers.</p>
         </div>
-        <div class="lg:col-span-3">
-            @include('public._enquiry-form', ['type' => 'supplier', 'commodities' => $commodities, 'heading' => 'Register your interest', 'intro' => 'Tell us what you can supply. Registering interest does not oblige either side to trade.', 'button' => 'Register interest'])
-        </div>
+        <div class="trade-banner-aside"><strong>SUPPLIER ENQUIRIES</strong><p>For producers and aggregators who want to discuss a one-off or recurring supply relationship.</p></div>
+      </div>
     </section>
-</x-public-layout>
+    <section class="trade-enquiry" id="enquiry" aria-label="For Suppliers">
+      <div class="wrap enquiry-grid">
+        <div class="enquiry-main">
+          @include('public._enquiry-form', ['type' => 'supplier', 'commodities' => $commodities ?? []])
+        </div>
+        <aside class="enquiry-aside">
+          <h2>How it works</h2>
+          <ol><li>Share your commodity, location, estimated quantity and harvest or readiness status.</li><li>AFISAB will discuss the product condition and any specifications or handling needs.</li><li>If there is a fit, discuss timing, inspection and collection or delivery arrangements.</li></ol>
+          <a class="text-link" href="https://wa.me/{{ $site['whatsapp'] }}?text=Hello%20AFISAB%2C%20I%20would%20like%20to%20discuss%20becoming%20a%20supply%20partner." target="_blank" rel="noopener noreferrer">Start a WhatsApp chat</a>
+        </aside>
+      </div>
+    </section>
+</x-site-layout>

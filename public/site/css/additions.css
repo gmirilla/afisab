@@ -1,0 +1,23 @@
+/* Additions to the designer's stylesheets for the server-side enquiry forms (several commodities per enquiry). */
+.enquiry-items { display: grid; gap: 12px; }
+.enquiry-item { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px 15px; padding: 14px; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--ivory); }
+.enquiry-item .trade-field > label .optional { color: var(--muted); font-weight: 600; }
+.enquiry-item [data-other-input] { margin-top: 8px; }
+.enquiry-item input, .enquiry-item select { width: 100%; }
+.enquiry-consent { display: flex; align-items: flex-start; gap: 10px; margin: 20px 0 6px; font-size: .875rem; color: var(--muted); line-height: 1.55; }
+.enquiry-consent input { margin-top: 4px; accent-color: var(--forest); flex: none; }
+.enquiry-form .button-row { margin-top: 18px; }
+@media (max-width: 670px) { .enquiry-item { grid-template-columns: 1fr; } }
+
+/* Legal and notice pages */
+.site-notice { max-width: 780px; padding-block: clamp(34px, 5vw, 64px); display: grid; gap: 14px; }
+.site-notice h2 { color: var(--deep); font-size: 1.25rem; font-weight: 760; letter-spacing: -.02em; margin-top: 14px; }
+.site-notice p, .site-notice li { color: var(--muted); }
+.site-notice ul { padding-left: 20px; display: grid; gap: 6px; }
+.site-notice .notice-fine, .notice-fine { font-size: .8125rem; color: var(--muted); }
+button.text-link { background: none; border: 0; padding: 0; font: inherit; font-size: .8125rem; font-weight: 800; }
+.button--outline-dark { border-color: var(--forest); color: var(--forest); background: transparent; }
+.button--outline-dark:hover { background: var(--sage); }
+.enquiry-hint { margin-top: -4px; }
+.enquiry-add { margin-top: 12px; }
+.enquiry-fields--after-items { margin-top: 18px; }

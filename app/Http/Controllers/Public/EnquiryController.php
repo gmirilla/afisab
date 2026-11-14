@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\Rule;
 
 /**
  * The forms on the public site. Open to anyone, so every defence is here: a rate limit (in the route), a hidden
@@ -28,6 +29,12 @@ class EnquiryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if ($request->filled('full_name') && ! $request->filled('name')) {
+            $request->merge(['name' => $request->input('full_name')]);
+        }
+        if ($request->filled('notes') && ! $request->filled('message')) {
+            $request->merge(['message' => $request->input('notes')]);
+        }
         $type = $request->input('type');
         abort_unless(in_array($type, array_keys(Enquiry::TYPES), true), 422);
 
@@ -36,8 +43,12 @@ class EnquiryController extends Controller
         if (in_array($type, [Enquiry::QUOTE, Enquiry::SUPPLIER], true)) {
             $request->merge(['items' => $this->items($request)]);
         }
+        $rules = $this->rules($type);
+        if (in_array($type, [Enquiry::QUOTE, Enquiry::SUPPLIER], true) && ! empty($request->input('items'))) {
+            $rules['items.0.quantity'] = ['required', 'string', 'max:100']; // the first commodity needs a quantity
+        }
 
-        $data = $request->validate($this->rules($type), [
+        $data = $request->validate($rules, [
             'consent.accepted' => 'Please confirm that we may contact you about this enquiry.',
             'consent.required' => 'Please confirm that we may contact you about this enquiry.',
             'email.required' => 'Please give an email address so we can reply.',
@@ -45,6 +56,14 @@ class EnquiryController extends Controller
             'items.required' => 'Please choose at least one commodity.',
             'items.min' => 'Please choose at least one commodity.',
             'items.max' => 'You can list up to '.Enquiry::MAX_ITEMS.' commodities. Put the rest in your message.',
+            'items.0.quantity.required' => 'Please enter the quantity for your first commodity.',
+            'country.required' => 'Please tell us your country.',
+            'buyer_type.required' => 'Please choose the type of buyer you are.',
+            'destination.required' => 'Please tell us where the order should be delivered.',
+            'delivery_date.after_or_equal' => 'The delivery date cannot be in the past.',
+            'readiness.required' => 'Please tell us your harvest or readiness status.',
+            'location.required' => 'Please tell us where the produce is located.',
+            'company.required' => 'Please give your company name.',
             'items.*.commodity.required' => 'Please choose a commodity for each row (for "Other", type its name).',
             'items.*.commodity.max' => 'A commodity name is too long.',
             'items.*.quantity.max' => 'A quantity is too long.',
@@ -95,6 +114,10 @@ class EnquiryController extends Controller
             }
             $commodity = trim((string) ($row['commodity'] ?? ''));
             $quantity = trim((string) ($row['quantity'] ?? ''));
+            $unit = trim((string) ($row['unit'] ?? ''));
+            if ($quantity !== '' && $unit !== '' && is_numeric($quantity) && isset(Enquiry::UNITS[$unit])) {
+                $quantity = rtrim(rtrim(number_format((float) $quantity, 3, '.', ''), '0'), '.').' '.$unit; // "50" + MT -> "50 MT"
+            }
             if ($commodity === 'Other') {
                 $commodity = trim((string) ($row['other'] ?? '')); // empty if they did not say what: refused with a clear message
             }
@@ -126,10 +149,14 @@ class EnquiryController extends Controller
 
         return array_merge($common, match ($type) {
             Enquiry::QUOTE => [
+                'company' => ['required', 'string', 'max:150'], 'country' => ['required', 'string', 'max:80'], 'buyer_type' => ['required', Rule::in(array_keys(Enquiry::BUYER_TYPES))],
+                'destination' => ['required', 'string', 'max:120'], 'delivery_date' => ['nullable', 'date', 'after_or_equal:today'], 'preferred_grade' => ['nullable', 'string', 'max:100'],
+                'packaging' => ['nullable', 'string', 'max:120'], 'quality_requirements' => ['nullable', 'string', 'max:550'],
                 'email' => ['required', 'email:rfc', 'max:150'], 'phone' => ['required', 'string', 'max:32', 'regex:/^[0-9+()\-\s]{7,32}$/'],
                 'location' => ['nullable', 'string', 'max:150'], 'items' => ['required', 'array', 'min:1', 'max:'.Enquiry::MAX_ITEMS], 'items.*.commodity' => ['required', 'string', 'max:100'], 'items.*.quantity' => ['nullable', 'string', 'max:100'],
             ],
             Enquiry::SUPPLIER => [
+                'readiness' => ['required', Rule::in(array_keys(Enquiry::READINESS))], 'available_from' => ['nullable', 'date'],
                 'email' => ['nullable', 'email:rfc', 'max:150'], 'phone' => ['required', 'string', 'max:32', 'regex:/^[0-9+()\-\s]{7,32}$/'],
                 'location' => ['required', 'string', 'max:150'], 'items' => ['required', 'array', 'min:1', 'max:'.Enquiry::MAX_ITEMS], 'items.*.commodity' => ['required', 'string', 'max:100'], 'items.*.quantity' => ['nullable', 'string', 'max:100'],
             ],

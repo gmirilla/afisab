@@ -13,11 +13,13 @@ use Illuminate\Support\Facades\Route;
 
 // The public marketing site
 Route::get('/', [SiteController::class, 'home'])->name('home');
-Route::get('/what-we-trade', [SiteController::class, 'trade'])->name('public.trade');
+Route::get('/commodities', [SiteController::class, 'trade'])->name('public.trade');
+Route::get('/commodities/{slug}', [SiteController::class, 'commodity'])->where('slug', '[a-z0-9-]+')->name('public.commodity');
+Route::get('/what-we-trade', fn () => redirect(route('public.trade'), 301)); // the old address keeps working
 Route::get('/for-buyers', [SiteController::class, 'buyers'])->name('public.buyers');
 Route::get('/for-suppliers', [SiteController::class, 'suppliers'])->name('public.suppliers');
-Route::get('/how-we-work', [SiteController::class, 'how'])->name('public.how');
-Route::get('/about', [SiteController::class, 'about'])->name('public.about');
+Route::get('/how-we-work', fn () => redirect(route('home').'#process', 301))->name('public.how'); // now a section of the home page
+Route::get('/about', fn () => redirect(route('home').'#about', 301))->name('public.about'); // now a section of the home page
 Route::get('/contact', [SiteController::class, 'contact'])->name('public.contact');
 Route::get('/privacy', [SiteController::class, 'privacy'])->name('public.privacy');
 Route::get('/terms', [SiteController::class, 'terms'])->name('public.terms');

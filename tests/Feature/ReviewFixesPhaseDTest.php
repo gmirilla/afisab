@@ -31,8 +31,8 @@ class ReviewFixesPhaseDTest extends TestCase
             'consent' => '1', 'started' => Crypt::encryptString((string) now()->subSeconds(30)->timestamp), 'website' => ''];
 
         return $over + $base + match ($type) {
-            'quote' => ['commodity' => 'Maize', 'quantity' => '50 tonnes', 'location' => 'Kano', 'message' => 'Need weekly deliveries.'],
-            'supplier' => ['commodity' => 'Sesame Seeds', 'quantity' => '20 tonnes', 'location' => 'Makurdi, Benue', 'message' => ''],
+            'quote' => ['commodity' => 'Maize', 'quantity' => '50 tonnes', 'location' => 'Kano', 'country' => 'Nigeria', 'buyer_type' => 'feed_manufacturer', 'destination' => 'Kano', 'message' => 'Need weekly deliveries.'],
+            'supplier' => ['commodity' => 'Sesame Seeds', 'quantity' => '20 tonnes', 'location' => 'Makurdi, Benue', 'readiness' => 'ready', 'message' => ''],
             default => ['message' => 'Do you supply feed mills in Ogun State?'],
         };
     }
@@ -41,7 +41,7 @@ class ReviewFixesPhaseDTest extends TestCase
     {
         foreach (['public.buyers', 'public.suppliers'] as $page) {
             $html = $this->get(route($page))->assertOk()->getContent();
-            $this->assertMatchesRegularExpression('#<select name="items\[0\]\[commodity\]" required#', $html, $page);
+            $this->assertMatchesRegularExpression('#name="items\[0\]\[commodity\]" required#', $html, $page);
             $this->assertStringContainsString('Other (type its name)', $html);
         }
 

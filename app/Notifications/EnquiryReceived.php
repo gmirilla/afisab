@@ -37,8 +37,14 @@ class EnquiryReceived extends AfisabNotification
                 }
             }
         }
-        if ($e->location) {
-            $mail->line("Location: {$e->location}");
+        foreach ([
+            'Country' => $e->country, 'Buyer type' => $e->buyer_type ? (Enquiry::BUYER_TYPES[$e->buyer_type] ?? $e->buyer_type) : null, 'Delivery destination' => $e->destination,
+            'Expected delivery' => $e->delivery_date?->format('d M Y'), 'Preferred grade' => $e->preferred_grade, 'Packaging' => $e->packaging, 'Quality requirements' => $e->quality_requirements,
+            'Location' => $e->location, 'Readiness' => $e->readiness ? (Enquiry::READINESS[$e->readiness] ?? $e->readiness) : null, 'Available from' => $e->available_from?->format('d M Y'),
+        ] as $label => $value) {
+            if ($value) {
+                $mail->line("{$label}: ".Str::limit(strip_tags((string) $value), 600));
+            }
         }
         if ($e->message) {
             $mail->line('Message: '.Str::limit(strip_tags($e->message), 1500));

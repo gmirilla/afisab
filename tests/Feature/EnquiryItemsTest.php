@@ -31,7 +31,7 @@ class EnquiryItemsTest extends TestCase
     private function body(string $type, array $items, array $over = []): array
     {
         return $over + ['type' => $type, 'name' => 'Ngozi Okafor', 'company' => 'Okafor Feeds Ltd', 'email' => 'ngozi@okaforfeeds.example', 'phone' => '0803 123 4567',
-            'location' => 'Kano', 'message' => '', 'consent' => '1', 'started' => Crypt::encryptString((string) now()->subSeconds(30)->timestamp), 'website' => '', 'items' => $items];
+            'location' => 'Kano', 'country' => 'Nigeria', 'buyer_type' => 'feed_manufacturer', 'destination' => 'Kano', 'readiness' => 'ready', 'message' => '', 'consent' => '1', 'started' => Crypt::encryptString((string) now()->subSeconds(30)->timestamp), 'website' => '', 'items' => $items];
     }
 
     private function send(string $type, array $items, array $over = [])
@@ -74,7 +74,7 @@ class EnquiryItemsTest extends TestCase
         $this->send('quote', [['commodity' => 'Other', 'other' => '', 'quantity' => '5 tonnes']])->assertSessionHasErrors('items.0.commodity');
         $this->assertSame(0, Enquiry::count());
 
-        $this->send('quote', [['commodity' => 'Maize', 'quantity' => ''], ['commodity' => 'Other', 'other' => 'Teff', 'quantity' => '3 tonnes']])->assertSessionHasNoErrors();
+        $this->send('quote', [['commodity' => 'Maize', 'quantity' => '2 tonnes'], ['commodity' => 'Other', 'other' => 'Teff', 'quantity' => '3 tonnes']])->assertSessionHasNoErrors();
         $this->assertSame(['Maize', 'Teff'], Enquiry::sole()->items->pluck('commodity')->all());
     }
 
@@ -90,7 +90,7 @@ class EnquiryItemsTest extends TestCase
 
     public function test_a_single_commodity_sent_the_old_way_still_works_and_the_general_form_has_none(): void
     {
-        $this->post(route('public.enquiries.store'), ['type' => 'quote', 'name' => 'A', 'email' => 'a@example.com', 'phone' => '0803 123 4567', 'commodity' => 'Maize', 'quantity' => '5 tonnes',
+        $this->post(route('public.enquiries.store'), ['type' => 'quote', 'name' => 'A', 'email' => 'a@example.com', 'phone' => '0803 123 4567', 'company' => 'A Ltd', 'country' => 'Nigeria', 'buyer_type' => 'other', 'destination' => 'Lagos', 'commodity' => 'Maize', 'quantity' => '5 tonnes',
             'consent' => '1', 'started' => Crypt::encryptString((string) now()->subSeconds(30)->timestamp), 'website' => ''])->assertSessionHasNoErrors();
         $this->assertSame([['Maize', '5 tonnes']], Enquiry::sole()->items->map(fn ($i) => [$i->commodity, $i->quantity])->all());
 
@@ -116,7 +116,7 @@ class EnquiryItemsTest extends TestCase
     public function test_staff_see_all_commodities_search_finds_any_and_the_supplier_note_lists_them(): void
     {
         $this->send('supplier', [['commodity' => 'Sesame Seeds', 'quantity' => '20 tonnes'], ['commodity' => 'Cashew Nuts', 'quantity' => '5 tonnes']]);
-        $this->send('quote', [['commodity' => 'Maize', 'quantity' => '']], ['name' => 'Someone Else', 'email' => 'else@example.com']);
+        $this->send('quote', [['commodity' => 'Maize', 'quantity' => '9 tonnes']], ['name' => 'Someone Else', 'email' => 'else@example.com']);
         $director = User::factory()->create()->assignRole('super-admin');
         $supplier = Enquiry::where('type', 'supplier')->first();
 
@@ -149,7 +149,7 @@ class EnquiryItemsTest extends TestCase
 
         $this->assertSame(5, substr_count($html, 'data-commodity-select'));
         $this->assertSame(2, substr_count($html, 'data-extra-row'), 'rows 4 and 5 are revealed by the add button');
-        $this->assertMatchesRegularExpression('#<select name="items\[0\]\[commodity\]" required#', $html);
+        $this->assertMatchesRegularExpression('#name="items\[0\]\[commodity\]" required#', $html);
         $this->assertStringNotContainsString('name="items[1][commodity]" required', $html);
         $this->assertStringContainsString('<option value="Maize" selected>', $html);
         $this->assertStringContainsString('data-add-row', $html);

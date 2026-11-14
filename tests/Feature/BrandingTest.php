@@ -49,7 +49,11 @@ class BrandingTest extends TestCase
             $html = $this->get($url)->assertOk()->getContent();
             $this->assertGreaterThanOrEqual(2, substr_count($html, $mark), "$url: logo in the navbar and the footer");
             $this->assertStringContainsString('href="'.asset('image/favicon.png').'"', $html, "$url: tab icon");
-            $this->assertStringContainsString('alt="AFISAB NIG. LTD logo"', $html, "$url: navbar logo has alt text");
+            if ($url === route('login')) {
+                $this->assertStringContainsString('alt="AFISAB NIG. LTD logo"', $html, "$url: navbar logo has alt text");
+            } else {
+                $this->assertStringContainsString('AFISAB <span>NIG. LTD</span>', $html, "$url: the company name sits beside the mark");
+            }
             $this->assertStringNotContainsString('>A</span>', $html, "$url: the old letter placeholder is gone");
         }
 

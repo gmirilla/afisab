@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'type', 'name', 'company', 'email', 'phone', 'commodity', 'quantity', 'location', 'message', 'consented_at',
     'status', 'handled_by', 'handled_at', 'internal_note', 'supplier_id',
+    'country', 'buyer_type', 'destination', 'delivery_date', 'preferred_grade', 'packaging', 'quality_requirements', 'readiness', 'available_from',
 ])]
 class Enquiry extends Model
 {
@@ -31,7 +32,7 @@ class Enquiry extends Model
 
     protected function casts(): array
     {
-        return ['consented_at' => 'datetime', 'handled_at' => 'datetime'];
+        return ['consented_at' => 'datetime', 'handled_at' => 'datetime', 'delivery_date' => 'date', 'available_from' => 'date'];
     }
 
     public function label(): string
@@ -40,6 +41,17 @@ class Enquiry extends Model
     }
 
     public const MAX_ITEMS = 5;
+
+    public const BUYER_TYPES = [
+        'food_processor' => 'Food processor', 'feed_manufacturer' => 'Feed manufacturer', 'fmcg' => 'FMCG manufacturer', 'commodity_processor' => 'Commodity processor',
+        'exporter' => 'Exporter', 'industrial' => 'Industrial buyer', 'institutional' => 'Institutional buyer', 'international' => 'International buyer', 'other' => 'Other',
+    ];
+
+    public const READINESS = [
+        'ready' => 'Available now', 'harvested' => 'Harvested, preparing for supply', 'upcoming' => 'Upcoming harvest', 'seasonal' => 'Seasonal or recurring supply', 'other' => 'Other / to be confirmed',
+    ];
+
+    public const UNITS = ['MT' => 'Metric tonnes (MT)', 'kg' => 'Kilograms (kg)', 'bags' => 'Bags'];
 
     public function items(): HasMany
     {

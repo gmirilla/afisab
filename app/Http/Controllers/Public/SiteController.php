@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Commodity;
+use App\Support\SiteCommodities;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
@@ -19,12 +20,20 @@ class SiteController extends Controller
 
     public function home(): View
     {
-        return view('public.home', ['groups' => $this->commodityGroups()]);
+        return view('public.home');
     }
 
     public function trade(): View
     {
-        return view('public.trade', ['groups' => $this->commodityGroups()]);
+        return view('public.trade', ['items' => SiteCommodities::all()]);
+    }
+
+    public function commodity(string $slug): View
+    {
+        $c = SiteCommodities::find($slug);
+        abort_unless($c, 404);
+
+        return view('public.commodity', ['slug' => $slug, 'c' => $c, 'related' => SiteCommodities::related($slug)]);
     }
 
     public function buyers(): View
@@ -35,16 +44,6 @@ class SiteController extends Controller
     public function suppliers(): View
     {
         return view('public.suppliers', ['commodities' => $this->commodityNames()]);
-    }
-
-    public function how(): View
-    {
-        return view('public.how');
-    }
-
-    public function about(): View
-    {
-        return view('public.about');
     }
 
     public function contact(): View
@@ -77,7 +76,7 @@ class SiteController extends Controller
 
     public function sitemap(): Response
     {
-        $pages = ['home', 'public.trade', 'public.buyers', 'public.suppliers', 'public.how', 'public.about', 'public.contact', 'public.privacy', 'public.terms', 'public.risk'];
+        $pages = ['home', 'public.trade', 'public.buyers', 'public.suppliers', 'public.contact', 'public.privacy', 'public.terms', 'public.risk'];
         if (config('afisab.public_investor_page')) {
             $pages[] = 'public.investors';
         }
@@ -85,6 +84,9 @@ class SiteController extends Controller
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
         foreach ($pages as $name) {
             $xml .= '  <url><loc>'.e(route($name)).'</loc></url>'."\n";
+        }
+        foreach (array_keys(SiteCommodities::all()) as $slug) {
+            $xml .= '  <url><loc>'.e(route('public.commodity', $slug)).'</loc></url>'."\n";
         }
 
         return response($xml.'</urlset>'."\n", 200, ['Content-Type' => 'application/xml']);

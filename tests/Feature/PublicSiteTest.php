@@ -19,13 +19,11 @@ class PublicSiteTest extends TestCase
     use RefreshDatabase;
 
     private const PAGES = [
-        'home' => 'Building Trust, Delivering Excellence',
-        'public.trade' => 'What we trade',
-        'public.buyers' => 'Request a quote',
-        'public.suppliers' => 'Register your interest',
-        'public.how' => 'A disciplined path',
-        'public.about' => 'Who we are',
-        'public.contact' => 'Get in touch',
+        'home' => 'Delivering Excellence',
+        'public.trade' => 'Find the crop',
+        'public.buyers' => 'Request a Quote',
+        'public.suppliers' => 'Supply with',
+        'public.contact' => 'Talk to',
         'public.privacy' => 'Privacy notice',
         'public.terms' => 'Terms of use',
         'public.risk' => 'Risk notice',
@@ -44,8 +42,8 @@ class PublicSiteTest extends TestCase
             'consent' => '1', 'started' => Crypt::encryptString((string) now()->subSeconds(30)->timestamp), 'website' => ''];
 
         return $over + $base + match ($type) {
-            'quote' => ['commodity' => 'Maize', 'quantity' => '50 tonnes', 'location' => 'Kano', 'message' => 'Need weekly deliveries.'],
-            'supplier' => ['commodity' => 'Sesame Seeds', 'quantity' => '20 tonnes', 'location' => 'Makurdi, Benue', 'message' => ''],
+            'quote' => ['commodity' => 'Maize', 'quantity' => '50 tonnes', 'location' => 'Kano', 'country' => 'Nigeria', 'buyer_type' => 'feed_manufacturer', 'destination' => 'Kano', 'message' => 'Need weekly deliveries.'],
+            'supplier' => ['commodity' => 'Sesame Seeds', 'quantity' => '20 tonnes', 'location' => 'Makurdi, Benue', 'readiness' => 'ready', 'message' => ''],
             default => ['message' => 'Do you supply feed mills in Ogun State?'],
         };
     }
@@ -94,9 +92,9 @@ class PublicSiteTest extends TestCase
 
     public function test_the_investment_programme_is_not_promoted_until_it_is_switched_on(): void
     {
-        foreach (['home', 'public.about', 'public.risk'] as $route) {
+        foreach (['home', 'public.risk'] as $route) {
             $page = $this->get(route($route))->assertDontSee('Become an investor')->assertDontSee('₦500,000')->assertDontSee('investor programme');
-            $page->assertSee('Investor portal'); // a plain sign-in link only
+            $page->assertSee('Investor Portal'); // a plain sign-in link only
         }
         $this->get(route('public.investors'))->assertNotFound();
         $this->get(route('sitemap'))->assertDontSee('/for-investors');
@@ -110,12 +108,13 @@ class PublicSiteTest extends TestCase
 
     public function test_commodities_come_from_the_database(): void
     {
-        $page = $this->get(route('public.trade'))->assertOk()->assertSee('Grains')->assertSee('Oil seeds')->assertSee('Tree crops')->assertSee('Cash crops');
-        foreach (Commodity::where('is_active', true)->pluck('name') as $name) {
-            $page->assertSee($name);
+        $page = $this->get(route('public.trade'))->assertOk()->assertSee('Grains')->assertSee('Oilseeds')->assertSee('Tree Crops')->assertSee('Cash Crops');
+        foreach (\App\Support\SiteCommodities::all() as $c) {
+            $page->assertSee($c['name']);
         }
 
         Commodity::where('name', 'Castor Seeds')->update(['is_active' => false]);
+        \App\Support\SiteCommodities::forget();
         $this->get(route('public.trade'))->assertDontSee('Castor Seeds');
         $this->get(route('home'))->assertDontSee('Castor Seeds');
 
